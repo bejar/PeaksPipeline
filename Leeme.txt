@@ -1,0 +1,11 @@
+Programas para procesamiento de picos
+=====================================
+
+Estos scripts permiten hacer diferentes analisis de los datos registrados
+
+Los programas estan probados en python 2.7, pero no deberia haber problemas con python 3
+
+El documento que hay en el directorio 'Manual' describe las diferentes formas de procesar los datos para los diferentes
+analisis
+
+
