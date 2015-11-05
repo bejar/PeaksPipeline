@@ -392,6 +392,10 @@ if __name__ == '__main__':
                 dgroup.create_dataset('Time', p.shape, dtype='i', data=p,
                                       compression='gzip')
 
+                f[dfile + '/' + s + '/Time'].attrs['wtime'] = wtime
+                f[dfile + '/' + s + '/Time'].attrs['low'] = ifreq
+                f[dfile + '/' + s + '/Time'].attrs['high'] = ffreq
+                f[dfile + '/' + s + '/Time'].attrs['threshold'] = threshold
                 rawpeaks = np.zeros((p.shape[0], Tw))
                 # Extraction of the window around the peak maximum
 

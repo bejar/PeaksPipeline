@@ -61,7 +61,7 @@ def filter_data(expname, iband, fband):
         f[df + '/RawFiltered'].attrs['high'] = fband
         for s in datainfo.sensors:
             i = datainfo.sensors.index(s)
-            times = f[df + '/' + s + '/TimeClean']
+            times = f[df + '/' + s + '/Time']
             rawpeaks = np.zeros((times.shape[0], tw))
             print times.shape[0]
             for j in range(times.shape[0]):
@@ -78,6 +78,14 @@ def filter_data(expname, iband, fband):
             dfilter = f[df + '/' + s]
             dfilter.require_dataset('PeaksFilter', rawpeaks.shape, dtype='f', data=rawpeaks,
                                     compression='gzip')
+            f[df + '/' + s + '/PeaksFilter'].attrs['Low'] = iband
+            f[df + '/' + s + '/PeaksFilter'].attrs['High'] = fband
+            f[df + '/' + s + '/PeaksFilter'].attrs['wtime'] = datainfo.peaks_id_params['wtime']
+            f[df+ '/' + s + '/PeaksFilter'].attrs['low'] = datainfo.peaks_id_params['low']
+            f[df + '/' + s + '/PeaksFilter'].attrs['high'] = datainfo.peaks_id_params['high']
+            f[df + '/' + s + '/PeaksFilter'].attrs['threshold'] = datainfo.peaks_id_params['threshold']
+
+
     f.close()
 
 
@@ -85,5 +93,7 @@ def filter_data(expname, iband, fband):
 if __name__ == '__main__':
 
     lexperiments = ['e150514']
+    low = 1.0  # Lower frequency
+    high = 200.0  # Higher frequency
     for exp in lexperiments:
-        filter_data(exp, 1.0, 200.0)
+        filter_data(exp, low, high)

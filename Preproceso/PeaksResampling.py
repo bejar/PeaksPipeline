@@ -74,18 +74,17 @@ if __name__ == '__main__':
 
     lexperiments = ['e150514']
 
-    wtsel = 100.0
-    resampfactor = 6.0
     for expname in lexperiments:
 
         datainfo = experiments[expname]
         wtsel = datainfo.peaks_resampling['wtsel']
         resampfactor = datainfo.peaks_resampling['rsfactor']
+        filtered = datainfo.peaks_resampling['filtered']  # Use the filtered peaks or not
 
         for dfile in datainfo.datafiles:
             print dfile
             # Paralelize PCA computation
-            res = Parallel(n_jobs=-1)(delayed(do_the_job)(dfile, s, wtsel, resampfactor, filter=False) for s in datainfo.sensors)
+            res = Parallel(n_jobs=-1)(delayed(do_the_job)(dfile, s, wtsel, resampfactor, filter=filtered) for s in datainfo.sensors)
             #print 'Parallelism ended'
 
             f = h5py.File(datainfo.dpath + datainfo.name + '/' + datainfo.name + '.hdf5', 'r+')
@@ -96,6 +95,8 @@ if __name__ == '__main__':
                 d = f.require_dataset(dfile + '/' + sensor + '/' + 'PeaksResample', presamp.shape, dtype='f',
                                       data=presamp, compression='gzip')
                 d[()] = presamp
-                f[dfile + '/' + sensor + '/PeaksResample'].attrs['ReSampFactor'] = resampfactor
+                f[dfile + '/' + sensor + '/PeaksResample'].attrs['rsfactor'] = resampfactor
+                f[dfile + '/' + sensor + '/PeaksResample'].attrs['wtsel'] = wtsel
+                f[dfile + '/' + sensor + '/PeaksResample'].attrs['filtered'] = filtered
 
             f.close()

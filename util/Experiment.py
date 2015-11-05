@@ -41,9 +41,16 @@ class Experiment:
     # Parameters for peaks resampling, a dictionary with keys
     # 'wsel': length of the window to select from the signal
     # 'rsfactor': resampling factor
+    # 'filtered': applied to filtered signal or original signal
     peaks_resampling = None
+    # Parameters for the PCA smoothing and baseline change
+    # 'pcasmooth': boolean
+    # 'components': number of components
+    # 'wbaseline': window points to use to change the baseline
+    peaks_smooth = None
 
-    def __init__(self, dpath, name, sampling, datafiles, sensors, clusters, colors, peaks_id_params, peaks_resampling):
+    def __init__(self, dpath, name, sampling, datafiles, sensors, clusters, colors,
+                 peaks_id_params, peaks_resampling, peaks_smooth):
         self.name = name
         self.sampling = sampling
         self.datafiles = datafiles
@@ -53,3 +60,4 @@ class Experiment:
         self.colors = colors
         self.peaks_id_params = peaks_id_params
         self.peaks_resampling = peaks_resampling
+        self.peaks_smooth = peaks_smooth
