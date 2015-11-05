@@ -20,19 +20,5 @@ paths
 __author__ = 'bejar'
 
 # Path donde estan los datos
-datapath = '/home/bejar/Data/Cinvestav/'
+datapath = '/home/bejar/storage/Data/Gatos/'
 
-
-# Path donde dejar los resultados
-resultpath = '/home/bejar/Data/Cinvestav/Results/'
-
-
-
-seqpath = '/home/bejar/Documentos/Investigacion/cinvestav/secuencias/'
-clusterpath = '/home/bejar/Documentos/Investigacion/cinvestav/clustering/'
-cinvesdata = '/home/bejar/Data/Cinvestav/'
-cinvesdatanew = '/home/bejar/storage/Data/cinvestav/'
-
-
-
-datapathnew = '/home/bejar/Dropbox/Isaac/'

@@ -25,8 +25,7 @@ __author__ = 'bejar'
 from neo.io import AxonIO
 import numpy as np
 import h5py
-
-from Config.paths import cinvesdata, cinvesdatanew
+import os
 
 from Config.experiments import experiments
 
@@ -58,8 +57,10 @@ def convert_from_ABF_to_HDF5(experiment):
 
         # Los guardamos en una carpeta del fichero HDF5 para el fichero dentro de /Raw
         print 'Saving: ', dataf, '...'
-        d = f[dataf + '/Raw']
-        d[()] = matrix.T
+        dgroup = f.create_group(dataf)
+
+        dgroup.create_dataset('Raw', matrix.T.shape, dtype='f', data=matrix.T, compression='gzip')
+
         f[dataf + '/Raw'].attrs['Sampling'] = experiment.sampling
         f[dataf + '/Raw'].attrs['Sensors'] = experiment.sensors
 
@@ -72,5 +73,7 @@ def convert_from_ABF_to_HDF5(experiment):
 if __name__ == '__main__':
     experiment = experiments['e150514']
     convert_from_ABF_to_HDF5(experiment)
-
+    # Create the results directory if does not exists
+    if not os.path.exists(experiment.dpath + '/' + experiment.name + '/Results'):
+        os.makedirs(experiment.dpath + '/' + experiment.name + '/Results')
 

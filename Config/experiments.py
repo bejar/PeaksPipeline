@@ -19,7 +19,7 @@ experiments
 
 
 from util.Experiment import Experiment
-from Config.paths import cinvesdata
+from Config.paths import datapath
 
 __author__ = 'bejar'
 
@@ -32,7 +32,7 @@ experiments = \
     {
         'e150514':
             Experiment(
-                dpath=cinvesdata,
+                dpath=datapath,
                 name='e150514',
                 sampling=10000.0,
                 datafiles=['15514005', '15514006', '15514007', '15514008', '15514009', '15514010', '15514011',
