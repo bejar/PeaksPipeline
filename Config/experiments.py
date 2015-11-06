@@ -44,7 +44,9 @@ experiments = \
                 clusters=[12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
                 colors='rrryyyyyyyyybbbbbbbbbbbbbggggggggggg',
                 peaks_id_params={'wtime': 120e-3, 'low': 0, 'high': 70, 'threshold': 0.05},
-                peaks_resampling={'wsel': 100, 'rsfactor': 6.0, 'filtered': False},
-                peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 20}),
+                peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
+                peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 20},
+                peaks_filter={'lowpass': 1.0, 'highpass':200.0}
+            ),
 
     }

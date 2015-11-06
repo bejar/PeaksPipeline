@@ -78,17 +78,17 @@ if __name__ == '__main__':
 
     for expname in lexperiments:
 
-        lind = range(baseline)
         datainfo = experiments[expname]
         fpca = datainfo.peaks_smooth['pcasmooth']
         components = datainfo.peaks_smooth['components']
         baseline = datainfo.peaks_smooth['wbaseline']
+        lind = range(baseline)
 
         for dfile in datainfo.datafiles:
             print dfile
             # Paralelize PCA computation
             res = Parallel(n_jobs=-1)(
-                delayed(do_the_job)(dfile, s, components, lind, fpca=fpca) for s in datainfo.sensors)
+                delayed(do_the_job)(dfile, s, components, lind, pcap=fpca) for s in datainfo.sensors)
             # print 'Parallelism ended'
             # Save all the data
             f = h5py.File(datainfo.dpath + datainfo.name + '/' + datainfo.name + '.hdf5', 'r+')

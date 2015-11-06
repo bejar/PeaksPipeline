@@ -26,7 +26,7 @@ from Config.experiments import experiments, lexperiments
 __author__ = 'bejar'
 
 
-def filter_data(expname, iband, fband):
+def filter_data(experiment):
     """
     Filters and saves the raw signal in the datafile
 
@@ -35,17 +35,19 @@ def filter_data(expname, iband, fband):
     :param fband:
     :return:
     """
-    datainfo = experiments[expname]
 
-    f = h5py.File(datainfo.dpath + datainfo.name + '/' + datainfo.name + '.hdf5', 'r+')
-    print datainfo.dpath + datainfo.name
+
+    f = h5py.File(experiment.dpath + experiment.name + '/' + experiment.name + '.hdf5', 'r+')
+    print experiment.dpath + experiment.name
 
     # Window length in miliseconds from the peak identification
-    wtime = datainfo.peaks_id_params['wtime']
-    sampling = datainfo.sampling
+    wtime = experiment.peaks_id_params['wtime']
+    sampling = experiment.sampling
     tw = int(2 * np.round(wtime * sampling / 2))
+    iband = experiment.peaks_filter['lowpass']
+    fband = experiment.peaks_filter['highpass']
 
-    for df in datainfo.datafiles:
+    for df in experiment.datafiles:
         print df
         d = f[df + '/Raw']
         samp = f[df + '/Raw'].attrs['Sampling']
@@ -59,8 +61,8 @@ def filter_data(expname, iband, fband):
         d[()] = filtered
         f[df + '/RawFiltered'].attrs['Low'] = iband
         f[df + '/RawFiltered'].attrs['high'] = fband
-        for s in datainfo.sensors:
-            i = datainfo.sensors.index(s)
+        for s in experiment.sensors:
+            i = experiment.sensors.index(s)
             times = f[df + '/' + s + '/Time']
             rawpeaks = np.zeros((times.shape[0], tw))
             print times.shape[0]
@@ -78,12 +80,12 @@ def filter_data(expname, iband, fband):
             dfilter = f[df + '/' + s]
             dfilter.require_dataset('PeaksFilter', rawpeaks.shape, dtype='f', data=rawpeaks,
                                     compression='gzip')
-            f[df + '/' + s + '/PeaksFilter'].attrs['Low'] = iband
-            f[df + '/' + s + '/PeaksFilter'].attrs['High'] = fband
-            f[df + '/' + s + '/PeaksFilter'].attrs['wtime'] = datainfo.peaks_id_params['wtime']
-            f[df+ '/' + s + '/PeaksFilter'].attrs['low'] = datainfo.peaks_id_params['low']
-            f[df + '/' + s + '/PeaksFilter'].attrs['high'] = datainfo.peaks_id_params['high']
-            f[df + '/' + s + '/PeaksFilter'].attrs['threshold'] = datainfo.peaks_id_params['threshold']
+            f[df + '/' + s + '/PeaksFilter'].attrs['lowpass'] = iband
+            f[df + '/' + s + '/PeaksFilter'].attrs['highpass'] = fband
+            f[df + '/' + s + '/PeaksFilter'].attrs['wtime'] = experiment.peaks_id_params['wtime']
+            f[df+ '/' + s + '/PeaksFilter'].attrs['low'] = experiment.peaks_id_params['low']
+            f[df + '/' + s + '/PeaksFilter'].attrs['high'] = experiment.peaks_id_params['high']
+            f[df + '/' + s + '/PeaksFilter'].attrs['threshold'] = experiment.peaks_id_params['threshold']
 
 
     f.close()
@@ -93,7 +95,5 @@ def filter_data(expname, iband, fband):
 if __name__ == '__main__':
 
     lexperiments = ['e150514']
-    low = 1.0  # Lower frequency
-    high = 200.0  # Higher frequency
     for exp in lexperiments:
-        filter_data(exp, low, high)
+        filter_data(experiments[exp])
