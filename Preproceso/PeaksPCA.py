@@ -44,7 +44,7 @@ def do_the_job(dfile, sensor, components, lind, pcap=True):
     :param lind: Points to use to move the peak
     :return:
     """
-    print datainfo.dpath + datainfo.name, sensor
+    print(datainfo.dpath + datainfo.name, sensor)
     f = h5py.File(datainfo.dpath + datainfo.name + '/' + datainfo.name + '.hdf5', 'r')
 
     d = f[dfile + '/' + sensor + '/' + 'PeaksResample']
@@ -54,7 +54,7 @@ def do_the_job(dfile, sensor, components, lind, pcap=True):
         pca = PCA(n_components=data.shape[1])
         res = pca.fit_transform(data)
 
-        print 'VEX=', np.sum(pca.explained_variance_ratio_[0:components])
+        print('VEX=', np.sum(pca.explained_variance_ratio_[0:components]))
 
         res[:, components:] = 0
         trans = pca.inverse_transform(res)
@@ -85,7 +85,7 @@ if __name__ == '__main__':
         lind = range(baseline)
 
         for dfile in datainfo.datafiles:
-            print dfile
+            print(dfile)
             # Paralelize PCA computation
             res = Parallel(n_jobs=-1)(
                 delayed(do_the_job)(dfile, s, components, lind, pcap=fpca) for s in datainfo.sensors)
@@ -93,7 +93,7 @@ if __name__ == '__main__':
             # Save all the data
             f = h5py.File(datainfo.dpath + datainfo.name + '/' + datainfo.name + '.hdf5', 'r+')
             for trans, sensor in zip(res, datainfo.sensors):
-                print dfile + '/' + sensor + '/' + 'PeaksResamplePCA'
+                print(dfile + '/' + sensor + '/' + 'PeaksResamplePCA')
                 if dfile + '/' + sensor + '/' + 'PeaksResamplePCA' in f:
                     del f[dfile + '/' + sensor + '/' + 'PeaksResamplePCA']
                 d = f.require_dataset(dfile + '/' + sensor + '/' + 'PeaksResamplePCA', trans.shape, dtype='f',

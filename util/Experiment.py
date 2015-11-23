@@ -29,6 +29,7 @@ class Experiment:
     sampling = None  # Sampling of the raw signal
     datafiles = None  # List with the names of the datafiles
     sensors = None  # List with the names of the sensors
+    abfsensors = None # List of indices of sensors  the abf file
     dpath = None  # Path of the datafiles
     clusters = None  # List with the number of clusters for each sensor
     colors = ''  # List of colors to use for histogram of the peaks (one color for each datafile)
@@ -53,9 +54,11 @@ class Experiment:
     # 'lowpass'
     # 'highpass'
     peaks_filter = None
+    # names for the experiment phases
+    expnames = None
 
-    def __init__(self, dpath, name, sampling, datafiles, sensors, clusters, colors,
-                 peaks_id_params, peaks_resampling, peaks_smooth, peaks_filter):
+    def __init__(self, dpath='', name='', sampling=0, datafiles=None, sensors=None, abfsensors=None, clusters=None,
+                 colors='', peaks_id_params={}, peaks_resampling={}, peaks_smooth={}, peaks_filter={}, expnames=None):
         """
         Class initialized from program
 
@@ -75,6 +78,7 @@ class Experiment:
         self.sampling = sampling
         self.datafiles = datafiles
         self.sensors = sensors
+        self.abfsensors = abfsensors
         self.dpath = dpath
         self.clusters = clusters
         self.colors = colors
@@ -82,10 +86,15 @@ class Experiment:
         self.peaks_resampling = peaks_resampling
         self.peaks_smooth = peaks_smooth
         self.peaks_filter = peaks_filter
+        if expnames is None:
+            self.expnames = datafiles
+        else:
+            self.expnames = expnames
 
-    def __init__(self, file):
+    def load_config(self, file):
         """
-        Class initialized from configuration file
+        Object read from configuration file
+
         :param path:
         :return:
         """
@@ -98,8 +107,15 @@ class Experiment:
         self.sampling = cnf.getfloat('Experiment', 'Sampling')
         tmp = cnf.get('Experiment', 'Datafiles')
         self.datafiles = tmp.replace('\n', '').split(',')
+        tmp = cnf.get('Experiment', 'Expnames')
+        self.expnames = tmp.replace('\n', '').split(',')
+
+
         tmp = cnf.get('Experiment', 'Sensors')
         self.sensors = tmp.replace('\n', '').split(',')
+        tmp = cnf.get('Experiment', 'ABFSensors')
+        self.abfsensors = [int(s) for s in tmp.replace('\n', '').split(',')]
+
         self.dpath = cnf.get('Experiment', 'DataPath')
         tmp = cnf.get('Clustering', 'Clusters')
         self.clusters = [int(nc) for nc in tmp.replace('\n', '').split(',')]
@@ -116,7 +132,6 @@ class Experiment:
                                  'wsbaseline': cnf.getint('Smoothing', 'wbaseline')}
 
         self.peaks_filter = {'lowpass': cnf.getfloat('Filter', 'lowpass'), 'highpass': cnf.getfloat('Filter', 'highpass')}
-
 
 # ---------------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':

@@ -41,7 +41,7 @@ def do_the_job(dfile, sensor, wtsel, resampfac, filter=False):
     :return:
     """
 
-    print datainfo.dpath + datainfo.name, sensor
+    print(datainfo.dpath + datainfo.name, sensor)
     f = h5py.File(datainfo.dpath + datainfo.name + '/' + datainfo.name + '.hdf5', 'r')
 
     # Sampling of the dataset in Hz / resampling factor
@@ -82,14 +82,14 @@ if __name__ == '__main__':
         filtered = datainfo.peaks_resampling['filtered']  # Use the filtered peaks or not
 
         for dfile in datainfo.datafiles:
-            print dfile
+            print(dfile)
             # Paralelize PCA computation
             res = Parallel(n_jobs=-1)(delayed(do_the_job)(dfile, s, wtsel, resampfactor, filter=filtered) for s in datainfo.sensors)
             #print 'Parallelism ended'
 
             f = h5py.File(datainfo.dpath + datainfo.name + '/' + datainfo.name + '.hdf5', 'r+')
             for presamp, sensor in zip(res, datainfo.sensors):
-                print dfile + '/' + sensor
+                print(dfile + '/' + sensor)
                 if dfile + '/' + sensor + '/' + 'PeaksResample' in f:
                     del f[dfile + '/' + sensor + '/' + 'PeaksResample']
                 d = f.require_dataset(dfile + '/' + sensor + '/' + 'PeaksResample', presamp.shape, dtype='f',

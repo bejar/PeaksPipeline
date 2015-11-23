@@ -92,17 +92,6 @@ def tvdip(y, lambdas, display=1, stoptol=1e-3, maxiter=60):
         lambdamax: Maximum value of lambda for the given y. If
             lambda >= lambdamax, the output is the trivial constant solution
             x = mean(y).
-    Example:
-        >>> import numpy as np
-        >>> import tvdip as tv
-        >>> # Find the value of lambda greater than which the TVD solution is
-        >>> # just the mean.
-        >>> lmax = tv.tvdiplmax(y)
-        >>> # Perform TV denoising for lambda across a range of values up to a
-        >>> # small fraction of the maximum found above.
-        >>> lratio = np.array([1e-4, 1e-3, 1e-2, 1e-1])
-        >>> x, E, status, l_max = tv.tvdip(y, lmax*lratio, True, 1e-3)
-        >>> plot(x[:,0])
     """
 
     # Search tuning parameters
@@ -126,7 +115,7 @@ def tvdip(y, lambdas, display=1, stoptol=1e-3, maxiter=60):
     lambdamax = (np.absolute(linalg.spsolve(DDT, Dy))).max(0)
 
     if display:
-        print "lambda_max=%5.2e" % lambdamax
+        print("lambda_max=%5.2e" % lambdamax)
 
     L = lambdas.size
     x = np.zeros((N, L))
@@ -150,8 +139,8 @@ def tvdip(y, lambdas, display=1, stoptol=1e-3, maxiter=60):
         s[idx] = 1
 
         if display:
-            print "Solving for lambda={0:5.2e}, lambda/lambda_max={1:5.2e}".format(l, l/lambdamax)
-            print "Iter# primal    Dual    Gap"
+            print("Solving for lambda={0:5.2e}, lambda/lambda_max={1:5.2e}".format(l, l/lambdamax))
+            print("Iter# primal    Dual    Gap")
 
         for iters in xrange(maxiter):
             DTz = (z.conj().T * D).conj().T
@@ -165,9 +154,9 @@ def tvdip(y, lambdas, display=1, stoptol=1e-3, maxiter=60):
             dobj = -0.5*DTz.conj().T.dot(DTz) + Dy.conj().T.dot(z)
             gap = pobj - dobj
             if display:
-                print "{:5d} {:7.2e} {:7.2e} {:7.2e}".format(iters, pobj[0, 0],
+                print("{:5d} {:7.2e} {:7.2e} {:7.2e}".format(iters, pobj[0, 0],
                                                              dobj[0, 0],
-                                                             gap[0, 0])
+                                                             gap[0, 0]))
 
             # Test duality gap stopping criterion
             if np.all(gap <= stoptol): # ****

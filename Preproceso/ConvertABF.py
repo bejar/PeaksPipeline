@@ -40,23 +40,23 @@ def convert_from_ABF_to_HDF5(experiment):
     # Asumimos que el fichero no existe todavia
     f = h5py.File(experiment.dpath + experiment.name + '/' + experiment.name + '.hdf5', 'w')
 
-    nsig = len(experiment.sensors)
+    nsig = experiment.abfsensors
     datafiles = experiment.datafiles
 
     for dataf in datafiles:
         # Leemos los datos del fichero ABF
-        print 'Reading: ', dataf, '...'
+        print('Reading: ', dataf, '...')
         data = AxonIO(experiment.dpath + experiment.name + '/' + dataf + '.abf')
 
         bl = data.read_block(lazy=False, cascade=True)
         dim = bl.segments[0].analogsignals[0].shape[0]
-        matrix = np.zeros((nsig, dim))
+        matrix = np.zeros((len(nsig), dim))
 
-        for j in range(nsig):
-            matrix[j][:] = bl.segments[0].analogsignals[j][:].magnitude
+        for i, j in enumerate(nsig):
+            matrix[i][:] = bl.segments[0].analogsignals[j][:].magnitude
 
         # Los guardamos en una carpeta del fichero HDF5 para el fichero dentro de /Raw
-        print 'Saving: ', dataf, '...'
+        print('Saving: ', dataf, '...')
         dgroup = f.create_group(dataf)
 
         dgroup.create_dataset('Raw', matrix.T.shape, dtype='f', data=matrix.T, compression='gzip')
@@ -71,7 +71,10 @@ def convert_from_ABF_to_HDF5(experiment):
 # iterar sobre una lista de los experimentos existente
 # Estos experimentos estan definidos en Config.experiments
 if __name__ == '__main__':
-    experiment = experiments['e150514']
+
+    # 'e150514'
+
+    experiment = experiments['e120503']
     convert_from_ABF_to_HDF5(experiment)
     # Create the results directory if does not exists
     if not os.path.exists(experiment.dpath + '/' + experiment.name + '/Results'):

@@ -38,7 +38,7 @@ def filter_data(experiment):
 
 
     f = h5py.File(experiment.dpath + experiment.name + '/' + experiment.name + '.hdf5', 'r+')
-    print experiment.dpath + experiment.name
+    print( experiment.dpath + experiment.name)
 
     # Window length in miliseconds from the peak identification
     wtime = experiment.peaks_id_params['wtime']
@@ -48,7 +48,7 @@ def filter_data(experiment):
     fband = experiment.peaks_filter['highpass']
 
     for df in experiment.datafiles:
-        print df
+        print(df)
         d = f[df + '/Raw']
         samp = f[df + '/Raw'].attrs['Sampling']
         data = d[()]
@@ -65,7 +65,7 @@ def filter_data(experiment):
             i = experiment.sensors.index(s)
             times = f[df + '/' + s + '/Time']
             rawpeaks = np.zeros((times.shape[0], tw))
-            print times.shape[0]
+            print(times.shape[0])
             for j in range(times.shape[0]):
                 tstart = times[j] - np.floor(tw / 2)
                 tstop = tstart + tw

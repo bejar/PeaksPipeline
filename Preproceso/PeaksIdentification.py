@@ -178,7 +178,7 @@ def cdp_identification(X, wtime, datainfo, sensor, ifreq=0.0, ffreq=200, thresho
     :return:
     """
 
-    print 'Sensor: ', sensor, time.ctime()
+    print('Sensor: ', sensor, time.ctime())
 
     Fs = datainfo.sampling
 
@@ -350,11 +350,10 @@ def cdp_identification(X, wtime, datainfo, sensor, ifreq=0.0, ffreq=200, thresho
 
 # ---------------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
+    # 'e150514'
+    lexperiments = ['e120503']
 
-    #    lexperiments = ['e130716', 'e130827', 'e130903', 'e141113', 'e141029', 'e141016', 'e140911', 'e140311', 'e140225', 'e140220']
-    lexperiments = ['e150514']
-
-    datasufix = ''  # '-RawResampled'
+    datasufix = ''  #
 
     # Preparado para procesar un conjunto de experimentos a la vez
     for expname in lexperiments:
@@ -372,19 +371,19 @@ if __name__ == '__main__':
         f = h5py.File(datainfo.dpath  + datainfo.name + '/' + datainfo.name + '.hdf5', 'r+')
 
         for dfile in datainfo.datafiles:
-            print dfile
+            print(dfile)
             d = f[dfile + '/Raw']
 
             raw = d[()]
-            print 'Peaks identification: ', time.ctime()
+            print('Peaks identification: ', time.ctime())
             peaks = Parallel(n_jobs=-1)(
                 delayed(cdp_identification)(raw[:, i], wtime, datainfo, s, ifreq=ifreq, ffreq=ffreq,
                                             threshold=threshold) for i, s in enumerate(datainfo.sensors))
             # peaks = cdp_identification(raw, wtime, datainfo)
-            print 'The end ', time.ctime()
+            print('The end ', time.ctime())
 
             for s, p in peaks:
-                print s, len(p)
+                print(s, len(p))
                 if dfile + '/' + s in f:
                     del f[dfile + '/' + s]
                 dgroup = f.create_group(dfile + '/' + s)
