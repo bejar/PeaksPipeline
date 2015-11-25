@@ -19,7 +19,7 @@ Experiment
 
 __author__ = 'bejar'
 
-from ConfigParser import SafeConfigParser
+from configparser import SafeConfigParser
 
 class Experiment:
     """

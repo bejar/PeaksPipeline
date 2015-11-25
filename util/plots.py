@@ -127,7 +127,7 @@ def show_signal(signal, title=''):
 
 def show_vsignals(signal, title=''):
     """
-    Plots a signal
+    Plots a list of signals
     :param signal:
     :return:
     """

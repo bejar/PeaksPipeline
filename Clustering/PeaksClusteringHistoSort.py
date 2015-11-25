@@ -32,8 +32,8 @@ from Config.experiments import experiments
 from util.plots import plotSignals
 
 __author__ = 'bejar'
-
-lexperiments = ['e150514']
+# 'e150514''e120503'
+lexperiments = ['e110616']
 
 
 for expname in lexperiments:
@@ -43,7 +43,7 @@ for expname in lexperiments:
     f = h5py.File(datainfo.dpath + datainfo.name + '/' + datainfo.name + '.hdf5', 'r')
 
     for s, nclusters in zip(datainfo.sensors, datainfo.clusters):
-        print s
+        print(s)
         ldata = []
         for dfiles in datainfo.datafiles:
             d = f[dfiles + '/' + s + '/' + 'PeaksResamplePCA']
@@ -62,8 +62,8 @@ for expname in lexperiments:
             lmax.append((i,np.max(km.cluster_centers_[i])))
         lmax = sorted(lmax, key=itemgetter(1))
 
-        print lmax
-        print data.shape
+        print(lmax)
+        print(data.shape)
 
         lhisto = []
         for dataf, ndata in zip(ldata, datainfo.datafiles):
@@ -71,8 +71,8 @@ for expname in lexperiments:
             for i in range(dataf.shape[0]):
                 histo[km.predict(dataf[i])] += 1.0
             histo /= dataf.shape[0]
-            print datainfo.name, ndata
-            print histo
+            print(datainfo.name, ndata)
+            print(histo)
             histosorted = np.zeros(nclusters)
             for i in range(histosorted.shape[0]):
                 histosorted[i] = histo[lmax[i][0]]
@@ -111,10 +111,9 @@ for expname in lexperiments:
         fig.savefig(datainfo.dpath + '/' + datainfo.name + '/Results/' + datainfo.name + '-' + s + '-histo-sort.pdf', orientation='landscape', format='pdf')
     #    plt.show()
 
-        print '*******************'
+        print('*******************')
         for nc in range(nclusters):
             lsignals.append((km.cluster_centers_[lmax[nc][0]], str(nc)+' ( '+str(cnt[lmax[nc][0]])+' )'))
-
 
         if nclusters % 2 == 0:
             part = nclusters /2

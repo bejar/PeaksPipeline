@@ -38,7 +38,7 @@ from joblib import Parallel, delayed
 
 from Config.experiments import experiments
 from Config.experiments import lexperiments
-
+from util.plots import show_signal
 
 def uniquetol(peaks, tol):
     """
@@ -168,7 +168,7 @@ def ffft(fmask, y):
     return y2
 
 
-def cdp_identification(X, wtime, datainfo, sensor, ifreq=0.0, ffreq=200, threshold=0.05):
+def cdp_identification(Y, i, wtime, datainfo, sensor, ifreq=0.0, ffreq=200, threshold=0.05):
     """
     Identification of peaks
 
@@ -178,6 +178,7 @@ def cdp_identification(X, wtime, datainfo, sensor, ifreq=0.0, ffreq=200, thresho
     :return:
     """
 
+    X = Y[:, i]
     print('Sensor: ', sensor, time.ctime())
 
     Fs = datainfo.sampling
@@ -241,7 +242,7 @@ def cdp_identification(X, wtime, datainfo, sensor, ifreq=0.0, ffreq=200, thresho
     SNpj = []
     RMSpj = []
     nt = 0
-    while tstop < Nmax - Tw:
+    while tstop <  Nmax - Tw:
         tstop = min(Nmax, tstart + Tw - 1)
         xs = X[tstart:tstop]
         Nl = len(xs)
@@ -290,7 +291,6 @@ def cdp_identification(X, wtime, datainfo, sensor, ifreq=0.0, ffreq=200, thresho
                     # noquality=Tcentr and not Tqpeak
                     # if noquality:
                     #     ipeakMnoQj.append(tstart+np.floor(peakprecision/4)+indp)
-
         if forceTm != 0:
             Tm = forceTm  # force exhaustive peaks search
         tstart += Tm
@@ -300,6 +300,7 @@ def cdp_identification(X, wtime, datainfo, sensor, ifreq=0.0, ffreq=200, thresho
     ipeakM = np.array(ipeakMj)
     SNp = np.array(SNpj)
     RMSp = np.array(RMSpj)
+    del ipeakMj
 
     # print 'Filtering near peaks', sensor, time.ctime()
     # This eliminates all the peaks that are at a distance less than the peak precision parameter
@@ -309,9 +310,6 @@ def cdp_identification(X, wtime, datainfo, sensor, ifreq=0.0, ffreq=200, thresho
     SNpsel = SNp[lind]
     RMSpsel = RMSp[lind]
 
-    # for peaks in ipeakMsel:
-    #     print len(peaks)
-
     # Signal to noise ratio filtering
     signal_noise_tolerance = 1.4  # Tolerance for Signal/Noise ratio
     co = 0.96  # parameters used in SNp selection cut thdPP=co*(1-ao*exp(-so*RMSp(i,j)))/(1-bo*exp(-so*RMSp(i,j)));
@@ -320,12 +318,7 @@ def cdp_identification(X, wtime, datainfo, sensor, ifreq=0.0, ffreq=200, thresho
     so = 50
     ko = 6.41
 
-    # print 'Filtering Noise Ratio Peaks ', sensor, time.ctime()
-
-
-    # thdP = np.mean(SNpsel[i]) - signal_noise_tolerance * np.std(SNpsel[i])
-    # thdR = np.mean(RMSpsel[i]) + ko * np.std(RMSpsel[j])
-    ipeakMj = []
+    ipeakMjnew = []
     for j in range(ipeakMsel.shape[0]):
         # tcenter = ipeakMsel[sensor][j]
         # tstart = np.max([1, tcenter - np.floor(Tw / npz)])
@@ -339,19 +332,15 @@ def cdp_identification(X, wtime, datainfo, sensor, ifreq=0.0, ffreq=200, thresho
         # PeakM(i,:,j)=tmp; # select the signal
         thdPP = co * (1 - ao * np.exp(-so * RMSpsel[j])) / (1 - bo * np.exp(-so * RMSpsel[j]))
         if SNpsel[j] > thdPP:
-            ipeakMj.append(ipeakMsel[j])
-    ipeakM = np.array(ipeakMj)
+            ipeakMjnew.append(ipeakMsel[j])
 
-    # for peaks in ipeakM:
-    #     print len(peaks)
-
-    return sensor, ipeakM
+    return sensor, np.array(ipeakMjnew)
 
 
 # ---------------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
-    # 'e150514'
-    lexperiments = ['e120503']
+    # 'e150514''e120503'
+    lexperiments = ['e110616', 'e120503','e150514' ]
 
     datasufix = ''  #
 
@@ -368,7 +357,8 @@ if __name__ == '__main__':
 
         sampling = datainfo.sampling  # / 6.0
         Tw = int(2 * np.round(wtime * sampling / 2))
-        f = h5py.File(datainfo.dpath  + datainfo.name + '/' + datainfo.name + '.hdf5', 'r+')
+        print(datainfo.dpath + datainfo.name + '/' + datainfo.name)
+        f = h5py.File(datainfo.dpath + datainfo.name + '/' + datainfo.name + '.hdf5', 'r+')
 
         for dfile in datainfo.datafiles:
             print(dfile)
@@ -376,40 +366,39 @@ if __name__ == '__main__':
 
             raw = d[()]
             print('Peaks identification: ', time.ctime())
-            peaks = Parallel(n_jobs=-1)(
-                delayed(cdp_identification)(raw[:, i], wtime, datainfo, s, ifreq=ifreq, ffreq=ffreq,
+            peaks = Parallel(n_jobs=4)(
+                delayed(cdp_identification)(raw, i, wtime, datainfo, s, ifreq=ifreq, ffreq=ffreq,
                                             threshold=threshold) for i, s in enumerate(datainfo.sensors))
-            # peaks = cdp_identification(raw, wtime, datainfo)
             print('The end ', time.ctime())
 
-            for s, p in peaks:
-                print(s, len(p))
-                if dfile + '/' + s in f:
-                    del f[dfile + '/' + s]
-                dgroup = f.create_group(dfile + '/' + s)
+            for dsensor, selpeaks in peaks:
+                print(dsensor, selpeaks(peaks))
+                if dfile + '/' + dsensor in f:
+                    del f[dfile + '/' + dsensor]
+                dgroup = f.create_group(dfile + '/' + dsensor)
                 # Time of the peak
-                dgroup.create_dataset('Time', p.shape, dtype='i', data=p,
+                dgroup.create_dataset('Time', selpeaks.shape, dtype='i', data=selpeaks,
                                       compression='gzip')
 
-                f[dfile + '/' + s + '/Time'].attrs['wtime'] = wtime
-                f[dfile + '/' + s + '/Time'].attrs['low'] = ifreq
-                f[dfile + '/' + s + '/Time'].attrs['high'] = ffreq
-                f[dfile + '/' + s + '/Time'].attrs['threshold'] = threshold
-                rawpeaks = np.zeros((p.shape[0], Tw))
+                f[dfile + '/' + dsensor + '/Time'].attrs['wtime'] = wtime
+                f[dfile + '/' + dsensor + '/Time'].attrs['low'] = ifreq
+                f[dfile + '/' + dsensor + '/Time'].attrs['high'] = ffreq
+                f[dfile + '/' + dsensor + '/Time'].attrs['threshold'] = threshold
+                rawpeaks = np.zeros((selpeaks.shape[0], Tw))
                 # Extraction of the window around the peak maximum
 
-                i = datainfo.sensors.index(s)
-                for j in range(p.shape[0]):
-                    tstart = p[j] - np.floor(Tw / 2)
+                sindex = datainfo.sensors.index(dsensor)
+                for j in range(selpeaks.shape[0]):
+                    tstart = selpeaks[j] - np.floor(Tw / 2)
                     tstop = tstart + Tw
-                    rawpeaks[j, :] = raw[tstart:tstop, i]
+                    rawpeaks[j, :] = raw[tstart:tstop, sindex]
 
                 # Peak Data
                 dgroup.create_dataset('Peaks', rawpeaks.shape, dtype='f', data=rawpeaks,
                                       compression='gzip')
-                f[dfile + '/' + s + '/Peaks'].attrs['wtime'] = wtime
-                f[dfile + '/' + s + '/Peaks'].attrs['low'] = ifreq
-                f[dfile + '/' + s + '/Peaks'].attrs['high'] = ffreq
-                f[dfile + '/' + s + '/Peaks'].attrs['threshold'] = threshold
+                f[dfile + '/' + dsensor + '/Peaks'].attrs['wtime'] = wtime
+                f[dfile + '/' + dsensor + '/Peaks'].attrs['low'] = ifreq
+                f[dfile + '/' + dsensor + '/Peaks'].attrs['high'] = ffreq
+                f[dfile + '/' + dsensor + '/Peaks'].attrs['threshold'] = threshold
 
         f.close()

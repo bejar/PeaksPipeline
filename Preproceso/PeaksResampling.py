@@ -36,8 +36,9 @@ def do_the_job(dfile, sensor, wtsel, resampfac, filter=False):
 
     wtsel = final length to keep from the resampled window in miliseconds
     resampfac = resampling factor (times to reduce the sampling)
+    filter = use frequency filtered data
+
     :param expname:
-    :param TVD:
     :return:
     """
 
@@ -53,14 +54,13 @@ def do_the_job(dfile, sensor, wtsel, resampfac, filter=False):
         d = f[dfile + '/' + sensor + '/' + 'Peaks']
 
     data = d[()]
+    f.close()
 
     # Number of samples in the peak
     wtlen = int(data.shape[1] / resampfac)
-    wtlen_new = int(wtsel * resampling / 1000.0)
+    wtlen_new = int(wtsel * resampling / 1000.0) # 1000 because the selection window is in miliseconds
     wtdisc = int((wtlen - wtlen_new)/2.0)
     presamp = resample(data, wtlen, axis=1, window=wtlen*2)
-
-    f.close()
 
     # in case we have a odd number of points in the window
     if wtlen_new + (2*wtdisc) != wtlen:
@@ -71,8 +71,8 @@ def do_the_job(dfile, sensor, wtsel, resampfac, filter=False):
 
 # ---------------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
-
-    lexperiments = ['e150514']
+    # 'e150514''e120503'
+    lexperiments = ['e110616']
 
     for expname in lexperiments:
 
