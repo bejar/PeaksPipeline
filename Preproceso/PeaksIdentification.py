@@ -242,7 +242,7 @@ def cdp_identification(Y, i, wtime, datainfo, sensor, ifreq=0.0, ffreq=200, thre
     SNpj = []
     RMSpj = []
     nt = 0
-    while tstop <  Nmax - Tw:
+    while tstop < Nmax - Tw:
         tstop = min(Nmax, tstart + Tw - 1)
         xs = X[tstart:tstop]
         Nl = len(xs)
@@ -360,7 +360,7 @@ if __name__ == '__main__':
         print(datainfo.dpath + datainfo.name + '/' + datainfo.name)
         f = h5py.File(datainfo.dpath + datainfo.name + '/' + datainfo.name + '.hdf5', 'r+')
 
-        for dfile in datainfo.datafiles:
+        for dfile in [datainfo.datafiles[0]]:
             print(dfile)
             d = f[dfile + '/Raw']
 
@@ -372,7 +372,7 @@ if __name__ == '__main__':
             print('The end ', time.ctime())
 
             for dsensor, selpeaks in peaks:
-                print(dsensor, selpeaks(peaks))
+                print(dsensor, len(selpeaks))
                 if dfile + '/' + dsensor in f:
                     del f[dfile + '/' + dsensor]
                 dgroup = f.create_group(dfile + '/' + dsensor)

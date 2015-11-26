@@ -30,10 +30,12 @@ from sklearn.cluster import KMeans
 
 from Config.experiments import experiments
 from util.plots import plotSignals
+import warnings
+warnings.filterwarnings("ignore")
 
 __author__ = 'bejar'
-# 'e150514''e120503'
-lexperiments = ['e110616']
+# 'e110616''e120503'
+lexperiments = ['e150514']
 
 
 for expname in lexperiments:
@@ -52,7 +54,7 @@ for expname in lexperiments:
 
         data = ldata[0] #np.concatenate(ldata)
 
-        km = KMeans(n_clusters=nclusters)
+        km = KMeans(n_clusters=nclusters, n_jobs=-1)
         km.fit_transform(data)
         lsignals = []
         cnt = Counter(list(km.labels_))
@@ -62,8 +64,8 @@ for expname in lexperiments:
             lmax.append((i,np.max(km.cluster_centers_[i])))
         lmax = sorted(lmax, key=itemgetter(1))
 
-        print(lmax)
-        print(data.shape)
+        print('LMAX ', lmax)
+        print('SHAPE ', data.shape)
 
         lhisto = []
         for dataf, ndata in zip(ldata, datainfo.datafiles):
@@ -72,7 +74,7 @@ for expname in lexperiments:
                 histo[km.predict(dataf[i])] += 1.0
             histo /= dataf.shape[0]
             print(datainfo.name, ndata)
-            print(histo)
+            print('HISTO ', histo)
             histosorted = np.zeros(nclusters)
             for i in range(histosorted.shape[0]):
                 histosorted[i] = histo[lmax[i][0]]
@@ -83,12 +85,10 @@ for expname in lexperiments:
         #     rms /= h.shape[0]
         #     print np.sqrt(rms), hellinger_distance(h, lhisto[0])
 
-        matplotlib.rcParams.update({'font.size': 26})
         fig = plt.figure()
         ax = fig.add_subplot(2, 1, 1)
         fig.set_figwidth(60)
         fig.set_figheight(40)
-
         ind = np.arange(nclusters)  # the x locations for the groups
         width = 1.0/(len(lhisto)+1)   # the width of the bars
         ax.set_xticks(ind+width)
@@ -99,6 +99,7 @@ for expname in lexperiments:
 
         minaxis = np.min(km.cluster_centers_)
         maxaxis = np.max(km.cluster_centers_)
+
 
         for nc in range(nclusters):
             ax2 = fig.add_subplot(2, nclusters, nc+nclusters+1)

@@ -19,7 +19,7 @@ Experiment
 
 __author__ = 'bejar'
 
-from configparser import SafeConfigParser
+# from ConfigParser import SafeConfigParser
 
 class Experiment:
     """
@@ -91,60 +91,61 @@ class Experiment:
         else:
             self.expnames = expnames
 
-    def load_config(self, file):
-        """
-        Object read from configuration file
-
-        :param path:
-        :return:
-        """
-
-        cnf = SafeConfigParser()
-
-        cnf.read(file)
-
-        self.name = cnf.get('Experiment', 'Name')
-        self.sampling = cnf.getfloat('Experiment', 'Sampling')
-        tmp = cnf.get('Experiment', 'Datafiles')
-        self.datafiles = tmp.replace('\n', '').split(',')
-        tmp = cnf.get('Experiment', 'Expnames')
-        self.expnames = tmp.replace('\n', '').split(',')
-
-
-        tmp = cnf.get('Experiment', 'Sensors')
-        self.sensors = tmp.replace('\n', '').split(',')
-        tmp = cnf.get('Experiment', 'ABFSensors')
-        self.abfsensors = [int(s) for s in tmp.replace('\n', '').split(',')]
-
-        self.dpath = cnf.get('Experiment', 'DataPath')
-        tmp = cnf.get('Clustering', 'Clusters')
-        self.clusters = [int(nc) for nc in tmp.replace('\n', '').split(',')]
-        self.colors = cnf.get('Clustering', 'Colors')
-
-        self.peaks_id_params = {'wtime': cnf.getfloat('Identification', 'wtime'), 'low': cnf.getfloat('Identification', 'low'),
-                                'high': cnf.getfloat('Identification', 'high'),
-                                'threshold': cnf.getfloat('Identification', 'threshold')}
-
-        self.peaks_resampling = {'wtsel': cnf.getfloat('Resampling', 'wtsel'), 'rsfactor': cnf.getfloat('Resampling', 'rsfactor'),
-                                 'filtered': cnf.getboolean('Resampling', 'filtered')}
-
-        self.peaks_smooth = {'pcasmooth': cnf.getboolean('Smoothing', 'pcasmooth'), 'components': cnf.getint('Smoothing', 'components'),
-                                 'wsbaseline': cnf.getint('Smoothing', 'wbaseline')}
-
-        self.peaks_filter = {'lowpass': cnf.getfloat('Filter', 'lowpass'), 'highpass': cnf.getfloat('Filter', 'highpass')}
+    # def load_config(self, file):
+    #     """
+    #     Object read from configuration file
+    # 
+    #     :param path:
+    #     :return:
+    #     """
+    # 
+    #     cnf = SafeConfigParser()
+    # 
+    #     cnf.read(file)
+    # 
+    #     self.name = cnf.get('Experiment', 'Name')
+    #     self.sampling = cnf.getfloat('Experiment', 'Sampling')
+    #     tmp = cnf.get('Experiment', 'Datafiles')
+    #     self.datafiles = tmp.replace('\n', '').split(',')
+    #     tmp = cnf.get('Experiment', 'Expnames')
+    #     self.expnames = tmp.replace('\n', '').split(',')
+    # 
+    # 
+    #     tmp = cnf.get('Experiment', 'Sensors')
+    #     self.sensors = tmp.replace('\n', '').split(',')
+    #     tmp = cnf.get('Experiment', 'ABFSensors')
+    #     self.abfsensors = [int(s) for s in tmp.replace('\n', '').split(',')]
+    # 
+    #     self.dpath = cnf.get('Experiment', 'DataPath')
+    #     tmp = cnf.get('Clustering', 'Clusters')
+    #     self.clusters = [int(nc) for nc in tmp.replace('\n', '').split(',')]
+    #     self.colors = cnf.get('Clustering', 'Colors')
+    # 
+    #     self.peaks_id_params = {'wtime': cnf.getfloat('Identification', 'wtime'), 'low': cnf.getfloat('Identification', 'low'),
+    #                             'high': cnf.getfloat('Identification', 'high'),
+    #                             'threshold': cnf.getfloat('Identification', 'threshold')}
+    # 
+    #     self.peaks_resampling = {'wtsel': cnf.getfloat('Resampling', 'wtsel'), 'rsfactor': cnf.getfloat('Resampling', 'rsfactor'),
+    #                              'filtered': cnf.getboolean('Resampling', 'filtered')}
+    # 
+    #     self.peaks_smooth = {'pcasmooth': cnf.getboolean('Smoothing', 'pcasmooth'), 'components': cnf.getint('Smoothing', 'components'),
+    #                              'wsbaseline': cnf.getint('Smoothing', 'wbaseline')}
+    # 
+    #     self.peaks_filter = {'lowpass': cnf.getfloat('Filter', 'lowpass'), 'highpass': cnf.getfloat('Filter', 'highpass')}
 
 # ---------------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
-    a = Experiment('../Manual/config_example.cfg')
-
-    print(a.name)
-    print(a.sampling)
-    print(a.datafiles)
-    print(a.sensors)
-    print(a.dpath)
-    print(a.clusters)
-    print(a.colors)
-    print(a.peaks_id_params)
-    print(a.peaks_resampling)
-    print(a.peaks_smooth)
-    print(a.peaks_filter)
+    pass
+    # a = Experiment('../Manual/config_example.cfg')
+    # 
+    # print(a.name)
+    # print(a.sampling)
+    # print(a.datafiles)
+    # print(a.sensors)
+    # print(a.dpath)
+    # print(a.clusters)
+    # print(a.colors)
+    # print(a.peaks_id_params)
+    # print(a.peaks_resampling)
+    # print(a.peaks_smooth)
+    # print(a.peaks_filter)

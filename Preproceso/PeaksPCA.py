@@ -98,8 +98,8 @@ def do_the_job(dfile, sensor, components, lind, pcap=True, recenter=True, wtsel=
 
 # ---------------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
-    # 'e150514''e120503'
-    lexperiments = ['e110616']
+    # 'e110616''e120503'
+    lexperiments = ['e150514']
 
     for expname in lexperiments:
 

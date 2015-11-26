@@ -34,7 +34,7 @@ print(datainfo.dpath + datainfo.name + '/' + datainfo.name)
 f = h5py.File(datainfo.dpath + datainfo.name + '/' + datainfo.name + '.hdf5', 'r')
 print(expname)
 
-for s in [datainfo.sensors[8]]:
+for s in datainfo.sensors:
     print(s)
     ldatap = []
     ldatappca = []
@@ -56,7 +56,7 @@ for s in [datainfo.sensors[8]]:
     ptime = ltimes[0]
 
     print(len(data))
-    for i in range(data.shape[0]):
+    for i in range(5): #range(data.shape[0]):
         # print dataraw[i]
         # print data[i]
         print('T = %d'%ptime[i])
