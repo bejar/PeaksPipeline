@@ -26,8 +26,7 @@
 
 \section{Instalacion}
 
-Estos scripts están implementados y probados en python 2.7, pero deberían 
-funcionar en python 3 sin problemas.
+Estos scripts están implementados y probados en python 2.7.
 
 Para su funcionamiento hace falta tener instaladas las librerias de python:
 
@@ -70,13 +69,14 @@ Para su funcionamiento hace falta tener instaladas las librerias de python:
            en el suavizado FFT de la señal en el algoritmo de detección de 
            picos y la amplitud mínima usada para aceptar un pico.
            \item Una tabla \texttt{Peaks} que contendrá los picos detectados 
-           extraídos directamente de la señal original con una longitud 
+           extraídos directamente de la señal \underline{original} con una 
+           longitud 
            idéntica a la usada en la ventana del algoritmo de identificación. 
            Esta tabla tiene los mismos atributos que \texttt{Time}.
            
            \item Una tabla \texttt{PeaksFiltered} que contendrá los picos 
            detectados 
-           extraídos de la señal filtrada con una longitud 
+           extraídos de la señal \underline{filtrada} con una longitud 
            idéntica a la usada en la ventana del algoritmo de identificación. 
            Esta tabla tiene los mismos atributos que \texttt{Time}.
            
@@ -114,6 +114,8 @@ se compone de:
     \item  \texttt{datafiles}: Nombres de los ficheros originales donde están 
     los datos (los ABF), estos nombres se usaran para organizarlos en el 
     fichero HDF5 y para los resultados
+    \item \texttt{abfsensors}: Lista con los indices de los sensores a importar 
+    del fichero ABF.
     \item  \texttt{sensors}: Lista con los nombres de los sensores. Se supone 
     que estan en ese orden en el fichero original y que el fichero tiene al 
     menos ese numero de columnas de datos.
@@ -128,6 +130,12 @@ se compone de:
     \texttt{high}, \texttt{threshold}.
     \item  \texttt{peaks\_resampling}: Diccionario con los parámetros a usar 
     por el algoritmo de resampling: \texttt{wsel}, \texttt{rsfactor}
+    \item \texttt{peaks\_smooth}: Diccionario con los parámetros del suavizado 
+    que se realiza a la señal y reubicación de la basal: \texttt{pcasmooth}, 
+    \texttt{components},  \texttt{wbaseline}.
+    \item \texttt{expnames}: Lista con los nombres de las fases de los 
+    experimentos. Si no se le da un valor se le asigna los nombres de los 
+    ficheros del experimento.
 \end{itemize}
 
 Por conveniencia, el fichero \texttt{Config/experiments.py} tiene el 
@@ -140,8 +148,11 @@ El preproceso de los datos se compone de los siguientes pasos:
 \begin{enumerate}
     \item \texttt{ConvertABF.py}: Importación de los ficheros ABF en un fichero 
     HDF5 (en el caso de usar otro formato para guardar los datos originales se 
-    creará un script equivalente). Esto añadirá al fichero del experimento las 
-    carpetas para cada tramo del experimento y las tablas \texttt{Raw}
+    creará un script equivalente). Se creará el fichero en el directorio del 
+    experimento y se crearán las  carpetas para cada fichero/tramo del 
+    experimento y se copiaran la señales en las posiciones indicadas en el 
+    parámetro \texttt{abfsensors} en las tablas \texttt{Raw}.
+    
     \item \texttt{PeaksIdentification.py}: Ejecuta el algoritmo de 
     identificación de picos para todo el experimento generando para cada señal 
     las tablas \texttt{Time} y \texttt{Peaks}. En \texttt{Time} esta el tiempo 
@@ -198,5 +209,30 @@ El preproceso de los datos se compone de los siguientes pasos:
      \end{itemize}   
     
 \end{enumerate}
+
+\section{Clustering}
+
+El clustering de los picos se realiza usando K-means y los valores para el 
+número de clusters definido para cada sensor del experimento en el parámetro 
+\texttt{clusters}.
+
+Hay dos programas para ello:
+
+\begin{itemize}
+    \item \texttt{PeaksSaveClustering.py}, que aplica el algoritmo de 
+    clustering a todos los tramos del experimento y todos los sensores y crea 
+    una carpeta\texttt{Clustering} para cada uno de ellos en el fichero de 
+    datos que contiene una tabla \texttt{Centers} que contiene los centroides 
+    de los clusters. Estos centroides están ordenados de menor a mayor según la 
+    altura del máximo de cada centroide.
+    
+    \item \texttt{PeaksClusteringHisto.py}, que aplica el algoritmo de cluster 
+    y genera un gráfico con los centroides de los clusters del primer fichero 
+    de datos (es el que usa como referencia para el resto) y un gráfico también 
+    con los centroides, pero incluyendo un histograma para cada centroide de la 
+    proporción de picos en cada tramo del experimento.
+\end{itemize}
+
+\section{Secuencias}
     
 \end{document}

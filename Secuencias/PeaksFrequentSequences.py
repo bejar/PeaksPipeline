@@ -27,7 +27,7 @@ from Config.experiments import experiments
 import scipy.io
 from pylab import *
 
-from rstr_max import *
+from .rstr_max import *
 from util.misc import compute_frequency_remap
 from sklearn.metrics import pairwise_distances_argmin_min
 import random
@@ -187,8 +187,8 @@ def max_seq_long(nexp, clpeaks, timepeaks, sup, nfile, gap=0):
             cntlong[len(seq)] += 1
     rfile.close()
     for i in range(2, 10):
-        print i, ':', cntlong[i]
-    print '----------'
+        print(i, ':', cntlong[i])
+    print('----------')
 
 
 def max_seq_exp(nfile, clpeaks, timepeaks, sensor, dfile, ename, nclust, gap=0, sup=None, rand=False):
@@ -231,7 +231,7 @@ def max_seq_exp(nfile, clpeaks, timepeaks, sensor, dfile, ename, nclust, gap=0, 
 
     if sup is None:
         sup = int(round(len(peakstr) * (1.0 / (len(peakfreq) * len(peakfreq)))) * 1.0)
-    print sup
+    print(sup)
 
     for l in peakfreq:
         peakfreq[l] = (peakfreq[l] * 1.0) / len(peakstr)
@@ -314,7 +314,7 @@ def max_peaks_edges(nexp, clpeaks, timepeaks, sup, gap=0):
         else:
             peakfreq[voc[clpeaks[i][0]]] = 1
 
-    print peakend - peakini, len(peakstr), len(peakstr) * (1.0 / (len(peakfreq) * len(peakfreq)))
+    print(peakend - peakini, len(peakstr), len(peakstr) * (1.0 / (len(peakfreq) * len(peakfreq))))
 
     for l in peakfreq:
         peakfreq[l] = (peakfreq[l] * 1.0) / len(peakstr)
@@ -440,7 +440,7 @@ if __name__ == '__main__':
         f = h5py.File(datainfo.dpath + '/' + datainfo.name + '/' + datainfo.name + '.hdf5', 'r')
 
         for dfile, ename in zip(datainfo.datafiles, datainfo.expnames):
-            print dfile
+            print(dfile)
 
             for ncl, sensor in zip(datainfo.clusters, datainfo.sensors):
                 clpeaks = compute_data_labels(datainfo.datafiles[0], dfile, sensor)
