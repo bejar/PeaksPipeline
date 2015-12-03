@@ -27,7 +27,7 @@ from Config.experiments import experiments
 import scipy.io
 from pylab import *
 
-from .rstr_max import *
+from Secuencias.rstr_max import *
 from util.misc import compute_frequency_remap
 from sklearn.metrics import pairwise_distances_argmin_min
 import random
@@ -41,7 +41,7 @@ def randomize_string(s):
     return result
 
 def drawgraph(nnodes, edges, nfile, sensor, dfile, legend):
-    rfile = open(datainfo.dpath + '/'+ datainfo.name + '/Results/maxseq-' + nfile + '-' + dfile + '-' + sensor + '.dot', 'w')
+    rfile = open(datainfo.dpath + '/' + datainfo.name + '/Results/maxseq-' + nfile + '-' + dfile + '-' + sensor + '.dot', 'w')
 
     rfile.write('digraph G {\nsize="20,20"\nlayout="neato"\n' +
                 'imagepath="' + datainfo.dpath + '/'+ datainfo.name + '/Results/icons/' + '"\n' +
@@ -430,8 +430,8 @@ voc = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 # --------------------------------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    # 'e110616''e120503'
-    lexperiments = ['e150514']
+    # 'e110616''e120503''e150514'
+    lexperiments = ['e150707']
 
     peakdata = {}
     for expname in lexperiments:

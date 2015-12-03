@@ -30,7 +30,34 @@ lexperiments = ['e150514']
 # Todos los experimentos estan en el directorio cinvesdata dentro de una carpeta que tenga el nombre del experimento
 experiments = \
     {
-        'e150514':
+        'e150707':
+            Experiment(
+                dpath=datapath,
+                name='e150707',
+                sampling=10000.0,
+                datafiles=['15707000', '15707001', '15707002', '15707003', '15707004', '15707005', '15707006', '15707007',
+                           '15707008', '15707009', '15707010', '15707011', '15707012', '15707013', '15707014', '15707015',
+                           '15707016', '15707017', '15707018', '15707019', '15707020', '15707021', '15707022', '15707023',
+                           '15707024', '15707025', '15707026', '15707027', '15707028', '15707029', '15707030', '15707031',
+                           '15707032', '15707035', '15707036', '15708000', '15708001', '15708002', '15708003', '15708004',
+                           '15708005', '15708006', '15708007', '15708008'],
+                sensors=['L4ci', 'L4cd', 'L5ri', 'L5rd', 'L5ci', 'L5cd', 'L6ri', 'L6rd', 'L6ci', 'L6cd', 'L7ri', 'L7rd'],
+                abfsensors=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                clusters=[12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
+                colors='bbbbyyyyyyyyyyrrrrrrrrryyyyyyyyyyygggyyyyyyy',
+                peaks_id_params={'wtime': 120e-3, 'low': 0, 'high': 70, 'threshold': 0.05},
+                peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
+                peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 20},
+                peaks_filter={'lowpass': 1.0, 'highpass':200.0},
+                expnames=['ctrl1', 'ctrl2', 'ctrl3', 'ctrl4', 'lido11', 'lido12', 'lido13', 'lido14', 'lido15', 'lido16',
+                          'lido17', 'lido18', 'lido19', 'lido110', 'capsa1', 'capsa2', 'capsa3', 'capsa4', 'capsa5',
+                          'capsa6', 'capsa7', 'capsa8', 'capsa9', 'lido21', 'lido22', 'lido23', 'lido24', 'lido25',
+                          'lido26', 'lido27', 'lido28', 'lido29', 'lido210', 'esp1', 'esp2', 'esp3', 'lido31', 'lido32',
+                          'lido33', 'lido34', 'lido35', 'lido36', 'lido37']
+
+            ),
+
+       'e150514':
             Experiment(
                 dpath=datapath,
                 name='e150514',

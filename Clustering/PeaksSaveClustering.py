@@ -30,8 +30,8 @@ from sklearn.metrics import mean_squared_error
 from operator import itemgetter
 
 
-# 'e110616''e120503'
-lexperiments = ['e150514']
+# 'e110616''e120503''e150514'
+lexperiments = ['e150707']
 
 
 for expname in lexperiments:
@@ -40,10 +40,10 @@ for expname in lexperiments:
     f = h5py.File(datainfo.dpath + datainfo.name + '/' + datainfo.name + '.hdf5', 'r+')
 
     for sensor, nclusters in zip(datainfo.sensors, datainfo.clusters):
-        print sensor
+        print(sensor)
         ldata = []
         for dfile in datainfo.datafiles:
-            print dfile
+            print(dfile)
             d = f[dfile + '/' + sensor + '/' + 'PeaksResamplePCA']
             data = d[()]
 

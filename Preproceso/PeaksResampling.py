@@ -71,8 +71,8 @@ def do_the_job(dfile, sensor, wtsel, resampfac, filter=False):
 
 # ---------------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
-    # 'e110616''e120503'
-    lexperiments = ['e150514']
+    # 'e110616''e120503''e150514'
+    lexperiments = ['e150707']
 
     for expname in lexperiments:
 

@@ -53,7 +53,7 @@ def plotSignalValues(signals, dfile, sensor, nc):
 
 if __name__ == '__main__':
     # 'e110616''e120503''e150514'
-    lexperiments = ['e150514']
+    lexperiments = ['e150707']
 
     peakdata = {}
     for expname in lexperiments:
@@ -66,7 +66,7 @@ if __name__ == '__main__':
 
         # dfile = datainfo.datafiles[0]
         for dfile in [datainfo.datafiles[0]]:
-            print dfile
+            print(dfile)
 
             lsens_labels = []
             #compute the labels of the data

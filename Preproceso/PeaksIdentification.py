@@ -339,10 +339,8 @@ def cdp_identification(Y, i, wtime, datainfo, sensor, ifreq=0.0, ffreq=200, thre
 
 # ---------------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
-    # 'e150514''e120503'
-    lexperiments = ['e110616', 'e120503','e150514' ]
-
-    datasufix = ''  #
+    # 'e150514''e120503''e110616'
+    lexperiments = ['e150707']
 
     # Preparado para procesar un conjunto de experimentos a la vez
     for expname in lexperiments:
@@ -360,7 +358,7 @@ if __name__ == '__main__':
         print(datainfo.dpath + datainfo.name + '/' + datainfo.name)
         f = h5py.File(datainfo.dpath + datainfo.name + '/' + datainfo.name + '.hdf5', 'r+')
 
-        for dfile in [datainfo.datafiles[0]]:
+        for dfile in datainfo.datafiles:
             print(dfile)
             d = f[dfile + '/Raw']
 
@@ -400,5 +398,5 @@ if __name__ == '__main__':
                 f[dfile + '/' + dsensor + '/Peaks'].attrs['low'] = ifreq
                 f[dfile + '/' + dsensor + '/Peaks'].attrs['high'] = ffreq
                 f[dfile + '/' + dsensor + '/Peaks'].attrs['threshold'] = threshold
-
+            f.flush()
         f.close()
