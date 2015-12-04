@@ -32,7 +32,7 @@ from Config.experiments import experiments
 __author__ = 'bejar'
 
 
-def do_the_job(dfile, sensor, components, lind, pcap=True, recenter=True, wtsel=None):
+def do_the_job(dfile, sensor, components, lind, pcap=True, recenter=True, wtsel=None, clean=False):
     """
     Transforms the data reconstructing the peaks using some components of the PCA
     and uses the mean of the baseline points to move the peak
@@ -52,10 +52,13 @@ def do_the_job(dfile, sensor, components, lind, pcap=True, recenter=True, wtsel=
     data = d[()]
 
     # if there is a clean list of peaks then the PCA is computed only for the clean peaks
-    if dfile + '/' + sensor + '/TimeClean' in f:
-        lt = f[dfile + '/' + sensor + '/' + 'Timeclean']
+    if clean and dfile + '/' + sensor + '/TimeClean' in f:
+        lt = f[dfile + '/' + sensor + '/' + 'TimeClean']
         ltime = list(lt[()])
+        print(data.shape)
         data = data[ltime]
+        print(data.shape)
+
 
 
     if pcap:
@@ -127,7 +130,7 @@ if __name__ == '__main__':
             print(dfile)
             # Paralelize PCA computation
             res = Parallel(n_jobs=-1)(
-                delayed(do_the_job)(dfile, s, components, lind, pcap=fpca, recenter=recenter, wtsel=wtsel) for s in datainfo.sensors)
+                delayed(do_the_job)(dfile, s, components, lind, pcap=fpca, recenter=recenter, wtsel=wtsel, clean=True) for s in datainfo.sensors)
             # print 'Parallelism ended'
             # Save all the data
             f = h5py.File(datainfo.dpath + datainfo.name + '/' + datainfo.name + '.hdf5', 'r+')

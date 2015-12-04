@@ -78,7 +78,7 @@ def do_the_job(dpath, dname, dfile, sensor, nn, nstd=6, wavy=5):
             lout.append(i)
             # print('outlier')
             # show_signal(data[i])
-        elif is_wavy_signal(data[i], wavy):
+        elif wavy is not None and is_wavy_signal(data[i], wavy):
             nout += 1
             lout.append(i)
             # print('wavy')
@@ -90,7 +90,7 @@ def do_the_job(dpath, dname, dfile, sensor, nn, nstd=6, wavy=5):
 
 
 if __name__ == '__main__':
-
+    # 'e110616''e120503''e150514''e150707'
     lexperiments = ['e150707']
     for expname in lexperiments:
         datainfo = experiments[expname]
@@ -98,7 +98,7 @@ if __name__ == '__main__':
         for s in datainfo.sensors:
             print(s)
 
-            lout = Parallel(n_jobs=-1)(delayed(do_the_job)(datainfo.dpath, datainfo.name, dfiles, s, 16, nstd=6, wavy=6) for dfiles in datainfo.datafiles)
+            lout = Parallel(n_jobs=-1)(delayed(do_the_job)(datainfo.dpath, datainfo.name, dfiles, s, 16, nstd=6, wavy=4) for dfiles in datainfo.datafiles)
 
             # lout = []
             #
