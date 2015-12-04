@@ -94,6 +94,6 @@ def filter_data(experiment):
 # ---------------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
 
-    lexperiments = ['e150514']
+    lexperiments = ['e150707']
     for exp in lexperiments:
         filter_data(experiments[exp])
