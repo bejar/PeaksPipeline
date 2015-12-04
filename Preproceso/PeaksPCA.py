@@ -51,6 +51,13 @@ def do_the_job(dfile, sensor, components, lind, pcap=True, recenter=True, wtsel=
     d = f[dfile + '/' + sensor + '/' + 'PeaksResample']
     data = d[()]
 
+    # if there is a clean list of peaks then the PCA is computed only for the clean peaks
+    if dfile + '/' + sensor + '/TimeClean' in f:
+        lt = f[dfile + '/' + sensor + '/' + 'Timeclean']
+        ltime = list(lt[()])
+        data = data[ltime]
+
+
     if pcap:
         pca = PCA(n_components=data.shape[1])
         res = pca.fit_transform(data)
