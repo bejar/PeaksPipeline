@@ -59,8 +59,6 @@ def do_the_job(dfile, sensor, components, lind, pcap=True, recenter=True, wtsel=
         data = data[ltime]
         print(data.shape)
 
-
-
     if pcap:
         pca = PCA(n_components=data.shape[1])
         res = pca.fit_transform(data)
@@ -130,7 +128,7 @@ if __name__ == '__main__':
             print(dfile)
             # Paralelize PCA computation
             res = Parallel(n_jobs=-1)(
-                delayed(do_the_job)(dfile, s, components, lind, pcap=fpca, recenter=recenter, wtsel=wtsel, clean=True) for s in datainfo.sensors)
+                delayed(do_the_job)(dfile, s, components, lind, pcap=fpca, recenter=recenter, wtsel=wtsel, clean=False) for s in datainfo.sensors)
             # print 'Parallelism ended'
             # Save all the data
             f = h5py.File(datainfo.dpath + datainfo.name + '/' + datainfo.name + '.hdf5', 'r+')
