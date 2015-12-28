@@ -30,6 +30,34 @@ lexperiments = ['e150514']
 # Todos los experimentos estan en el directorio cinvesdata dentro de una carpeta que tenga el nombre del experimento
 experiments = \
     {
+        'e151126':
+            Experiment(
+                dpath=datapath,
+                name='e151126',
+                sampling=10000.0,
+                datafiles=['15n26009.abf', '15n26010.abf', '15n26014.abf', '15n26015.abf', '15n26016.abf', '15n26017.abf',
+                           '15n26018.abf', '15n26019.abf', '15n26023.abf', '15n26024.abf', '15n26025.abf', '15n26026.abf',
+                           '15n26027.abf', '15n26031.abf', '15n26032.abf', '15n26033.abf', '15n26034.abf', '15n26035.abf',
+                           '15n27000.abf', '15n27001.abf', '15n27005.abf', '15n27006.abf', '15n27007.abf', '15n27008.abf',
+                           '15n27009.abf', '15n27013.abf', '15n27014.abf', '15n27015.abf', '15n27016.abf', '15n27017.abf',
+                           '15n27018.abf', '15n27022.abf', '15n27023.abf', '15n27024.abf', '15n27025.abf', '15n27026.abf',
+                           '15n27027.abf', '15n27031.abf', '15n27032.abf', '15n27033.abf', '15n27034.abf', '15n27035.abf',
+                           '15n27036.abf', '15n27040.abf', '15n27041.abf', '15n27042.abf', '15n27043.abf', '15n27044.abf',
+                           '15n27045.abf', '15n27046.abf', '15n27047.abf', '15n27051.abf', '15n27052.abf', '15n27053.abf',
+                           '15n27054.abf', '15n27055.abf', '15n27056.abf', '15n27060.abf', '15n27061.abf', '15n27062.abf',
+                           '15n27066.abf'],
+                sensors=['L4ci', 'L4cd', 'L5ri', 'L5rd', 'L5ci', 'L5cd', 'L6ri', 'L6rd', 'L6ci', 'L6cd', 'L7ri', 'L7rd'],
+                abfsensors=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                clusters=[12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
+                colors='bbbbyyyyyyyyyyrrrrrrrrryyyyyyyyyyygggyyyyyyy',
+                peaks_id_params={'wtime': 120e-3, 'low': 0, 'high': 70, 'threshold': 0.05},
+                peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
+                peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 20},
+                peaks_filter={'lowpass': 1.0, 'highpass':200.0},
+                expnames=[]
+
+            ),
+
         'e150707':
             Experiment(
                 dpath=datapath,
