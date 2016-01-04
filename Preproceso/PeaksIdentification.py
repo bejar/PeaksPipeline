@@ -339,8 +339,8 @@ def cdp_identification(Y, i, wtime, datainfo, sensor, ifreq=0.0, ffreq=200, thre
 
 # ---------------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
-    # 'e150514''e120503''e110616'
-    lexperiments = ['e150707']
+    # 'e150514''e120503''e110616''e150707'
+    lexperiments = ['e151126']
 
     # Preparado para procesar un conjunto de experimentos a la vez
     for expname in lexperiments:

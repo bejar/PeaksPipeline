@@ -74,9 +74,9 @@ def convert_from_ABF_to_HDF5(experiment):
 # Estos experimentos estan definidos en Config.experiments
 if __name__ == '__main__':
 
-    # 'e150514''e120503''e110616'
+    # 'e150514''e120503''e110616''e150707'
 
-    experiment = experiments['e150707']
+    experiment = experiments['e151126']
     convert_from_ABF_to_HDF5(experiment)
     # Create the results directory if does not exists
     if not os.path.exists(experiment.dpath + '/' + experiment.name + '/Results'):

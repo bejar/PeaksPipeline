@@ -35,7 +35,7 @@ warnings.filterwarnings("ignore")
 
 __author__ = 'bejar'
 # 'e110616''e120503''e150514'
-lexperiments = ['e150707']
+lexperiments = ['e151126']
 
 
 for expname in lexperiments:

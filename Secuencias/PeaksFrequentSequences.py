@@ -40,6 +40,42 @@ def randomize_string(s):
     result = ''.join(l)
     return result
 
+def drawgraph_alternative(nnodes, edges, nfile, sensor, dfile, legend, partition):
+    rfile = open(datainfo.dpath + '/' + datainfo.name + '/Results/maxseqAlt-' + nfile + '-' + dfile + '-' + sensor + '.dot', 'w')
+
+    rfile.write('digraph G {\nsize="20,20"\nlayout="neato"\n' +
+                'imagepath="' + datainfo.dpath + '/'+ datainfo.name + '/Results/icons/' + '"\n' +
+                'imagescale=true' + '\n' +
+                'labeljust=r' + '\n' +
+                'labelloc=b' + '\n' +
+                'nodesep=0.4' + '\n' +
+                'fontsize="30"\nlabel="' + legend + '"\n')
+
+    radius = 5.0
+
+    for i in range(nnodes):
+        posx = -np.cos(((np.pi * 2) / nnodes) * i + (np.pi / 2)) * radius
+        posy = np.sin(((np.pi * 2) / nnodes) * i + (np.pi / 2)) * radius
+        rfile.write(str(i) + '[label="' + str(i + 1) + '",labeljust=l, labelloc=b, fontsize="24",height="0.2"' +
+                    ', image="' + datainfo.name + sensor + '.cl' + str(i+1) + '.png' + '"' +
+                    ', pos="' + str(posx) + ',' + str(posy) + '!", shape = "square"];\n')
+
+    for e, nb, pe in edges:
+        if len(e) == 2:
+            rfile.write(str(e[0]) + '->' + str(e[1]))
+            for lelem, color in partition:
+                if e[0] in lelem:
+                    rfile.write('[color="'+color+'"]')
+            rfile.write('\n')
+
+    rfile.write('}\n')
+
+    rfile.close()
+    os.system('dot -Tpdf '+datainfo.dpath + '/'+ datainfo.name+ '/Results/maxseqAlt-' + nfile + '-' + dfile + '-' + sensor + '.dot ' + '-o '
+              + datainfo.dpath + '/'+ datainfo.name+ '/Results/maxseqAlt-' + nfile + '-' + dfile + '-' + sensor + '.pdf')
+    os.system(' rm -fr ' + datainfo.dpath + '/'+ datainfo.name+ '/Results/maxseqAlt-' + nfile + '-' + dfile + '-' + sensor + '.dot')
+
+
 def drawgraph(nnodes, edges, nfile, sensor, dfile, legend):
     rfile = open(datainfo.dpath + '/' + datainfo.name + '/Results/maxseq-' + nfile + '-' + dfile + '-' + sensor + '.dot', 'w')
 
@@ -191,7 +227,7 @@ def max_seq_long(nexp, clpeaks, timepeaks, sup, nfile, gap=0):
     print('----------')
 
 
-def max_seq_exp(nfile, clpeaks, timepeaks, sensor, dfile, ename, nclust, gap=0, sup=None, rand=False):
+def max_seq_exp(nfile, clpeaks, timepeaks, sensor, dfile, ename, nclust, gap=0, sup=None, rand=False, galt=False, partition=None):
     """
     Generates frequent subsequences and the graphs representing the two step frequent
     subsequences
@@ -282,7 +318,10 @@ def max_seq_exp(nfile, clpeaks, timepeaks, sensor, dfile, ename, nclust, gap=0, 
     if '#' in peakfreq:
         nsig -= 1
 
-    drawgraph(nclust, lstringsg, nfile, sensor, dfile, nfile + '-' + ename + '-' + sensor + ' sup(%d)' % sup)
+    if galt:
+        drawgraph_alternative(nclust, lstringsg, nfile, sensor, dfile, nfile + '-' + ename + '-' + sensor + ' sup(%d)' % sup, partition=partition)
+    else:
+        drawgraph(nclust, lstringsg, nfile, sensor, dfile, nfile + '-' + ename + '-' + sensor + ' sup(%d)' % sup)
 
 
 def max_peaks_edges(nexp, clpeaks, timepeaks, sup, gap=0):
@@ -358,7 +397,7 @@ def max_peaks_edges(nexp, clpeaks, timepeaks, sup, gap=0):
 # ----------------------------------------
 
 
-def generate_sequences(dfile, ename, timepeaks, clpeaks, sensor, ncl, gap, sup=None, rand=False):
+def generate_sequences(dfile, ename, timepeaks, clpeaks, sensor, ncl, gap, sup=None, rand=False, galt=False, partition=None):
     """
     Generates the frequent subsequences from the times of the peaks considering
     gap the minimum time between consecutive peaks that indicates a pause (time in the sampling frequency)
@@ -369,7 +408,7 @@ def generate_sequences(dfile, ename, timepeaks, clpeaks, sensor, ncl, gap, sup=N
     :param sensor:
     :return:
     """
-    max_seq_exp(datainfo.name, clpeaks, timepeaks, sensor, dfile, ename, ncl, gap=gap, sup=sup, rand=rand)
+    max_seq_exp(datainfo.name, clpeaks, timepeaks, sensor, dfile, ename, ncl, gap=gap, sup=sup, rand=rand, galt=galt, partition=partition)
 
 
 def generate_sequences_long(dfile, timepeaks, clpeaks, sensor, thres, gap):
@@ -430,8 +469,10 @@ voc = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 # --------------------------------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    # 'e110616''e120503''e150514' 'e150707'
-    lexperiments = ['e150514']
+    # 'e110616''e120503''e150514' 'e150514'
+    lexperiments = ['e150707']
+    galt = True
+    partition = [[[0, 1, 2, 3], 'red'], [[4, 5, 6, 7], 'blue'], [[8,9,10,11], 'green']]
 
     peakdata = {}
     for expname in lexperiments:
@@ -446,4 +487,4 @@ if __name__ == '__main__':
                 clpeaks = compute_data_labels(datainfo.datafiles[0], dfile, sensor)
                 d = f[dfile + '/' + sensor + '/' + 'Time']
                 timepeaks = data = d[()]
-                generate_sequences(dfile, ename, timepeaks, clpeaks, sensor, ncl, gap=2000, sup=None, rand=False)
+                generate_sequences(dfile, ename, timepeaks, clpeaks, sensor, ncl, gap=2000, sup=None, rand=False, galt=galt, partition=partition)

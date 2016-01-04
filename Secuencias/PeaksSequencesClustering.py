@@ -25,7 +25,7 @@ from Config.experiments import experiments
 import scipy.io
 from pylab import *
 
-from util.distances import square_frobenius_distance
+from util.distances import square_frobenius_distance, hellinger_distance, bhattacharyya_distance
 
 
 from sklearn.metrics import pairwise_distances_argmin_min
@@ -66,15 +66,15 @@ def generate_prob_matrix(timepeaks, clpeaks, nsym, gap, laplace=0.0):
     """
     pm = np.zeros((nsym, nsym)) + laplace
     for i in range(timepeaks.shape[0]-1):
-        if timepeaks[i + 1] - timepeaks[i][1] < gap:
-            pm[clpeaks[i], clpeaks[i + 1] ] += 1.0
+        if timepeaks[i + 1] - timepeaks[i] < gap:
+            pm[clpeaks[i], clpeaks[i + 1]] += 1.0
     return pm / pm.sum()
 
 # --------------------------------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    # 'e110616''e120503''e150514' 'e150707'
-    lexperiments = ['e150514']
+    # 'e110616''e120503''e150514' 'e150514'
+    lexperiments = ['e150707']
 
     peakdata = {}
     for expname in lexperiments:
@@ -83,22 +83,24 @@ if __name__ == '__main__':
         f = h5py.File(datainfo.dpath + '/' + datainfo.name + '/' + datainfo.name + '.hdf5', 'r')
 
         for ncl, sensor in zip(datainfo.clusters, datainfo.sensors):
+            print(sensor)
             lmatrix = []
             for dfile, ename in zip(datainfo.datafiles, datainfo.expnames):
-                print(dfile)
                 clpeaks = compute_data_labels(datainfo.datafiles[0], dfile, sensor)
                 d = f[dfile + '/' + sensor + '/' + 'Time']
                 timepeaks =  d[()]
-                lmatrix.append(generate_prob_matrix( timepeaks, clpeaks, ncl, gap=2000, laplace=0.0))
+                lmatrix.append(generate_prob_matrix( timepeaks, clpeaks, ncl, gap=3000, laplace=0))
 
             # distance matrix among probability matrices
             mdist = np.zeros(len(lmatrix) * (len(lmatrix)-1) / 2)
-            for i in range(len(lmatrix) -1):
-                for j in range(i+1, len(lmatrix)):
-                    mdist[i * len(lmatrix) + j] = square_frobenius_distance(mdist[i], mdist[j])
+            pos = 0
+            for i in range(len(lmatrix)):
+                for j in range(0, i):
+                    mdist[pos] = square_frobenius_distance(lmatrix[i], lmatrix[j])
+                    pos += 1
 
-            clust = linkage(mdist, method='single')
+            clust = linkage(mdist, method='average')
 
             plt.figure(figsize=(15,15))
-            dendrogram(clust, distance_sort=True, orientation='left')
+            dendrogram(clust, distance_sort=True, orientation='left', labels=datainfo.expnames)
             plt.show()
