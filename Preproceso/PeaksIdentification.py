@@ -371,32 +371,33 @@ if __name__ == '__main__':
 
             for dsensor, selpeaks in peaks:
                 print(dsensor, len(selpeaks))
-                if dfile + '/' + dsensor in f:
-                    del f[dfile + '/' + dsensor]
-                dgroup = f.create_group(dfile + '/' + dsensor)
-                # Time of the peak
-                dgroup.create_dataset('Time', selpeaks.shape, dtype='i', data=selpeaks,
-                                      compression='gzip')
+                if len(selpeaks) != 0:
+                    if dfile + '/' + dsensor in f:
+                        del f[dfile + '/' + dsensor]
+                    dgroup = f.create_group(dfile + '/' + dsensor)
+                    # Time of the peak
+                    dgroup.create_dataset('Time', selpeaks.shape, dtype='i', data=selpeaks,
+                                          compression='gzip')
 
-                f[dfile + '/' + dsensor + '/Time'].attrs['wtime'] = wtime
-                f[dfile + '/' + dsensor + '/Time'].attrs['low'] = ifreq
-                f[dfile + '/' + dsensor + '/Time'].attrs['high'] = ffreq
-                f[dfile + '/' + dsensor + '/Time'].attrs['threshold'] = threshold
-                rawpeaks = np.zeros((selpeaks.shape[0], Tw))
-                # Extraction of the window around the peak maximum
+                    f[dfile + '/' + dsensor + '/Time'].attrs['wtime'] = wtime
+                    f[dfile + '/' + dsensor + '/Time'].attrs['low'] = ifreq
+                    f[dfile + '/' + dsensor + '/Time'].attrs['high'] = ffreq
+                    f[dfile + '/' + dsensor + '/Time'].attrs['threshold'] = threshold
+                    rawpeaks = np.zeros((selpeaks.shape[0], Tw))
+                    # Extraction of the window around the peak maximum
 
-                sindex = datainfo.sensors.index(dsensor)
-                for j in range(selpeaks.shape[0]):
-                    tstart = selpeaks[j] - np.floor(Tw / 2)
-                    tstop = tstart + Tw
-                    rawpeaks[j, :] = raw[tstart:tstop, sindex]
+                    sindex = datainfo.sensors.index(dsensor)
+                    for j in range(selpeaks.shape[0]):
+                        tstart = selpeaks[j] - np.floor(Tw / 2)
+                        tstop = tstart + Tw
+                        rawpeaks[j, :] = raw[tstart:tstop, sindex]
 
-                # Peak Data
-                dgroup.create_dataset('Peaks', rawpeaks.shape, dtype='f', data=rawpeaks,
-                                      compression='gzip')
-                f[dfile + '/' + dsensor + '/Peaks'].attrs['wtime'] = wtime
-                f[dfile + '/' + dsensor + '/Peaks'].attrs['low'] = ifreq
-                f[dfile + '/' + dsensor + '/Peaks'].attrs['high'] = ffreq
-                f[dfile + '/' + dsensor + '/Peaks'].attrs['threshold'] = threshold
+                    # Peak Data
+                    dgroup.create_dataset('Peaks', rawpeaks.shape, dtype='f', data=rawpeaks,
+                                          compression='gzip')
+                    f[dfile + '/' + dsensor + '/Peaks'].attrs['wtime'] = wtime
+                    f[dfile + '/' + dsensor + '/Peaks'].attrs['low'] = ifreq
+                    f[dfile + '/' + dsensor + '/Peaks'].attrs['high'] = ffreq
+                    f[dfile + '/' + dsensor + '/Peaks'].attrs['threshold'] = threshold
             f.flush()
         f.close()

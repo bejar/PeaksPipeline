@@ -48,26 +48,28 @@ def do_the_job(dfile, sensor, wtsel, resampfac, filter=False):
     # Sampling of the dataset in Hz / resampling factor
     resampling = f[dfile + '/Raw'].attrs['Sampling'] / resampfac
 
-    if filter:
-        d = f[dfile + '/' + sensor + '/' + 'PeaksFilter']
-    else:
-        d = f[dfile + '/' + sensor + '/' + 'Peaks']
+    if dfile + '/' + sensor + '/' + 'PeaksFilter' in f or dfile + '/' + sensor + '/' + 'Peaks' in f:
+        if filter:
+            d = f[dfile + '/' + sensor + '/' + 'PeaksFilter']
+        else:
+            d = f[dfile + '/' + sensor + '/' + 'Peaks']
 
-    data = d[()]
-    f.close()
+        data = d[()]
+        f.close()
 
-    # Number of samples in the peak
-    wtlen = int(data.shape[1] / resampfac)
-    wtlen_new = int(wtsel * resampling / 1000.0) # 1000 because the selection window is in miliseconds
-    wtdisc = int((wtlen - wtlen_new)/2.0)
-    presamp = resample(data, wtlen, axis=1, window=wtlen*2)
+        # Number of samples in the peak
+        wtlen = int(data.shape[1] / resampfac)
+        wtlen_new = int(wtsel * resampling / 1000.0) # 1000 because the selection window is in miliseconds
+        wtdisc = int((wtlen - wtlen_new)/2.0)
+        presamp = resample(data, wtlen, axis=1, window=wtlen*2)
 
-    # in case we have a odd number of points in the window
-    if wtlen_new + (2*wtdisc) != wtlen:
-        wtdisci = wtdisc + 1
-    else:
-        wtdisci = wtdisc
-    return presamp[:, wtdisci:wtlen-wtdisc]
+        # in case we have a odd number of points in the window
+        if wtlen_new + (2*wtdisc) != wtlen:
+            wtdisci = wtdisc + 1
+        else:
+            wtdisci = wtdisc
+        return presamp[:, wtdisci:wtlen-wtdisc]
+    return None
 
 # ---------------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
@@ -89,14 +91,15 @@ if __name__ == '__main__':
 
             f = h5py.File(datainfo.dpath + datainfo.name + '/' + datainfo.name + '.hdf5', 'r+')
             for presamp, sensor in zip(res, datainfo.sensors):
-                print(dfile + '/' + sensor)
-                if dfile + '/' + sensor + '/' + 'PeaksResample' in f:
-                    del f[dfile + '/' + sensor + '/' + 'PeaksResample']
-                d = f.require_dataset(dfile + '/' + sensor + '/' + 'PeaksResample', presamp.shape, dtype='f',
-                                      data=presamp, compression='gzip')
-                d[()] = presamp
-                f[dfile + '/' + sensor + '/PeaksResample'].attrs['rsfactor'] = resampfactor
-                f[dfile + '/' + sensor + '/PeaksResample'].attrs['wtsel'] = wtsel
-                f[dfile + '/' + sensor + '/PeaksResample'].attrs['filtered'] = filtered
+                if presamp is not None:
+                    print(dfile + '/' + sensor)
+                    if dfile + '/' + sensor + '/' + 'PeaksResample' in f:
+                        del f[dfile + '/' + sensor + '/' + 'PeaksResample']
+                    d = f.require_dataset(dfile + '/' + sensor + '/' + 'PeaksResample', presamp.shape, dtype='f',
+                                          data=presamp, compression='gzip')
+                    d[()] = presamp
+                    f[dfile + '/' + sensor + '/PeaksResample'].attrs['rsfactor'] = resampfactor
+                    f[dfile + '/' + sensor + '/PeaksResample'].attrs['wtsel'] = wtsel
+                    f[dfile + '/' + sensor + '/PeaksResample'].attrs['filtered'] = filtered
 
             f.close()

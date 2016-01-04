@@ -48,9 +48,12 @@ for expname in lexperiments:
         print(s)
         ldata = []
         for dfiles in datainfo.datafiles:
-            d = f[dfiles + '/' + s + '/' + 'PeaksResamplePCA']
-            dataf = d[()]
-            ldata.append(dataf)
+            if dfiles + '/' + s + '/' + 'PeaksResamplePCA' in f:
+                d = f[dfiles + '/' + s + '/' + 'PeaksResamplePCA']
+                dataf = d[()]
+                ldata.append(dataf)
+            else:
+                ldata.append(None)
 
         data = ldata[0] #np.concatenate(ldata)
 
@@ -69,16 +72,20 @@ for expname in lexperiments:
 
         lhisto = []
         for dataf, ndata in zip(ldata, datainfo.datafiles):
-            histo = np.zeros(nclusters)
-            for i in range(dataf.shape[0]):
-                histo[km.predict(dataf[i])] += 1.0
-            histo /= dataf.shape[0]
-            print(datainfo.name, ndata)
-            print('HISTO ', histo)
-            histosorted = np.zeros(nclusters)
-            for i in range(histosorted.shape[0]):
-                histosorted[i] = histo[lmax[i][0]]
+            if dataf is not None:
+                histo = np.zeros(nclusters)
+                for i in range(dataf.shape[0]):
+                    histo[km.predict(dataf[i])] += 1.0
+                histo /= dataf.shape[0]
+                print(datainfo.name, ndata)
+                print('HISTO ', histo)
+                histosorted = np.zeros(nclusters)
+                for i in range(histosorted.shape[0]):
+                    histosorted[i] = histo[lmax[i][0]]
+            else:
+                histosorted = np.zeros(nclusters)
             lhisto.append(histosorted)
+
 
         # for h in lhisto[1:]:
         #     rms = np.dot(lhisto[0] - h,  lhisto[0] - h)

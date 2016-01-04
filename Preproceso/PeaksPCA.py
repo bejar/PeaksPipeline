@@ -47,61 +47,64 @@ def do_the_job(dfile, sensor, components, lind, pcap=True, recenter=True, wtsel=
     """
     print(datainfo.dpath + datainfo.name, sensor)
     f = h5py.File(datainfo.dpath + datainfo.name + '/' + datainfo.name + '.hdf5', 'r')
+    if dfile + '/' + sensor + '/' + 'PeaksResample' in f:
 
-    d = f[dfile + '/' + sensor + '/' + 'PeaksResample']
-    data = d[()]
+        d = f[dfile + '/' + sensor + '/' + 'PeaksResample']
+        data = d[()]
 
-    # if there is a clean list of peaks then the PCA is computed only for the clean peaks
-    if clean and dfile + '/' + sensor + '/TimeClean' in f:
-        lt = f[dfile + '/' + sensor + '/' + 'TimeClean']
-        ltime = list(lt[()])
-        print(data.shape)
-        data = data[ltime]
-        print(data.shape)
+        # if there is a clean list of peaks then the PCA is computed only for the clean peaks
+        if clean and dfile + '/' + sensor + '/TimeClean' in f:
+            lt = f[dfile + '/' + sensor + '/' + 'TimeClean']
+            ltime = list(lt[()])
+            print(data.shape)
+            data = data[ltime]
+            print(data.shape)
 
-    if pcap:
-        pca = PCA(n_components=data.shape[1])
-        res = pca.fit_transform(data)
+        if pcap:
+            pca = PCA(n_components=data.shape[1])
+            res = pca.fit_transform(data)
 
-        print('VEX=', np.sum(pca.explained_variance_ratio_[0:components]))
+            print('VEX=', np.sum(pca.explained_variance_ratio_[0:components]))
 
-        res[:, components:] = 0
-        trans = pca.inverse_transform(res)
-    else:
-        trans = data
-
-    # If recenter, find the new center of the peak and crop the data to wtsel milliseconds
-    if recenter:
-        # Original window size in milliseconds
-        wtsel_orig = f[dfile + '/' + sensor + '/PeaksResample'].attrs['wtsel']
-        # current window midpoint
-        midpoint = int(trans.shape[1]/2.0)
-        # New window size
-        wtlen = int(trans.shape[1]*(wtsel/wtsel_orig))
-        wtdisc = int((trans.shape[1] - wtlen)/2.0)
-        # in case we have a odd number of points in the window
-        if wtlen + (2*wtdisc) != wtlen:
-            wtdisci = wtdisc + 1
+            res[:, components:] = 0
+            trans = pca.inverse_transform(res)
         else:
-            wtdisci = wtdisc
+            trans = data
 
-        new_trans = np.zeros((trans.shape[0], wtlen))
-        for pk in range(trans.shape[0]):
-            # find current maximum around the midpoint of the current window
-            # Fixed to 10 points around the center
-            center = np.argmax(trans[pk, midpoint-10:midpoint+10])
-            new_trans[pk] = trans[pk,wtdisci:wtlen-wtdisc]
+        # If recenter, find the new center of the peak and crop the data to wtsel milliseconds
+        if recenter:
+            # Original window size in milliseconds
+            wtsel_orig = f[dfile + '/' + sensor + '/PeaksResample'].attrs['wtsel']
+            # current window midpoint
+            midpoint = int(trans.shape[1]/2.0)
+            # New window size
+            wtlen = int(trans.shape[1]*(wtsel/wtsel_orig))
+            wtdisc = int((trans.shape[1] - wtlen)/2.0)
+            # in case we have a odd number of points in the window
+            if wtlen + (2*wtdisc) != wtlen:
+                wtdisci = wtdisc + 1
+            else:
+                wtdisci = wtdisc
 
-        trans = new_trans
+            new_trans = np.zeros((trans.shape[0], wtlen))
+            for pk in range(trans.shape[0]):
+                # find current maximum around the midpoint of the current window
+                # Fixed to 10 points around the center
+                center = np.argmax(trans[pk, midpoint-10:midpoint+10])
+                new_trans[pk] = trans[pk,wtdisci:wtlen-wtdisc]
 
-    # Substract the basal
-    for row in range(trans.shape[0]):
-        vals = trans[row, lind]
-        basal = np.mean(vals)
-        trans[row] -= basal
+            trans = new_trans
 
-    f.close()
-    return trans
+        # Substract the basal
+        for row in range(trans.shape[0]):
+            vals = trans[row, lind]
+            basal = np.mean(vals)
+            trans[row] -= basal
+
+        f.close()
+        return trans
+    else:
+        return None
 
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -133,21 +136,22 @@ if __name__ == '__main__':
             # Save all the data
             f = h5py.File(datainfo.dpath + datainfo.name + '/' + datainfo.name + '.hdf5', 'r+')
             for trans, sensor in zip(res, datainfo.sensors):
-                print(dfile + '/' + sensor + '/' + 'PeaksResamplePCA')
-                if dfile + '/' + sensor + '/' + 'PeaksResamplePCA' in f:
-                    del f[dfile + '/' + sensor + '/' + 'PeaksResamplePCA']
-                d = f.require_dataset(dfile + '/' + sensor + '/' + 'PeaksResamplePCA', trans.shape, dtype='f',
-                                      data=trans, compression='gzip')
-                if fpca:
-                    f[dfile + '/' + sensor + '/PeaksResamplePCA'].attrs['Components'] = components
-                else:
-                    f[dfile + '/' + sensor + '/PeaksResamplePCA'].attrs['Components'] = 0
+                if trans is not None:
+                    print(dfile + '/' + sensor + '/' + 'PeaksResamplePCA')
+                    if dfile + '/' + sensor + '/' + 'PeaksResamplePCA' in f:
+                        del f[dfile + '/' + sensor + '/' + 'PeaksResamplePCA']
+                    d = f.require_dataset(dfile + '/' + sensor + '/' + 'PeaksResamplePCA', trans.shape, dtype='f',
+                                          data=trans, compression='gzip')
+                    if fpca:
+                        f[dfile + '/' + sensor + '/PeaksResamplePCA'].attrs['Components'] = components
+                    else:
+                        f[dfile + '/' + sensor + '/PeaksResamplePCA'].attrs['Components'] = 0
 
-                f[dfile + '/' + sensor + '/PeaksResamplePCA'].attrs['baseline'] = baseline
-                if recenter:
-                    f[dfile + '/' + sensor + '/PeaksResamplePCA'].attrs['baseline'] = recenter
-                    f[dfile + '/' + sensor + '/PeaksResamplePCA'].attrs['wtsel'] = wtsel
+                    f[dfile + '/' + sensor + '/PeaksResamplePCA'].attrs['baseline'] = baseline
+                    if recenter:
+                        f[dfile + '/' + sensor + '/PeaksResamplePCA'].attrs['baseline'] = recenter
+                        f[dfile + '/' + sensor + '/PeaksResamplePCA'].attrs['wtsel'] = wtsel
 
-                d[()] = trans
+                    d[()] = trans
 
             f.close()
