@@ -26,6 +26,7 @@ import numpy as np
 from Config.experiments import experiments
 import scipy.io
 from pylab import *
+import seaborn as sns
 
 from Secuencias.rstr_max import *
 from util.misc import compute_frequency_remap
@@ -150,6 +151,8 @@ def drawgraph_with_edges(nnodes, edges, nfile, sensor):
     rfile.write('}\n')
 
     rfile.close()
+
+
 
 
 def max_seq_long(nexp, clpeaks, timepeaks, sup, nfile, gap=0):
@@ -296,10 +299,14 @@ def max_seq_exp(nfile, clpeaks, timepeaks, sensor, dfile, ename, nclust, gap=0, 
 
     rfile = open(datainfo.dpath+ '/'+ datainfo.name + '/Results/maxseq-' + nfile + '-' + ename + '-' + sensor + '-' + randname + '.txt', 'w')
 
+    mfreq = np.zeros((nclust, nclust))
     for seq, s in lstrings:
         wstr = ''
         prob = 1.0
         if not '#' in seq:
+            if len(seq) == 2:
+                mfreq[voc.find(seq[0]),  voc.find(seq[1])] = int(s)
+
             sigsym = []
             for c in range(len(seq)):
                 wstr += str(voc.find(seq[c]))
@@ -308,11 +315,18 @@ def max_seq_exp(nfile, clpeaks, timepeaks, sensor, dfile, ename, nclust, gap=0, 
                 prob *= peakfreq[seq[c]]
                 if c < (len(seq) - 1):
                     wstr += ' - '
+
             lstringsg.append((sigsym, prob, (s * 1.0) / (len(peakstr) - 1)))
             wstr += ' = ' + str(s) + ' ( ' + str(prob) + ' / ' + str((s * 1.0) / (len(peakstr) - 1)) + ' )'
-
             rfile.write(wstr + '\n')
     rfile.close()
+
+    fig = plt.figure()
+    sns.heatmap(mfreq, annot=True, fmt='.0f', cbar=False, xticklabels=range(1,nclust+1), yticklabels=range(1,nclust+1), square=True)
+    plt.title(nfile + '-' + ename + '-' + sensor + ' sup(%d)' % sup)
+    plt.savefig(datainfo.dpath + '/' + datainfo.name + '/Results/maxseq-histo' + datainfo.name + '-' + dfile + '-'
+                + sensor  + '-freq.pdf', orientation='landscape', format='pdf')
+    plt.close()
 
     nsig = len(peakfreq)
     if '#' in peakfreq:
@@ -469,8 +483,8 @@ voc = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 # --------------------------------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    # 'e110616''e120503''e150514' 'e150514'
-    lexperiments = ['e150707']
+    # 'e110616''e120503''e150514' 'e150514''e150707'
+    lexperiments = ['e150514']
     galt = True
     partition = [[[0, 1, 2, 3], 'red'], [[4, 5, 6, 7], 'blue'], [[8,9,10,11], 'green']]
 

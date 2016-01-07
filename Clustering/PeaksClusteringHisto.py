@@ -26,6 +26,7 @@ from operator import itemgetter
 import h5py
 import matplotlib.pyplot as plt
 from pylab import *
+import seaborn as sn
 from sklearn.cluster import KMeans
 
 from Config.experiments import experiments
@@ -34,8 +35,8 @@ import warnings
 warnings.filterwarnings("ignore")
 
 __author__ = 'bejar'
-# 'e110616''e120503''e150514'
-lexperiments = ['e151126']
+# 'e110616''e120503''e150514''e151126'
+lexperiments = ['e150514']
 
 
 for expname in lexperiments:
