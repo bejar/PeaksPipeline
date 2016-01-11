@@ -484,7 +484,7 @@ voc = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 if __name__ == '__main__':
     # 'e110616''e120503''e150514' 'e150514''e150707'
-    lexperiments = ['e150514']
+    lexperiments = ['e151126']
     galt = True
     partition = [[[0, 1, 2, 3], 'red'], [[4, 5, 6, 7], 'blue'], [[8,9,10,11], 'green']]
 
@@ -498,7 +498,8 @@ if __name__ == '__main__':
             print(dfile)
 
             for ncl, sensor in zip(datainfo.clusters, datainfo.sensors):
-                clpeaks = compute_data_labels(datainfo.datafiles[0], dfile, sensor)
-                d = f[dfile + '/' + sensor + '/' + 'Time']
-                timepeaks = data = d[()]
-                generate_sequences(dfile, ename, timepeaks, clpeaks, sensor, ncl, gap=2000, sup=None, rand=False, galt=galt, partition=partition)
+                if dfile + '/' + sensor + '/' + 'Time' in f:
+                    clpeaks = compute_data_labels(datainfo.datafiles[0], dfile, sensor)
+                    d = f[dfile + '/' + sensor + '/' + 'Time']
+                    timepeaks = data = d[()]
+                    generate_sequences(dfile, ename, timepeaks, clpeaks, sensor, ncl, gap=2000, sup=None, rand=False, galt=galt, partition=partition)

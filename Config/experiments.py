@@ -48,13 +48,13 @@ experiments = \
                            '15n27066'],
                 sensors=['L4ci', 'L4cd', 'L5ri', 'L5rd', 'L5ci', 'L5cd', 'L6ri', 'L6rd', 'L6ci', 'L6cd', 'L7ri', 'L7rd'],
                 abfsensors=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-                clusters=[4] * 61, #[12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
-                colors='rgby'*16,
+                clusters=[12] * 61, #[12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
+                colors='r'*2 + 'g' * 24 + 'b' * 11 + 'y'*10 + 'c'*7 + 'm'* 6 + 'k',
                 peaks_id_params={'wtime': 120e-3, 'low': 0, 'high': 70, 'threshold': 0.04},
                 peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
                 peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 20},
                 peaks_filter={'lowpass': 1.0, 'highpass':200.0},
-                expnames=[]
+                expnames=None
 
             ),
 
