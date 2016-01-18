@@ -32,15 +32,22 @@ from sklearn.cluster import KMeans
 from Config.experiments import experiments
 from util.plots import plotSignals
 import warnings
+from util.distances import hellinger_distance
+import argparse
 warnings.filterwarnings("ignore")
 
 __author__ = 'bejar'
 
 if __name__ == '__main__':
-    # 'e110616''e120503''e150514' 'e150707'
-    lexperiments = ['e151126']
+    # 'e150514''e120503''e110616''e150707''e151126''e120511'
+    lexperiments = ['e110906e']
 
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
 
+    args = parser.parse_args()
+    if args.exp:
+        lexperiments = args.exp
 
     for expname in lexperiments:
         datainfo = experiments[expname]
@@ -91,10 +98,10 @@ if __name__ == '__main__':
                 lhisto.append(histosorted)
 
 
-            # for h in lhisto[1:]:
-            #     rms = np.dot(lhisto[0] - h,  lhisto[0] - h)
-            #     rms /= h.shape[0]
-            #     print np.sqrt(rms), hellinger_distance(h, lhisto[0])
+            for h in lhisto[1:]:
+                rms = np.dot(lhisto[0] - h,  lhisto[0] - h)
+                rms /= h.shape[0]
+                print np.sqrt(rms), hellinger_distance(h, lhisto[0])
 
             fig = plt.figure()
             ax = fig.add_subplot(2, 1, 1)

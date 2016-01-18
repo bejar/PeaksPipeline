@@ -22,7 +22,7 @@ import numpy as np
 from scipy.signal import butter, filtfilt
 
 from Config.experiments import experiments, lexperiments
-
+import argparse
 __author__ = 'bejar'
 
 
@@ -94,6 +94,17 @@ def filter_data(experiment):
 # ---------------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
 
-    lexperiments = ['e150707']
+    # 'e150514''e120503''e110616''e150707''e151126''e120511'
+    lexperiments = ['e120511']
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
+
+    args = parser.parse_args()
+    if args.exp:
+        lexperiments = args.exp
+
+
+
     for exp in lexperiments:
         filter_data(experiments[exp])

@@ -26,6 +26,7 @@ import numpy as np
 import os
 
 from Config.experiments import experiments
+import argparse
 
 def plotSignalValues(signals, dfile, sensor, nc):
     fig = plt.figure()
@@ -52,8 +53,17 @@ def plotSignalValues(signals, dfile, sensor, nc):
 
 
 if __name__ == '__main__':
-    # 'e110616''e120503''e150514''e150707'
-    lexperiments = ['e151126']
+    # 'e150514''e120503''e110616''e150707''e151126''e120511'
+    lexperiments = ['e120511e']
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
+
+    args = parser.parse_args()
+    if args.exp:
+        lexperiments = args.exp
+
+
 
     peakdata = {}
     for expname in lexperiments:

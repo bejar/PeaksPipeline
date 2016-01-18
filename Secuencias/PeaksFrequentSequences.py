@@ -34,6 +34,7 @@ from sklearn.metrics import pairwise_distances_argmin_min
 import random
 import string
 import os
+import argparse
 
 def randomize_string(s):
     l = list(s)
@@ -459,6 +460,15 @@ def compute_data_labels(dfilec, dfile, sensor):
     return labels
 
 
+def generate_partition(nvals, npart, colors):
+    partition = []
+    div = nvals/npart
+    if nvals % npart != 0:
+        div += 1
+    for i in range(npart):
+        partition.append([range(i*div, min((i*div)+div, nvals)), colors[i]])
+    return partition
+
 voc = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 # line = 'L6ri'  # 'L6rd' 'L5ci' 'L6ri'
 # clust = '.k15.n1'  # '.k20.n5' '.k16.n4' '.k15.n1'
@@ -483,10 +493,20 @@ voc = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 # --------------------------------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    # 'e110616''e120503''e150514' 'e150514''e150707'
-    lexperiments = ['e151126']
+    # 'e150514''e120503''e110616''e150707''e151126''e120511'
+    lexperiments = ['e120511e']
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
+
+    args = parser.parse_args()
+    if args.exp:
+        lexperiments = args.exp
+
+
     galt = True
-    partition = [[[0, 1, 2, 3], 'red'], [[4, 5, 6, 7], 'blue'], [[8,9,10,11], 'green']]
+    colors = ['red', 'blue', 'green']
+    npart = 3
 
     peakdata = {}
     for expname in lexperiments:
@@ -502,4 +522,5 @@ if __name__ == '__main__':
                     clpeaks = compute_data_labels(datainfo.datafiles[0], dfile, sensor)
                     d = f[dfile + '/' + sensor + '/' + 'Time']
                     timepeaks = data = d[()]
+                    partition = generate_partition(ncl, npart, colors)
                     generate_sequences(dfile, ename, timepeaks, clpeaks, sensor, ncl, gap=2000, sup=None, rand=False, galt=galt, partition=partition)

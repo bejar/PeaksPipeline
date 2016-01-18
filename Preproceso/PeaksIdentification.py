@@ -39,6 +39,7 @@ from joblib import Parallel, delayed
 from Config.experiments import experiments
 from Config.experiments import lexperiments
 from util.plots import show_signal
+import argparse
 
 def uniquetol(peaks, tol):
     """
@@ -339,8 +340,15 @@ def cdp_identification(Y, i, wtime, datainfo, sensor, ifreq=0.0, ffreq=200, thre
 
 # ---------------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
-    # 'e150514''e120503''e110616''e150707'
-    lexperiments = ['e151126']
+    # 'e150514''e120503''e110616''e150707''e151126''e120511'
+    lexperiments = ['e120511']
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
+
+    args = parser.parse_args()
+    if args.exp:
+        lexperiments = args.exp
 
     # Preparado para procesar un conjunto de experimentos a la vez
     for expname in lexperiments:

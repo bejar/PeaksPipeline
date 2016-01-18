@@ -91,6 +91,16 @@ def square_frobenius_distance(m1, m2):
     return c.sum()
 
 
+def hamming_frobenius_distance(m1, m2):
+    """
+    Square frobenius distance between two probability matrices/vectors
+    :param m1:
+    :param m2:
+    :return:
+    """
+    c = np.abs(m1 - m2)
+    return c.sum()
+
 def bhattacharyya_distance(m1, m2):
     """
     Bhattacharyya distance between two probability matrices/vectors

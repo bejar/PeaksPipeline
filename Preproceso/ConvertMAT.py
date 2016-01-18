@@ -22,16 +22,16 @@ ConvertABF
 
 __author__ = 'bejar'
 
-from neo.io import AxonIO
+
 import numpy as np
 import h5py
 import os
-import argparse
+import scipy.io
 
 from Config.experiments import experiments
+import argparse
 
-
-def convert_from_ABF_to_HDF5(experiment):
+def convert_from_MAT_to_HDF5(experiment):
     """
     Convierte los ficheros del experimento desde ABF y los graba en un fichero HDF5
     :param experiment:
@@ -47,22 +47,16 @@ def convert_from_ABF_to_HDF5(experiment):
     for dataf in datafiles:
         # Leemos los datos del fichero ABF
         print('Reading: ', dataf, '...')
-        data = AxonIO(experiment.dpath + experiment.name + '/' + dataf + '.abf')
+        data = scipy.io.loadmat(experiment.dpath + experiment.name + '/' + dataf + '.mat')
+        #AxonIO(experiment.dpath + experiment.name + '/' + dataf + '.abf')
 
-        bl = data.read_block(lazy=False, cascade=True)
-        dim = bl.segments[0].analogsignals[0].shape[0]
-        matrix = np.zeros((len(nsig), dim))
+        matrix = data['data']
 
-        for i, j in enumerate(nsig):
-            matrix[i][:] = bl.segments[0].analogsignals[j][:].magnitude
-
-        # Los guardamos en una carpeta del fichero HDF5 para el fichero dentro de /Raw
         print('Saving: ', dataf, '...')
         dgroup = f.create_group(dataf)
 
-        dgroup.create_dataset('Raw', matrix.T.shape, dtype='f', data=matrix.T, compression='gzip')
+        dgroup.create_dataset('Raw', matrix.shape, dtype='f', data=matrix, compression='gzip')
         del matrix
-        del bl
 
         f[dataf + '/Raw'].attrs['Sampling'] = experiment.sampling
         f[dataf + '/Raw'].attrs['Sensors'] = experiment.sensors
@@ -85,8 +79,7 @@ if __name__ == '__main__':
         lexperiments = args.exp
 
     for experiment in lexperiments:
-
-        convert_from_ABF_to_HDF5(experiments[experiment])
+        convert_from_MAT_to_HDF5(experiments[experiment])
         # Create the results directory if does not exists
         if not os.path.exists(experiment.dpath + '/' + experiment.name + '/Results'):
             os.makedirs(experiment.dpath + '/' + experiment.name + '/Results')

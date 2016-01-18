@@ -27,7 +27,7 @@ import h5py
 
 from Config.experiments import experiments, lexperiments
 from joblib import Parallel, delayed
-
+import argparse
 
 def do_the_job(dfile, sensor, wtsel, resampfac, filter=False):
     """
@@ -73,8 +73,15 @@ def do_the_job(dfile, sensor, wtsel, resampfac, filter=False):
 
 # ---------------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
-    # 'e110616''e120503''e150514''e150707'
-    lexperiments = ['e151126']
+    # 'e150514''e120503''e110616''e150707''e151126''e120511'
+    lexperiments = ['e110906e']
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
+
+    args = parser.parse_args()
+    if args.exp:
+        lexperiments = args.exp
 
     for expname in lexperiments:
 

@@ -152,6 +152,97 @@ experiments = \
                 expnames=['ctrl1', 'ctrl2', 'ctrl3', 'capsa1', 'capsa2', 'capsa3', 'capsa4', 'capsa5',
                           'lido1', 'lido2', 'lido3', 'lido4', 'lido5', 'lido6', 'lido7']
             ),
+        'e110906':
+            Experiment(
+                dpath='/home/bejar/storage/Data/Gatos/',
+                name='e110906',
+                sampling=1670.0,
+                datafiles=['11906001', '11906002', '11906028', '11906061', '11906087', '11906118',
+                           '11906119', '11906145', '11906172', '11906173', '11906210'],
+                sensors=['L4ci', 'L4cd', 'L5ri', 'L5rd', 'L5ci', 'L5cd', 'L6ri', 'L6rd', 'L6ci', 'L6cd', 'L7ri'],
+                abfsensors=[1,2,3,4,5,6,7,8,9,10,11],
+                clusters=[15]*11,
+                colors='rryyybbbbbb',
+                peaks_id_params={'wtime': 120e-3, 'low': 0, 'high': 70, 'threshold': 0.05},
+                peaks_resampling={'wtsel': 100, 'rsfactor': 1.0, 'filtered': False},
+                peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 10},
+                peaks_filter={'lowpass': 1.0, 'highpass':200.0},
+                expnames=['ctrl1', 'ctrl2',  'capsa1', 'capsa2', 'capsa3',
+                          'lido1', 'lido2', 'lido3', 'lido4', 'lido5', 'lido6']
+            ),
+        'e110906o':
+            Experiment(
+                dpath='/home/bejar/storage/Data/Gatos/',
+                name='e110906o',
+                sampling=10240.0,
+                datafiles=['11906001', '11906002', '11906028', '11906061', '11906087', '11906118',
+                           '11906119', '11906145', '11906172', '11906173', '11906210'],
+                sensors=['L4ci', 'L4cd', 'L5ri', 'L5rd', 'L5ci', 'L5cd', 'L6ri', 'L6rd', 'L6ci', 'L6cd', 'L7ri'],
+                abfsensors=[1,2,3,4,5,6,7,8,9,10,11],
+                clusters=[15]*11,
+                colors='rryyybbbbbb',
+                peaks_id_params={'wtime': 120e-3, 'low': 0, 'high': 70, 'threshold': 0.05},
+                peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
+                peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 10},
+                peaks_filter={'lowpass': 1.0, 'highpass':200.0},
+                expnames=['ctrl1', 'ctrl2',  'capsa1', 'capsa2', 'capsa3',
+                          'lido1', 'lido2', 'lido3', 'lido4', 'lido5', 'lido6']
+            ),
+        'e110906e':
+            Experiment(
+                dpath='/home/bejar/storage/Data/Gatos/',
+                name='e110906e',
+                sampling=10240.0,
+                datafiles=['11906001', '11906002', '11906028', '11906061', '11906087', '11906118',
+                           '11906119', '11906145', '11906172', '11906173', '11906210'],
+                sensors=['L4ci', 'L4cd', 'L5ri', 'L5rd', 'L5ci', 'L5cd', 'L6ri', 'L6rd', 'L6ci', 'L6cd', 'L7ri'],
+                abfsensors=[1,2,3,4,5,6,7,8,9,10,11],
+                clusters=[15]*11,
+                colors='rryyybbbbbb',
+                peaks_id_params={'wtime': 120e-3, 'low': 0, 'high': 70, 'threshold': 0.05},
+                peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
+                peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 10},
+                peaks_filter={'lowpass': 1.0, 'highpass':200.0},
+                expnames=['ctrl1', 'ctrl2',  'capsa1', 'capsa2', 'capsa3',
+                          'lido1', 'lido2', 'lido3', 'lido4', 'lido5', 'lido6']
+            ),
+        'e120511':
+            Experiment(
+                dpath='/home/bejar/storage/Data/Gatos/',
+                name='e120511',
+                sampling=10204.0,
+                datafiles=['12511000', '12511001', '12511005', '12511006', '12511010', '12511015', '12511019',
+                           '12511020', '12511024', '12511025'],
+                sensors=['L4ci', 'L4cd', 'L5ri', 'L5rd', 'L5ci', 'L5cd', 'L6ri', 'L6rd', 'L6ci', 'L6cd', 'L7ri'],
+                abfsensors=[1,2,3,4,5,6,7,8,9,10,11],
+                clusters=[12]*11,
+                colors='rryyyykbbbb',
+                peaks_id_params={'wtime': 120e-3, 'low': 0, 'high': 70, 'threshold': 0.05},
+                peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
+                peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 10},
+                peaks_filter={'lowpass': 1.0, 'highpass':200.0},
+                expnames=['ctrl1', 'ctrl2',  'capsa1', 'capsa2', 'capsa3', 'capsa4',
+                          'sec1', 'lido1', 'lido2', 'lido3', 'lido4']
+            ),
+        'e120511e':
+            Experiment(
+                dpath='/home/bejar/storage/Data/Gatos/',
+                name='e120511e',
+                sampling=10204.0,
+                datafiles=['12511000', '12511001', '12511005', '12511006', '12511010', '12511015', '12511019',
+                           '12511020', '12511024', '12511025'],
+                sensors=['L4ci', 'L4cd', 'L5ri', 'L5rd', 'L5ci', 'L5cd', 'L6ri', 'L6rd', 'L6ci', 'L6cd', 'L7ri'],
+                abfsensors=[1,2,3,4,5,6,7,8,9,10,11],
+                clusters=[12]*11,
+                colors='rryyyykbbbb',
+                peaks_id_params={'wtime': 120e-3, 'low': 0, 'high': 70, 'threshold': 0.05},
+                peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
+                peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 10},
+                peaks_filter={'lowpass': 1.0, 'highpass':200.0},
+                expnames=['ctrl1', 'ctrl2',  'capsa1', 'capsa2', 'capsa3', 'capsa4',
+                          'sec1', 'lido1', 'lido2', 'lido3', 'lido4']
+            ),
+
 
     }
 
