@@ -1,0 +1,20 @@
+Analisis de las secuencias de un experimento:
+
+PeaksSyncro :
+    funcion draw_synchs - Genera un fichero para cada parte del experimento representando las sincronizaciones en el
+                          tiempo
+    funcion length_synch_frequency_histograms -
+                        - Genera un fichero para cada parte del experimento con las frecuencias de las longitudes de
+                          las sincronizaciones
+    funcion synch_coincidence_matrix -
+                        - Genera un fichero para cada parte del experimento con la frecuencia de coincidencia en las
+                        sincronizaciones entre los diferenctes sensores
+
+PeaksSynchroContingency :
+    Genera un fichero para cada tramo del experimento con la tabla de contingencia de para cada par de sensores de las
+    sincronizaciones de las clases del diccionario de picos
+
+PeaksSyncroPlot :
+    Genera ficheros con los graficos de los picos sincronizados.
+    Atencion: Los parametros estan harcoded para 10000Hz con ventanas de 2000 puntos centradas en la media de los
+              tiempos de los picos sincronizados

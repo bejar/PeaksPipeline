@@ -63,8 +63,6 @@ if __name__ == '__main__':
     if args.exp:
         lexperiments = args.exp
 
-
-
     peakdata = {}
     for expname in lexperiments:
 
