@@ -9,6 +9,8 @@ PeaksSyncro :
     funcion synch_coincidence_matrix -
                         - Genera un fichero para cada parte del experimento con la frecuencia de coincidencia en las
                         sincronizaciones entre los diferenctes sensores
+    funcion save_synch_sequence -
+                        - Graba un fichero con la lista de sincronizacion y su longitud
 
 PeaksSynchroContingency :
     Genera un fichero para cada tramo del experimento con la tabla de contingencia de para cada par de sensores de las

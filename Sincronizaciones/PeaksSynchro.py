@@ -26,7 +26,7 @@ __author__ = 'bejar'
 import pylab as P
 from pylab import *
 from pyx import *
-from pyx.color import cmyk
+from pyx.color import cmyk, rgb
 from util.plots import plotMatrices, plotMatrix
 from util.misc import normalize_matrix, compute_frequency_remap
 import h5py
@@ -37,6 +37,7 @@ from sklearn.metrics import pairwise_distances_argmin_min
 from sklearn.metrics.pairwise import euclidean_distances
 import seaborn as sns
 import argparse
+import cairo as cr
 
 voc = ' ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
@@ -53,6 +54,47 @@ coormap = {'L4ci': (1, 1),
            'L7ri': (6, 1),
            'L7rd': (6, 2)
            }
+
+def compute_RGB(val):
+    """
+    Return a rgb triple from its integer value
+
+    :param val:
+    :return:
+    """
+    b = val % 256
+    val = int(val / 256)
+    g = val % 256
+    r = int(val / 256)
+    return r/256.0, g/256.0, b/256.0
+
+def choose_color(nsym):
+    """
+    selects the  RBG colors from a range with maximum nsym colors
+    :param mx:
+    :return:
+    """
+    cols = [(1.0,0.0,0.0), (0.0,1.0,0.0), (0.0,0.0,1.0), (1.0,1.0,0.0), (1.0,0.0,1.0), (0.0,1.0,1.0)]
+    rep = nsym/len(cols)
+    if nsym % len(cols) != 0:
+        rep += 1
+    fr = np.arange(1.0,0.0,-1.0/rep)
+    lcols = []
+    for i in fr:
+        for c in cols:
+            lcols.append(rgb(c[0]*i, c[1]*i, c[2]*i))
+    return lcols
+
+# def choose_color(nsym):
+#     """
+#     selects the  RBG colors at random
+#     :param mx:
+#     :return:
+#     """
+#     lcols = []
+#     for c in np.random.rand(nsym,3):
+#         lcols.append(rgb(c[0], c[1], c[2]))
+#     return lcols
 
 
 def gen_data_matrix(lines, clusters):
@@ -106,7 +148,8 @@ def gen_peaks_contingency(peakdata, sensors, dfile, clusters):
             if i != ln:
                 #print normalize_matrix(mt[i]), sensors[ln], sensors[i]
                 lplot.append((normalize_matrix(mt[i]), sensors[i]))
-        plotMatrices(lplot, 6, 2, 'msynch-' + datainfo.name + '-' + dfile + '-' + sensors[ln], sensors[ln], datainfo.dpath + '/Results/')
+        plotMatrices(lplot, 6, 2, 'msynch-' + datainfo.name + '-' + dfile + '-' + sensors[ln], sensors[ln],
+                     datainfo.dpath + '/' + datainfo.name + '/' + '/Results/')
 
 
 
@@ -142,7 +185,8 @@ def coincidence_contingency(peaksynchs, dfile, sensors):
     sns.heatmap(cmatrix, annot=True, fmt="2.2f", cmap="afmhot_r", xticklabels=sensors, yticklabels=sensors, vmin=0, vmax=0.6)
 
     plt.title(dfile, fontsize=48)
-    plt.savefig(datainfo.dpath + '/Results/' + dfile + '-psync-corr.pdf', orientation='landscape', format='pdf')
+    plt.savefig(datainfo.dpath + '/' + datainfo.name + '/' + '/Results/' + dfile + '-psync-corr.pdf',
+                orientation='landscape', format='pdf')
 
     plt.close()
 
@@ -185,12 +229,12 @@ def length_synch_frequency_histograms(dsynchs, dfile, window):
     P.figure()
     n, bins, patches = P.hist(x, max(x) - 1, normed=1, histtype='bar', fill=True)
     P.title('%s-W%d' % ( dfile, window), fontsize=48)
-    P.savefig(datainfo.dpath + '/Results/histo-' + datainfo.name + '-' + dfile + '-W' + str(window) + '.pdf', orientation='landscape', format='pdf')
+    P.savefig(datainfo.dpath + '/' + datainfo.name + '/' + '/Results/histo-' + datainfo.name + '-' + dfile + '-W' + str(window) + '.pdf', orientation='landscape', format='pdf')
     P.close()
 
 
 
-def draw_synchs(peakdata, exp, sensors, window):
+def draw_synchs(peakdata, exp, sensors, window, nsym):
     """
     Generates a PDF of the synchronizations
     :param peakdata: Dictionary with the synchronizations computed by compute_syncs
@@ -211,8 +255,11 @@ def draw_synchs(peakdata, exp, sensors, window):
             else:
                 can.stroke(p)
 
-    collist = [cmyk.GreenYellow, cmyk.Orange, cmyk.Mahogany, cmyk.OrangeRed, cmyk.Salmon, cmyk.Fuchsia, cmyk.Violet,
-               cmyk.NavyBlue, cmyk.Cyan, cmyk.Emerald, cmyk.LimeGreen, cmyk.Sepia, cmyk.Tan]
+ #   collist = [cmyk.GreenYellow, cmyk.Orange, cmyk.Mahogany, cmyk.OrangeRed, cmyk.Salmon, cmyk.Fuchsia, cmyk.Violet,
+ #              cmyk.NavyBlue, cmyk.Cyan, cmyk.Emerald, cmyk.LimeGreen, cmyk.Sepia, cmyk.Tan]
+    # Generates the list of colors
+    collist = choose_color(nsym)
+
     ncol = 0
     npage = 1
     lpages = []
@@ -268,7 +315,8 @@ def draw_synchs(peakdata, exp, sensors, window):
 
     d = document.document(lpages)
 
-    d.writePDFfile(datainfo.dpath + "/Results/peaksynchs-%s-%s-W%d" % (datainfo.name, exp, window))
+    d.writePDFfile(datainfo.dpath + '/' + datainfo.name + "/Results/peaksynchs-%s-%s-W%d" % (datainfo.name, exp, window))
+
 
 def compute_synchs(seq, labels, window=15):
     """
@@ -312,6 +360,9 @@ def compute_synchs(seq, labels, window=15):
             counts[imin] += 1
             if len(psynch) > 1:
                 lsynch.append(psynch)
+            else:
+                lsynch.append(psynch)
+
                 # print psynch
         else:
             counts[imin] += 1
@@ -379,7 +430,7 @@ def save_sync_sequence(lsync, nfile):
     :return:
     """
     ttable = '0123456789ABC'
-    rfile = open(datainfo.dpath + 'seq-' + nfile + '.csv', 'w')
+    rfile = open(datainfo.dpath + '/' + datainfo.name + '/Results/' + 'seq-' + nfile + '.csv', 'w')
     for syn in lsync:
         mtime = min([v for _, v, _ in syn])
         rfile.write('%d, %s \n'% (mtime, ttable[len(syn)]))
@@ -389,7 +440,7 @@ def save_sync_sequence(lsync, nfile):
 # --------------------------------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    window = 400
+    window = 2000
 
     print 'W=', int(round(window))
     # 'e150514''e120503''e110616''e150707''e151126''e120511'
@@ -401,7 +452,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     if args.exp:
         lexperiments = args.exp
-
 
     peakdata = {}
     for expname in lexperiments:
@@ -423,7 +473,7 @@ if __name__ == '__main__':
             expcounts = []
             f = h5py.File(datainfo.dpath + '/' + datainfo.name + '/' + datainfo.name + '.hdf5', 'r')
             for sensor in datainfo.sensors:
-                d = f[dfile + '/' + sensor + '/' + 'TimeClean']
+                d = f[dfile + '/' + sensor + '/' + 'Time']
                 data = d[()]
                 expcounts.append(data.shape[0])
                 ltimes.append(data)
@@ -431,7 +481,7 @@ if __name__ == '__main__':
 
             lsynchs = compute_synchs(ltimes, lsens_labels, window=window)
 
-            save_sync_sequence(lsynchs, dfile)
+            #save_sync_sequence(lsynchs, dfile)
 
             # print len(lsynchs)
             # for i, s in enumerate(datainfo.sensors):
@@ -441,7 +491,7 @@ if __name__ == '__main__':
             peakdata = lsynchs
             #print peakdata
             #gen_peaks_contingency(peakdata, datainfo.sensors, dfile, datainfo.clusters)
-            draw_synchs(peakdata, dfile, datainfo.sensors, window)
+            draw_synchs(peakdata, dfile, datainfo.sensors, window, datainfo.clusters[0])
             #length_synch_frequency_histograms(peakdata, dfile, window=int(round(window)))
             #synch_coincidence_matrix(peakdata, dfile, datainfo.sensors, expcounts, window)
             #coincidence_contingency(peakdata, dfile, datainfo.sensors)
