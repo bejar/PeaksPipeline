@@ -30,6 +30,7 @@ class Experiment:
     datafiles = None  # List with the names of the datafiles
     sensors = None  # List with the names of the sensors
     abfsensors = None # List of indices of sensors  the abf file
+    extrasensors = None # List of extra sensors in the file
     dpath = None  # Path of the datafiles
     clusters = None  # List with the number of clusters for each sensor
     colors = ''  # List of colors to use for histogram of the peaks (one color for each datafile)
@@ -58,7 +59,8 @@ class Experiment:
     expnames = None
 
     def __init__(self, dpath='', name='', sampling=0, datafiles=None, sensors=None, abfsensors=None, clusters=None,
-                 colors='', peaks_id_params={}, peaks_resampling={}, peaks_smooth={}, peaks_filter={}, expnames=None):
+                 colors='', peaks_id_params={}, peaks_resampling={}, peaks_smooth={}, peaks_filter={}, expnames=None,
+                 extrasensors=None):
         """
         Class initialized from program
 
@@ -90,6 +92,11 @@ class Experiment:
             self.expnames = datafiles
         else:
             self.expnames = expnames
+        if extrasensors is None:
+            self.extrasensors = []
+        else:
+            self.extrasensors = extrasensors
+
 
     # def load_config(self, file):
     #     """
