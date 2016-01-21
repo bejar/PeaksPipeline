@@ -111,7 +111,7 @@ def do_the_job(dfile, sensor, components, lind, pcap=True, recenter=True, wtsel=
 # ---------------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
     # 'e150514''e120503''e110616''e150707''e151126''e120511'
-    lexperiments = ['e110906e']
+    lexperiments = ['e150514']
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
