@@ -35,7 +35,7 @@ import argparse
 def peaks_contingency(peakdata, sensors, clusters):
     """
     Generates PDFs with the association frequencies of the peaks
-    Each sensor with the synchronizations to the other sensors desagregated by peak class
+    Each sensor with the synchronizations to the other sensors disaggregated by peak class
 
     :return:
     """

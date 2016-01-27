@@ -75,7 +75,7 @@ def convert_from_ABF_to_HDF5(experiment):
 # Estos experimentos estan definidos en Config.experiments
 if __name__ == '__main__':
     # 'e150514''e120503''e110616''e150707''e151126''e120511'
-    lexperiments = ['e150514']
+    lexperiments = ['e130827']
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")

@@ -33,7 +33,7 @@ from util.plots import plotSignals, show_vsignals
 
 __author__ = 'bejar'
 # 'e150514''e120503'
-lexperiments = ['e110616']
+lexperiments = ['e150514']
 
 
 for expname in lexperiments:
@@ -46,7 +46,7 @@ for expname in lexperiments:
         print(s)
         ldata = []
         for dfiles in [datainfo.datafiles[0]]:
-            d = f[dfiles + '/' + s + '/' + 'PeaksResamplePCA']
+            d = f[dfiles + '/' + s + '/' + 'PeaksFilter']
             dataf = d[()]
             ldata.append(dataf)
 
@@ -57,6 +57,7 @@ for expname in lexperiments:
 
         cnt = Counter(list(km.labels_))
         for i in np.unique(km.labels_):
+            print len(dataf[km.labels_ == i, :])
             show_vsignals(dataf[km.labels_ == i, :])
 
 

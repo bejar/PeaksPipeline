@@ -33,7 +33,7 @@ import argparse
 __author__ = 'bejar'
 
 
-def do_the_job(dfile, sensor, components, lind, pcap=True, recenter=True, wtsel=None, clean=False):
+def do_the_job(dfile, sensor, components, lbasal, pcap=True, recenter=True, wtsel=None, clean=False):
     """
     Transforms the data reconstructing the peaks using some components of the PCA
     and uses the mean of the baseline points to move the peak
@@ -42,7 +42,7 @@ def do_the_job(dfile, sensor, components, lind, pcap=True, recenter=True, wtsel=
     :param dfile: datafile
     :param sensor: sensor
     :param components: Components selected from the PCA
-    :param lind: Points to use to move the peak
+    :param lbasal: Points to use to move the peak
     :param recenter: recenters the peak so it is in the center of the window
     :return:
     """
@@ -97,10 +97,12 @@ def do_the_job(dfile, sensor, components, lind, pcap=True, recenter=True, wtsel=
             trans = new_trans
 
         # Substract the basal
-        for row in range(trans.shape[0]):
-            vals = trans[row, lind]
-            basal = np.mean(vals)
-            trans[row] -= basal
+
+        if lbasal:
+            for row in range(trans.shape[0]):
+                vals = trans[row, lbasal]
+                basal = np.mean(vals)
+                trans[row] -= basal
 
         f.close()
         return trans
@@ -133,13 +135,13 @@ if __name__ == '__main__':
         else:
             recenter = False
             wtsel = None
-        lind = range(baseline)
+        lbasal = range(baseline)
 
         for dfile in datainfo.datafiles:
             print(dfile)
             # Paralelize PCA computation
             res = Parallel(n_jobs=-1)(
-                delayed(do_the_job)(dfile, s, components, lind, pcap=fpca, recenter=recenter, wtsel=wtsel, clean=False) for s in datainfo.sensors)
+                    delayed(do_the_job)(dfile, s, components, lbasal, pcap=fpca, recenter=recenter, wtsel=wtsel, clean=False) for s in datainfo.sensors)
             # print 'Parallelism ended'
             # Save all the data
             f = h5py.File(datainfo.dpath + datainfo.name + '/' + datainfo.name + '.hdf5', 'r+')

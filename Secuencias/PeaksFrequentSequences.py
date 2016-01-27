@@ -6,7 +6,10 @@ ComputeSubsequences
 
 :Description: ComputeSubsequences
 
-    
+    Computes the frequent sequences for an experiments
+
+    Generates circular graph for the sequences of length 2 and contingency tables for the counts of frequent sequencies
+    of length 2
 
 :Authors: bejar
     
@@ -231,6 +234,73 @@ def max_seq_long(nexp, clpeaks, timepeaks, sup, nfile, gap=0):
     print('----------')
 
 
+def freq_seq_positions(nfile, clpeaks, timepeaks, sensor, dfile, ename, nclust, gap=0, sup=None):
+    """
+    Generates a list of the positions of the frequent sequences
+
+    :param nfile:
+    :param clpeaks:
+    :param timepeaks:
+    :param sensor:
+    :param dfile:
+    :param ename:
+    :param nclust:
+    :param gap:
+    :param sup:
+    :return:
+    """
+
+    # First compute the sequences with a frequency larger than a threshold
+    # Build the sequence string
+    peakstr = ''
+    peakfreq = {'#': 0}
+
+    for i in range(timepeaks.shape[0]):
+        peakstr += voc[clpeaks[i]]
+        if i < timepeaks.shape[0] - 1 and gap != 0:
+            if (timepeaks[i + 1] - timepeaks[i]) > gap:
+                peakstr += '#'
+                peakfreq['#'] += 1
+
+        if voc[clpeaks[i]] in peakfreq:
+            peakfreq[voc[clpeaks[i]]] += 1
+        else:
+            peakfreq[voc[clpeaks[i]]] = 1
+
+    # Support computed heuristically
+    if sup is None:
+        sup = int(round(len(peakstr) * (1.0 / (len(peakfreq) * len(peakfreq)))) * 1.0)
+
+    for l in peakfreq:
+        peakfreq[l] = (peakfreq[l] * 1.0) / len(peakstr)
+
+    # Compute the sufix array
+    rstr = Rstr_max()
+    rstr.add_str(peakstr)
+
+    r = rstr.go()
+
+    # Compute the sequences that have minimum support
+    lstrings = []
+
+    for (offset_end, nb), (l, start_plage) in r.iteritems():
+        ss = rstr.global_suffix[offset_end - l:offset_end]
+        id_chaine = rstr.idxString[offset_end - 1]
+        s = rstr.array_str[id_chaine]
+        if nb > sup and len(ss.encode('utf-8')) > 1:
+            lstrings.append((ss.encode('utf-8'), nb))
+
+    lstrings = sorted(lstrings, key=operator.itemgetter(0), reverse=True)
+
+    # Compute the sequences that do not include the pause and have length 2
+    lseq = []
+    for seq, s in lstrings:
+        if not '#' in seq and len(seq) == 2:
+            lseq.append((voc.find(seq[0]), voc.find(seq[1])))
+
+
+
+
 def max_seq_exp(nfile, clpeaks, timepeaks, sensor, dfile, ename, nclust, gap=0, sup=None, rand=False, galt=False, partition=None):
     """
     Generates frequent subsequences and the graphs representing the two step frequent
@@ -266,9 +336,8 @@ def max_seq_exp(nfile, clpeaks, timepeaks, sensor, dfile, ename, nclust, gap=0, 
 
     if rand:
         peakstr = randomize_string(peakstr)
-    # print peakend - peakini, len(peakstr), len(peakstr)*(1.0 / (len(peakfreq)*len(peakfreq)))
-    # Support computed heuristcally
 
+    # Support computed heuristically
     if sup is None:
         sup = int(round(len(peakstr) * (1.0 / (len(peakfreq) * len(peakfreq)))) * 1.0)
     print(sup)
@@ -322,13 +391,17 @@ def max_seq_exp(nfile, clpeaks, timepeaks, sensor, dfile, ename, nclust, gap=0, 
             rfile.write(wstr + '\n')
     rfile.close()
 
+    # Contingency table of the number of times a frequent sequence of length 2 has appeared
     fig = plt.figure()
     sns.heatmap(mfreq, annot=True, fmt='.0f', cbar=False, xticklabels=range(1,nclust+1), yticklabels=range(1,nclust+1), square=True)
     plt.title(nfile + '-' + ename + '-' + sensor + ' sup(%d)' % sup)
     plt.savefig(datainfo.dpath + '/' + datainfo.name + '/Results/maxseq-histo' + datainfo.name + '-' + dfile + '-'
                 + sensor  + '-freq.pdf', orientation='landscape', format='pdf')
     plt.close()
+    # ----------------
 
+
+    # Circular graph of the frequent sequences of length 2
     nsig = len(peakfreq)
     if '#' in peakfreq:
         nsig -= 1

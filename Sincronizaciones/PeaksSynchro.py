@@ -38,6 +38,7 @@ from sklearn.metrics.pairwise import euclidean_distances
 import seaborn as sns
 import argparse
 import cairo as cr
+from util.misc import wavelength_to_rgb
 
 voc = ' ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
@@ -55,18 +56,7 @@ coormap = {'L4ci': (1, 1),
            'L7rd': (6, 2)
            }
 
-def compute_RGB(val):
-    """
-    Return a rgb triple from its integer value
 
-    :param val:
-    :return:
-    """
-    b = val % 256
-    val = int(val / 256)
-    g = val % 256
-    r = int(val / 256)
-    return r/256.0, g/256.0, b/256.0
 
 def choose_color(nsym):
     """
@@ -74,28 +64,11 @@ def choose_color(nsym):
     :param mx:
     :return:
     """
-    cols = [(1.0,0.0,0.0), (0.0,1.0,0.0), (0.0,0.0,1.0), (1.0,1.0,0.0), (1.0,0.0,1.0), (0.0,1.0,1.0)]
-    rep = nsym/len(cols)
-    if nsym % len(cols) != 0:
-        rep += 1
-    fr = np.arange(1.0,0.0,-1.0/rep)
     lcols = []
-    for i in fr:
-        for c in cols:
-            lcols.append(rgb(c[0]*i, c[1]*i, c[2]*i))
+    for i in  np.arange(380,750,370.0/nsym):
+        r,g,b = wavelength_to_rgb(i)
+        lcols.append(rgb(r, g, b))
     return lcols
-
-# def choose_color(nsym):
-#     """
-#     selects the  RBG colors at random
-#     :param mx:
-#     :return:
-#     """
-#     lcols = []
-#     for c in np.random.rand(nsym,3):
-#         lcols.append(rgb(c[0], c[1], c[2]))
-#     return lcols
-
 
 def gen_data_matrix(lines, clusters):
     """
@@ -318,13 +291,15 @@ def draw_synchs(peakdata, exp, sensors, window, nsym):
     d.writePDFfile(datainfo.dpath + '/' + datainfo.name + "/Results/peaksynchs-%s-%s-W%d" % (datainfo.name, exp, window))
 
 
-def compute_synchs(seq, labels, window=15):
+def compute_synchs(seq, labels, window=15, minlen=1):
     """
     Computes the synchronizations of the peaks of several sensors
 
     :param seq: List of the peaks for all the sensors
                 The list contains the time where the maximum of the peaks ocurr
+    :param labels: Labels of the classes of the peaks
     :param window: Window to consider that a set of peaks is synchronized
+    :param minlen: Minimum length of the syncronization
     :return: List of synchronizations (sensor, time, class)
     """
 
@@ -358,10 +333,10 @@ def compute_synchs(seq, labels, window=15):
                         psynch.append((i, seq[i][counts[i]], labels[i][counts[i]]))
                         counts[i] += 1
             counts[imin] += 1
-            if len(psynch) > 1:
+            if len(psynch) >= minlen:
                 lsynch.append(psynch)
-            else:
-                lsynch.append(psynch)
+            # else:
+            #     lsynch.append(psynch)
 
                 # print psynch
         else:
@@ -421,9 +396,11 @@ def select_sensor(synchs, sensor, slength):
                 lres.append(syn)
     return lres
 
-def save_sync_sequence(lsync, nfile):
+def save_sync_sequence(lsync, nfile, lengths=False):
     """
     Saves the list of synchronizations in a file with the number of sync signals
+
+    if lengths is true ony saves the length of the syncronization and the time of the first peak
 
     :param lsync:
     :param file:
@@ -431,9 +408,14 @@ def save_sync_sequence(lsync, nfile):
     """
     ttable = '0123456789ABC'
     rfile = open(datainfo.dpath + '/' + datainfo.name + '/Results/' + 'seq-' + nfile + '.csv', 'w')
-    for syn in lsync:
-        mtime = min([v for _, v, _ in syn])
-        rfile.write('%d, %s \n'% (mtime, ttable[len(syn)]))
+
+    if lengths:
+        for syn in lsync:
+            mtime = min([v for _, v, _ in syn])
+            rfile.write('%d, %s \n'% (mtime, ttable[len(syn)]))
+    else:
+        for syn in lsync:
+            rfile.write('%s\n'%syn)
 
     rfile.close()
 
@@ -444,7 +426,7 @@ if __name__ == '__main__':
 
     print 'W=', int(round(window))
     # 'e150514''e120503''e110616''e150707''e151126''e120511'
-    lexperiments = ['e120511e']
+    lexperiments = ['e150514']
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
@@ -479,9 +461,9 @@ if __name__ == '__main__':
                 ltimes.append(data)
             f.close()
 
-            lsynchs = compute_synchs(ltimes, lsens_labels, window=window)
+            lsynchs = compute_synchs(ltimes, lsens_labels, window=window, minlen=1)
 
-            #save_sync_sequence(lsynchs, dfile)
+            save_sync_sequence(lsynchs, dfile)
 
             # print len(lsynchs)
             # for i, s in enumerate(datainfo.sensors):

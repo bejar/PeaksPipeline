@@ -29,14 +29,14 @@ from Config.experiments import experiments, lexperiments
 from joblib import Parallel, delayed
 import argparse
 
-def do_the_job(dfile, sensor, wtsel, resampfac, filter=False):
+def do_the_job(dfile, sensor, wtsel, resampfac, rawfilter=False):
     """
     Applies a resampling of the data using Raw peaks
     The time window selected has to be larger than the length of the raw peaks
 
     wtsel = final length to keep from the resampled window in miliseconds
     resampfac = resampling factor (times to reduce the sampling)
-    filter = use frequency filtered data
+    rawfilter = use frequency filtered raw data
 
     :param expname:
     :return:
@@ -49,7 +49,7 @@ def do_the_job(dfile, sensor, wtsel, resampfac, filter=False):
     resampling = f[dfile + '/Raw'].attrs['Sampling'] / resampfac
 
     if dfile + '/' + sensor + '/' + 'PeaksFilter' in f or dfile + '/' + sensor + '/' + 'Peaks' in f:
-        if filter:
+        if rawfilter:
             d = f[dfile + '/' + sensor + '/' + 'PeaksFilter']
         else:
             d = f[dfile + '/' + sensor + '/' + 'Peaks']
@@ -92,7 +92,7 @@ if __name__ == '__main__':
         for dfile in datainfo.datafiles:
             print(dfile)
             # Paralelize PCA computation
-            res = Parallel(n_jobs=-1)(delayed(do_the_job)(dfile, s, wtsel, resampfactor, filter=filtered) for s in datainfo.sensors)
+            res = Parallel(n_jobs=-1)(delayed(do_the_job)(dfile, s, wtsel, resampfactor, rawfilter=filtered) for s in datainfo.sensors)
             #print 'Parallelism ended'
 
             f = h5py.File(datainfo.dpath + datainfo.name + '/' + datainfo.name + '.hdf5', 'r+')

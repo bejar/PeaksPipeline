@@ -36,7 +36,6 @@ def filter_data(experiment):
     :return:
     """
 
-
     f = h5py.File(experiment.dpath + experiment.name + '/' + experiment.name + '.hdf5', 'r+')
     print( experiment.dpath + experiment.name)
 
@@ -95,7 +94,7 @@ def filter_data(experiment):
 if __name__ == '__main__':
 
     # 'e150514''e120503''e110616''e150707''e151126''e120511'
-    lexperiments = ['e120511']
+    lexperiments = ['e150514']
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
