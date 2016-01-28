@@ -22,15 +22,11 @@ ComputeSubsequences
 
 __author__ = 'bejar'
 
-import operator
 import h5py
-import numpy as np
 
 from Config.experiments import experiments
-import scipy.io
 from pylab import *
 import seaborn as sns
-
 from Secuencias.rstr_max import *
 from util.misc import compute_frequency_remap
 from sklearn.metrics import pairwise_distances_argmin_min
@@ -38,6 +34,11 @@ import random
 import string
 import os
 import argparse
+from pyx import *
+import operator
+
+from util.misc import choose_color
+from Matching.Match import compute_matching_mapping, compute_signals_matching
 
 def randomize_string(s):
     l = list(s)
@@ -45,7 +46,7 @@ def randomize_string(s):
     result = ''.join(l)
     return result
 
-def drawgraph_alternative(nnodes, edges, nfile, sensor, dfile, legend, partition):
+def drawgraph_alternative(nnodes, edges, nfile, sensor, dfile, legend, partition, lmatch=0, mapping=None):
     rfile = open(datainfo.dpath + '/' + datainfo.name + '/Results/maxseqAlt-' + nfile + '-' + dfile + '-' + sensor + '.dot', 'w')
 
     rfile.write('digraph G {\nsize="20,20"\nlayout="neato"\n' +
@@ -57,10 +58,19 @@ def drawgraph_alternative(nnodes, edges, nfile, sensor, dfile, legend, partition
                 'fontsize="30"\nlabel="' + legend + '"\n')
 
     radius = 5.0
+    if lmatch == 0:
+        roundlen = nnodes
+    else:
+        roundlen = lmatch
 
     for i in range(nnodes):
-        posx = -np.cos(((np.pi * 2) / nnodes) * i + (np.pi / 2)) * radius
-        posy = np.sin(((np.pi * 2) / nnodes) * i + (np.pi / 2)) * radius
+        if lmatch == 0:
+            ind = i
+        else:
+            ind = mapping[i]
+
+        posx = -np.cos(((np.pi * 2) / roundlen) * ind + (np.pi / 2)) * radius
+        posy = np.sin(((np.pi * 2) / roundlen) * ind + (np.pi / 2)) * radius
         rfile.write(str(i) + '[label="' + str(i + 1) + '",labeljust=l, labelloc=b, fontsize="24",height="0.2"' +
                     ', image="' + datainfo.name + sensor + '.cl' + str(i+1) + '.png' + '"' +
                     ', pos="' + str(posx) + ',' + str(posy) + '!", shape = "square"];\n')
@@ -69,9 +79,15 @@ def drawgraph_alternative(nnodes, edges, nfile, sensor, dfile, legend, partition
         if len(e) == 2:
             rfile.write(str(e[0]) + '->' + str(e[1]))
             for lelem, color in partition:
-                if e[0] in lelem:
-                    rfile.write('[color="'+color+'"]')
+                if lmatch != 0:
+                    if mapping[e[0]] in lelem:
+                        rfile.write('[color="'+color+'"]')
+                else:
+                    if e[0] in lelem:
+                        rfile.write('[color="'+color+'"]')
+
             rfile.write('\n')
+
 
     rfile.write('}\n')
 
@@ -81,7 +97,7 @@ def drawgraph_alternative(nnodes, edges, nfile, sensor, dfile, legend, partition
     os.system(' rm -fr ' + datainfo.dpath + '/'+ datainfo.name+ '/Results/maxseqAlt-' + nfile + '-' + dfile + '-' + sensor + '.dot')
 
 
-def drawgraph(nnodes, edges, nfile, sensor, dfile, legend):
+def drawgraph(nnodes, edges, nfile, sensor, dfile, legend, lmatch=0, mapping=None):
     rfile = open(datainfo.dpath + '/' + datainfo.name + '/Results/maxseq-' + nfile + '-' + dfile + '-' + sensor + '.dot', 'w')
 
     rfile.write('digraph G {\nsize="20,20"\nlayout="neato"\n' +
@@ -93,10 +109,18 @@ def drawgraph(nnodes, edges, nfile, sensor, dfile, legend):
                 'fontsize="30"\nlabel="' + legend + '"\n')
 
     radius = 5.0
+    if lmatch == 0:
+        roundlen = nnodes
+    else:
+        roundlen = lmatch
 
     for i in range(nnodes):
-        posx = -np.cos(((np.pi * 2) / nnodes) * i + (np.pi / 2)) * radius
-        posy = np.sin(((np.pi * 2) / nnodes) * i + (np.pi / 2)) * radius
+        if lmatch == 0:
+            ind = i
+        else:
+            ind = mapping[i]
+        posx = -np.cos(((np.pi * 2) / roundlen) * ind + (np.pi / 2)) * radius
+        posy = np.sin(((np.pi * 2) / roundlen) * ind + (np.pi / 2)) * radius
         rfile.write(str(i) + '[label="' + str(i + 1) + '",labeljust=l, labelloc=b, fontsize="24",height="0.2"' +
                     ', image="' + datainfo.name + sensor + '.cl' + str(i+1) + '.png' + '"' +
                     ', pos="' + str(posx) + ',' + str(posy) + '!", shape = "square"];\n')
@@ -155,9 +179,6 @@ def drawgraph_with_edges(nnodes, edges, nfile, sensor):
     rfile.write('}\n')
 
     rfile.close()
-
-
-
 
 def max_seq_long(nexp, clpeaks, timepeaks, sup, nfile, gap=0):
     """
@@ -234,7 +255,7 @@ def max_seq_long(nexp, clpeaks, timepeaks, sup, nfile, gap=0):
     print('----------')
 
 
-def freq_seq_positions(nfile, clpeaks, timepeaks, sensor, dfile, ename, nclust, gap=0, sup=None):
+def freq_seq_positions(nfile, clpeaks, timepeaks, sensor, ename, nclust, gap=0, sup=None):
     """
     Generates a list of the positions of the frequent sequences
 
@@ -293,15 +314,111 @@ def freq_seq_positions(nfile, clpeaks, timepeaks, sensor, dfile, ename, nclust, 
     lstrings = sorted(lstrings, key=operator.itemgetter(0), reverse=True)
 
     # Compute the sequences that do not include the pause and have length 2
-    lseq = []
+    lseq = set()
     for seq, s in lstrings:
         if not '#' in seq and len(seq) == 2:
-            lseq.append((voc.find(seq[0]), voc.find(seq[1])))
+            lseq.add((voc.find(seq[0]), voc.find(seq[1])))
+
+    lseqpos = []
+
+    for i in range(timepeaks.shape[0]):
+        if i < timepeaks.shape[0] - 1 and gap != 0:
+            if (timepeaks[i + 1] - timepeaks[i]) < gap:
+                if (clpeaks[i], clpeaks[i+1]) in lseq:
+                    lseqpos.append([timepeaks[i],clpeaks[i], timepeaks[i+1],clpeaks[i+1]])
+                else:
+                    lseqpos.append([timepeaks[i],clpeaks[i]])
+            else:
+                lseqpos.append([timepeaks[i],clpeaks[i]])
+
+    return lseqpos
+
+def plot_sequences(nfile, lseq, nsym, sensor, lmatch=0, mapping=None):
+    """
+    plots the sequence of frequent pairs
+
+    :param nfile:
+    :param lseq:
+    :return:
+    """
+    if lmatch != 0:
+        collist = choose_color(lmatch)
+    else:
+        collist = choose_color(nsym)
+
+    lpages = []
+
+    c = canvas.canvas()
+
+    if lmatch != 0:
+        mtx = np.zeros(lmatch) + 0.5
+        for i in range(nsym):
+            mtx[mapping[i]] = 1
+        for i, col in enumerate(collist):
+            p = path.rect(3 + i , 7, 1,  mtx[i])
+            c.stroke(p, [deco.filled([col])])
+    else:
+        for i, col in enumerate(collist):
+            p = path.rect(3 + i , 7, 1,  1)
+            c.stroke(p, [deco.filled([col])])
+
+    dpos = -5
+    step = 50
+    tres = 5000.0
+    stt = -1
+
+    c.text(0, 10, "%s-%s-%s-%s" % (datainfo.name, dfile, sensor, ename), [text.size(5)])
+
+    for seq in lseq:
+
+        if len(seq) == 4:
+            tm1, pk1, tm2, pk2 = seq
+            coord = tm1 / tres
+            lng = (tm2/tres) - coord
+            if lmatch != 0:
+                pk1 = int(mapping[pk1])
+                pk2 = int(mapping[pk2])
 
 
+            dcoord = int(coord /step)
+            ypos = dcoord * dpos
+            if stt != dcoord:
+                stt = dcoord
+                c.text(0, 3+ypos, str(tm1), [text.size(1)])
+            p = path.rect(3+coord - (dcoord*step), 3+ypos, lng/2.0,  1)
+            c.stroke(p, [deco.filled([collist[pk1]])])
+            p = path.rect(3+coord - (dcoord*step) +(lng/2.0), 3+ypos, lng/2.0,  1)
+            c.stroke(p, [deco.filled([collist[pk2]])])
+            c.stroke(p)
+            p = path.line(3+coord - (dcoord*step), 3+ypos + 1,  3+coord - (dcoord*step), 3+ypos + 2)
+            c.stroke(p)
+        else:
+            tm1, pk1 = seq
+            if lmatch != 0:
+                pk1 = int(mapping[pk1])
+            coord = tm1 / tres
+            dcoord = int(coord /step)
+            ypos = dcoord * dpos
+            if stt != dcoord:
+                stt = dcoord
+                c.text(0,3+ ypos, str(tm1), [text.size(1)])
+            p = path.line(3+coord - (dcoord*step), 3+ypos + 1, 3+coord - (dcoord*step), 3+ypos + 2)
+            c.stroke(p, [deco.filled([collist[pk1]])])
 
 
-def max_seq_exp(nfile, clpeaks, timepeaks, sensor, dfile, ename, nclust, gap=0, sup=None, rand=False, galt=False, partition=None):
+        # cnt += 1
+        # if cnt == 1000:
+        #     break
+    lpages.append(document.page(c))
+
+    d = document.document(lpages)
+
+    d.writePDFfile(datainfo.dpath + '/' + datainfo.name + "/Results/peaksseq-%s-%s-%s-%s" % (datainfo.name, dfile, sensor, ename))
+
+
+def max_seq_exp(nfile, clpeaks, timepeaks, sensor, dfile, ename, nclust,
+                lmatch=0, mapping=None,
+                gap=0, sup=None, rand=False, galt=False, partition=None):
     """
     Generates frequent subsequences and the graphs representing the two step frequent
     subsequences
@@ -370,12 +487,17 @@ def max_seq_exp(nfile, clpeaks, timepeaks, sensor, dfile, ename, nclust, gap=0, 
     rfile = open(datainfo.dpath+ '/'+ datainfo.name + '/Results/maxseq-' + nfile + '-' + ename + '-' + sensor + '-' + randname + '.txt', 'w')
 
     mfreq = np.zeros((nclust, nclust))
+    if lmatch !=0:
+        mfreqmatch = np.zeros((lmatch, lmatch))
     for seq, s in lstrings:
         wstr = ''
         prob = 1.0
         if not '#' in seq:
             if len(seq) == 2:
                 mfreq[voc.find(seq[0]),  voc.find(seq[1])] = int(s)
+                if lmatch !=0:
+                    mfreqmatch[mapping[voc.find(seq[0])],  mapping[voc.find(seq[1])]] = int(s)
+
 
             sigsym = []
             for c in range(len(seq)):
@@ -393,7 +515,11 @@ def max_seq_exp(nfile, clpeaks, timepeaks, sensor, dfile, ename, nclust, gap=0, 
 
     # Contingency table of the number of times a frequent sequence of length 2 has appeared
     fig = plt.figure()
-    sns.heatmap(mfreq, annot=True, fmt='.0f', cbar=False, xticklabels=range(1,nclust+1), yticklabels=range(1,nclust+1), square=True)
+
+    if lmatch !=0:
+        sns.heatmap(mfreqmatch, annot=True, fmt='.0f', cbar=False, xticklabels=range(1,lmatch+1), yticklabels=range(1,lmatch+1), square=True)
+    else:
+        sns.heatmap(mfreq, annot=True, fmt='.0f', cbar=False, xticklabels=range(1,nclust+1), yticklabels=range(1,nclust+1), square=True)
     plt.title(nfile + '-' + ename + '-' + sensor + ' sup(%d)' % sup)
     plt.savefig(datainfo.dpath + '/' + datainfo.name + '/Results/maxseq-histo' + datainfo.name + '-' + dfile + '-'
                 + sensor  + '-freq.pdf', orientation='landscape', format='pdf')
@@ -407,9 +533,50 @@ def max_seq_exp(nfile, clpeaks, timepeaks, sensor, dfile, ename, nclust, gap=0, 
         nsig -= 1
 
     if galt:
-        drawgraph_alternative(nclust, lstringsg, nfile, sensor, dfile, nfile + '-' + ename + '-' + sensor + ' sup(%d)' % sup, partition=partition)
+        drawgraph_alternative(nclust, lstringsg, nfile, sensor, dfile,
+                              nfile + '-' + ename + '-' + sensor + ' sup(%d)' % sup,
+                              partition=partition, lmatch=lmatch, mapping=mapping)
     else:
-        drawgraph(nclust, lstringsg, nfile, sensor, dfile, nfile + '-' + ename + '-' + sensor + ' sup(%d)' % sup)
+        drawgraph(nclust, lstringsg, nfile, sensor, dfile,
+                  nfile + '-' + ename + '-' + sensor + ' sup(%d)' % sup,
+                  lmatch=lmatch, mapping=mapping)
+
+
+def sequence_to_string(nfile, clpeaks, timepeaks, sensor, dfile, ename, gap=0):
+    """
+    Generates frequent subsequences and the graphs representing the two step frequent
+    subsequences
+
+    Auto tunes the minimum support
+
+    :param nexp:
+    :param clpeaks:
+    :param timepeaks:
+    :param sup:
+    :param nfile:
+    :param remap:
+    :param gap:
+    :return:
+    """
+    # Build the sequence string
+    peakstr = ''
+
+
+    for i in range(timepeaks.shape[0]):
+        peakstr += voc[clpeaks[i]]
+        if i < timepeaks.shape[0] - 1 and gap != 0:
+            if (timepeaks[i + 1] - timepeaks[i]) > gap:
+                peakstr += '#' * ((timepeaks[i + 1] - timepeaks[i]) /gap)
+
+    rfile = open(datainfo.dpath+ '/'+ datainfo.name + '/Results/stringseq-' + nfile + '-' + ename + '-' + sensor + '.txt', 'w')
+
+    for i in range(0, len(peakstr), 250):
+        wstr = ''
+        for j in range(250):
+            if i+j < len(peakstr):
+                wstr += peakstr[i+j]
+        rfile.write(wstr + '\n')
+    rfile.close()
 
 
 def max_peaks_edges(nexp, clpeaks, timepeaks, sup, gap=0):
@@ -485,7 +652,8 @@ def max_peaks_edges(nexp, clpeaks, timepeaks, sup, gap=0):
 # ----------------------------------------
 
 
-def generate_sequences(dfile, ename, timepeaks, clpeaks, sensor, ncl, gap, sup=None, rand=False, galt=False, partition=None):
+def generate_sequences(dfile, ename, timepeaks, clpeaks, sensor, ncl, gap,
+                       lmatch=0, mapping=None, sup=None, rand=False, galt=False, partition=None):
     """
     Generates the frequent subsequences from the times of the peaks considering
     gap the minimum time between consecutive peaks that indicates a pause (time in the sampling frequency)
@@ -496,7 +664,9 @@ def generate_sequences(dfile, ename, timepeaks, clpeaks, sensor, ncl, gap, sup=N
     :param sensor:
     :return:
     """
-    max_seq_exp(datainfo.name, clpeaks, timepeaks, sensor, dfile, ename, ncl, gap=gap, sup=sup, rand=rand, galt=galt, partition=partition)
+    max_seq_exp(datainfo.name, clpeaks, timepeaks, sensor, dfile, ename, ncl,
+                lmatch=lmatch, mapping=mapping,
+                gap=gap, sup=sup, rand=rand, galt=galt, partition=partition)
 
 
 def generate_sequences_long(dfile, timepeaks, clpeaks, sensor, thres, gap):
@@ -542,7 +712,7 @@ def generate_partition(nvals, npart, colors):
         partition.append([range(i*div, min((i*div)+div, nvals)), colors[i]])
     return partition
 
-voc = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+voc = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789*+-$%&/<>[]{}()!?#'
 # line = 'L6ri'  # 'L6rd' 'L5ci' 'L6ri'
 # clust = '.k15.n1'  # '.k20.n5' '.k16.n4' '.k15.n1'
 
@@ -567,33 +737,70 @@ voc = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 if __name__ == '__main__':
     # 'e150514''e120503''e110616''e150707''e151126''e120511'
-    lexperiments = ['e150707', 'e150514']
+    lexperiments = ['e150514']
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
+    parser.add_argument('--graph', help="circular graph of the sequences", action='store_true', default=True)
+    parser.add_argument('--sequence', help="linear graph of the sequences", action='store_true', default=True)
+    parser.add_argument('--string', help="generate a string representation of the sequences", action='store_true', default=True)
+    parser.add_argument('--alternative', help="Alternative Coloring for the Graph", action='store_true', default=True)
+    parser.add_argument('--matching', help="Perform matching of the peaks", action='store_true', default=False)
 
     args = parser.parse_args()
     if args.exp:
         lexperiments = args.exp
 
-
-    galt = True
+    args.matching = True
+    galt = args.alternative
     colors = ['red', 'blue', 'green']
     npart = 3
+
+    # Matching parameters
+    isig = 2
+    fsig = 10
 
     peakdata = {}
     for expname in lexperiments:
 
         datainfo = experiments[expname]
         f = h5py.File(datainfo.dpath + '/' + datainfo.name + '/' + datainfo.name + '.hdf5', 'r')
+        if args.matching:
+            lsensors = datainfo.sensors[isig:fsig]
+            lclusters = datainfo.clusters[isig:fsig]
+            smatching = compute_signals_matching(expname, lsensors)
+        else:
+            lsensors = datainfo.sensors
+            lclusters = datainfo.clusters
+            smatching = []
 
         for dfile, ename in zip(datainfo.datafiles, datainfo.expnames):
             print(dfile)
 
-            for ncl, sensor in zip(datainfo.clusters, datainfo.sensors):
+            for ncl, sensor in zip(lclusters, lsensors):
                 if dfile + '/' + sensor + '/' + 'Time' in f:
+                    if args.matching:
+                        mapping = compute_matching_mapping(ncl, sensor, smatching)
+                    else:
+                        mapping=None
+
                     clpeaks = compute_data_labels(datainfo.datafiles[0], dfile, sensor)
                     d = f[dfile + '/' + sensor + '/' + 'Time']
                     timepeaks = data = d[()]
-                    partition = generate_partition(ncl, npart, colors)
-                    generate_sequences(dfile, ename, timepeaks, clpeaks, sensor, ncl, gap=2000, sup=None, rand=False, galt=galt, partition=partition)
+                    # if args.graph:
+                    #     if len(smatching)!= 0:
+                    #         partition = generate_partition(len(smatching), npart, colors)
+                    #     else:
+                    #         partition = generate_partition(ncl, npart, colors)
+                    #
+                    #     generate_sequences(dfile, ename, timepeaks, clpeaks, sensor, ncl,
+                    #                        lmatch=len(smatching), mapping=mapping,
+                    #                        gap=2000, sup=None, rand=False, galt=galt, partition=partition)
+
+                    if args.sequence:
+                        lseq = freq_seq_positions(datainfo.name, clpeaks, timepeaks, sensor, ename, ncl,
+                                                   gap=2000, sup=None)
+                        plot_sequences(dfile, lseq, ncl, sensor, lmatch=len(smatching), mapping=mapping)
+                    #
+                    # if args.string:
+                    #     sequence_to_string(dfile, clpeaks, timepeaks, sensor, dfile, ename, gap=2000)

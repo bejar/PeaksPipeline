@@ -37,8 +37,7 @@ from sklearn.metrics import pairwise_distances_argmin_min
 from sklearn.metrics.pairwise import euclidean_distances
 import seaborn as sns
 import argparse
-import cairo as cr
-from util.misc import wavelength_to_rgb
+from util.misc import choose_color
 
 voc = ' ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
@@ -56,19 +55,6 @@ coormap = {'L4ci': (1, 1),
            'L7rd': (6, 2)
            }
 
-
-
-def choose_color(nsym):
-    """
-    selects the  RBG colors from a range with maximum nsym colors
-    :param mx:
-    :return:
-    """
-    lcols = []
-    for i in  np.arange(380,750,370.0/nsym):
-        r,g,b = wavelength_to_rgb(i)
-        lcols.append(rgb(r, g, b))
-    return lcols
 
 def gen_data_matrix(lines, clusters):
     """
@@ -187,7 +173,6 @@ def synch_coincidence_matrix(peaksynchs, exp, sensors, expcounts, window):
                [x for x in range(len(sensors))], [x for x in sensors], datainfo.dpath + '/Results/')
 
 
-
 def length_synch_frequency_histograms(dsynchs, dfile, window):
     """
     Histograms of the frequencies of the lengths of the synchronizations
@@ -204,7 +189,6 @@ def length_synch_frequency_histograms(dsynchs, dfile, window):
     P.title('%s-W%d' % ( dfile, window), fontsize=48)
     P.savefig(datainfo.dpath + '/' + datainfo.name + '/' + '/Results/histo-' + datainfo.name + '-' + dfile + '-W' + str(window) + '.pdf', orientation='landscape', format='pdf')
     P.close()
-
 
 
 def draw_synchs(peakdata, exp, sensors, window, nsym):
@@ -228,8 +212,6 @@ def draw_synchs(peakdata, exp, sensors, window, nsym):
             else:
                 can.stroke(p)
 
- #   collist = [cmyk.GreenYellow, cmyk.Orange, cmyk.Mahogany, cmyk.OrangeRed, cmyk.Salmon, cmyk.Fuchsia, cmyk.Violet,
- #              cmyk.NavyBlue, cmyk.Cyan, cmyk.Emerald, cmyk.LimeGreen, cmyk.Sepia, cmyk.Tan]
     # Generates the list of colors
     collist = choose_color(nsym)
 
@@ -244,11 +226,13 @@ def draw_synchs(peakdata, exp, sensors, window, nsym):
     vprev = 0
     y = 0
     yt = 1.25
+
+    # Paleta de colores
     for i, col in enumerate(collist):
         p = path.rect(0, i * 0.25, 0.25, 0.25)
         c.stroke(p, [deco.filled([col])])
-    for i in range(len(pk)):
 
+    for i in range(len(pk)):
         l = [False] * len(sensors)
         lcol = [cmyk.White] * len(sensors)
         for p in pk[i]:
@@ -381,6 +365,7 @@ def compute_data_labels(fname, dfilec, dfile, sensorref, sensor):
     labels, _ = pairwise_distances_argmin_min(data, centers)
     return labels #[indexes[i][1] for i in labels]
 
+
 def select_sensor(synchs, sensor, slength):
     """
     Maintains only the syncs corresponding to the given sensor
@@ -430,6 +415,10 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
+    parser.add_argument('--save', help="Save Synchronizations", action='store_true', default=False)
+    parser.add_argument('--histogram', help="Save length histograms", action='store_true', default=False)
+    parser.add_argument('--coincidence', help="Save coincidence matrix", action='store_true', default=False)
+    parser.add_argument('--contingency', help="Save peaks contingency matrix", action='store_true', default=False)
 
     args = parser.parse_args()
     if args.exp:
@@ -463,7 +452,8 @@ if __name__ == '__main__':
 
             lsynchs = compute_synchs(ltimes, lsens_labels, window=window, minlen=1)
 
-            save_sync_sequence(lsynchs, dfile)
+            if args.save:
+                save_sync_sequence(lsynchs, dfile)
 
             # print len(lsynchs)
             # for i, s in enumerate(datainfo.sensors):
@@ -471,10 +461,15 @@ if __name__ == '__main__':
             #     print s, len(lsyn_fil)
 
             peakdata = lsynchs
-            #print peakdata
+
             #gen_peaks_contingency(peakdata, datainfo.sensors, dfile, datainfo.clusters)
             draw_synchs(peakdata, dfile, datainfo.sensors, window, datainfo.clusters[0])
-            #length_synch_frequency_histograms(peakdata, dfile, window=int(round(window)))
-            #synch_coincidence_matrix(peakdata, dfile, datainfo.sensors, expcounts, window)
-            #coincidence_contingency(peakdata, dfile, datainfo.sensors)
+            if args.histogram:
+                length_synch_frequency_histograms(peakdata, dfile, window=int(round(window)))
+
+            if args.coincidence:
+                synch_coincidence_matrix(peakdata, dfile, datainfo.sensors, expcounts, window)
+
+            if args.contingency:
+                coincidence_contingency(peakdata, dfile, datainfo.sensors)
 

@@ -22,7 +22,7 @@ __author__ = 'bejar'
 from operator import itemgetter
 
 import numpy as np
-
+from pyx.color import cmyk, rgb
 
 def peaks_sequence(clpeaks, timepeaks, nexp, peakini, peakend, gap):
     """
@@ -200,6 +200,19 @@ def wavelength_to_rgb(wavelength, gamma=0.8):
     # G *= 255
     # B *= 255
     return (R, G, B)
+
+
+def choose_color(nsym):
+    """
+    selects the  RBG colors from a range with maximum nsym colors
+    :param mx:
+    :return:
+    """
+    lcols = []
+    for i in  np.arange(380,750,370.0/nsym):
+        r,g,b = wavelength_to_rgb(i)
+        lcols.append(rgb(r, g, b))
+    return lcols
 
 if __name__ == '__main__':
    print  wavelength_to_rgb(390)
