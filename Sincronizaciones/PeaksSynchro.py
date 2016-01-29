@@ -31,13 +31,12 @@ from util.plots import plotMatrices, plotMatrix
 from util.misc import normalize_matrix, compute_frequency_remap
 import h5py
 import numpy as np
-from munkres import Munkres
 from Config.experiments import experiments
 from sklearn.metrics import pairwise_distances_argmin_min
-from sklearn.metrics.pairwise import euclidean_distances
 import seaborn as sns
 import argparse
 from util.misc import choose_color
+from Matching.Match import compute_matching_mapping, compute_signals_matching
 
 voc = ' ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
@@ -92,7 +91,7 @@ def gen_peaks_contingency(peakdata, sensors, dfile, clusters):
         for ei in p:
             for ej in p:
                 if ei[0] != ej[0]:
-                    #print ei[0], ej[0], ei[1][0], ej[1][0]
+                    # print ei[0], ej[0], ei[1][0], ej[1][0]
                     m = dmatrix[ei[0]][ej[0]]
                     m[ei[2]][ej[2]] += 1
                     # m = dmatrix[ej[0]][ei[0]]
@@ -105,11 +104,10 @@ def gen_peaks_contingency(peakdata, sensors, dfile, clusters):
 
         for i in range(len(sensors)):
             if i != ln:
-                #print normalize_matrix(mt[i]), sensors[ln], sensors[i]
+                # print normalize_matrix(mt[i]), sensors[ln], sensors[i]
                 lplot.append((normalize_matrix(mt[i]), sensors[i]))
         plotMatrices(lplot, 6, 2, 'msynch-' + datainfo.name + '-' + dfile + '-' + sensors[ln], sensors[ln],
                      datainfo.dpath + '/' + datainfo.name + '/' + '/Results/')
-
 
 
 def lines_coincidence_matrix(peaksynchs, sensors):
@@ -141,7 +139,8 @@ def coincidence_contingency(peaksynchs, dfile, sensors):
 
     cmatrix = lines_coincidence_matrix(peaksynchs, sensors)
     cmatrix /= len(peaksynchs)
-    sns.heatmap(cmatrix, annot=True, fmt="2.2f", cmap="afmhot_r", xticklabels=sensors, yticklabels=sensors, vmin=0, vmax=0.6)
+    sns.heatmap(cmatrix, annot=True, fmt="2.2f", cmap="afmhot_r", xticklabels=sensors, yticklabels=sensors, vmin=0,
+                vmax=0.6)
 
     plt.title(dfile, fontsize=48)
     plt.savefig(datainfo.dpath + '/' + datainfo.name + '/' + '/Results/' + dfile + '-psync-corr.pdf',
@@ -186,12 +185,13 @@ def length_synch_frequency_histograms(dsynchs, dfile, window):
 
     P.figure()
     n, bins, patches = P.hist(x, max(x) - 1, normed=1, histtype='bar', fill=True)
-    P.title('%s-W%d' % ( dfile, window), fontsize=48)
-    P.savefig(datainfo.dpath + '/' + datainfo.name + '/' + '/Results/histo-' + datainfo.name + '-' + dfile + '-W' + str(window) + '.pdf', orientation='landscape', format='pdf')
+    P.title('%s-W%d' % (dfile, window), fontsize=48)
+    P.savefig(datainfo.dpath + '/' + datainfo.name + '/' + '/Results/histo-' + datainfo.name + '-' + dfile + '-W' + str(
+        window) + '.pdf', orientation='landscape', format='pdf')
     P.close()
 
 
-def draw_synchs(peakdata, exp, sensors, window, nsym):
+def draw_synchs(peakdata, exp, ename, sensors, window, nsym, lmatch=0, dmappings=None):
     """
     Generates a PDF of the synchronizations
     :param peakdata: Dictionary with the synchronizations computed by compute_syncs
@@ -199,7 +199,22 @@ def draw_synchs(peakdata, exp, sensors, window, nsym):
     :param window: Window used to determine the synchronizations
     :return:
     """
+
     def syncIcon(x, y, sensors, coord, lv, lcol, scale, can):
+        """
+        Generates the drawing for a syncronization
+
+        :param x:
+        :param y:
+        :param sensors:
+        :param coord:
+        :param lv:
+        :param lcol:
+        :param scale:
+        :param can:
+        :param dmappings:
+        :return:
+        """
         scale *= 0.6
         y = (y / 2.5) + 2
         x += 5
@@ -213,7 +228,10 @@ def draw_synchs(peakdata, exp, sensors, window, nsym):
                 can.stroke(p)
 
     # Generates the list of colors
-    collist = choose_color(nsym)
+    if lmatch == 0:
+        collist = choose_color(nsym)
+    else:
+        collist = choose_color(lmatch)
 
     ncol = 0
     npage = 1
@@ -237,7 +255,11 @@ def draw_synchs(peakdata, exp, sensors, window, nsym):
         lcol = [cmyk.White] * len(sensors)
         for p in pk[i]:
             l[p[0]] = True
-            lcol[p[0]] = collist[p[2]]
+            sns = sensors[p[0]]
+            if dmappings is not None:
+                lcol[p[0]] = collist[int(dmappings[sns][p[2]])]
+            else:
+                lcol[p[0]] = collist[p[2]]
 
         v = np.min([t for _, t, _ in pk[i]]) % 10000  # Time in a page (5000)
         if v < vprev:
@@ -272,7 +294,88 @@ def draw_synchs(peakdata, exp, sensors, window, nsym):
 
     d = document.document(lpages)
 
-    d.writePDFfile(datainfo.dpath + '/' + datainfo.name + "/Results/peaksynchs-%s-%s-W%d" % (datainfo.name, exp, window))
+    d.writePDFfile(
+        datainfo.dpath + '/' + datainfo.name + "/Results/peaksynchs-%s-%s-%s-W%d" % (datainfo.name, exp, ename, window))
+
+
+def draw_synchs_boxes(pk, exp, ename, sensors, window, nsym, lmatch=0, dmappings=None):
+    """
+    Draws syncronizations and their time window boxes
+
+    :param peakdata:
+    :param exp:
+    :param ename:
+    :param sensors:
+    :param window:
+    :param nsym:
+    :param lmatch:
+    :param dmappings:
+    :return:
+    """
+    if lmatch != 0:
+        collist = choose_color(lmatch)
+    else:
+        collist = choose_color(nsym)
+
+    lpages = []
+
+    c = canvas.canvas()
+
+    # Paleta de colores
+    for i, col in enumerate(collist):
+        p = path.rect((i * 0.25) + 5, 7, 0.25, 0.25)
+        c.stroke(p, [deco.filled([col])])
+
+    dpos = -9
+    step = 200
+    tres = 500.0
+    stt = -1
+
+    c.text(0, 10, "%s-%s-%s" % (datainfo.name, dfile, ename), [text.size(5)])
+
+    for i in range(len(pk)):
+        l = [False] * len(sensors)
+        lcol = [cmyk.White] * len(sensors)
+        ptime = np.zeros(len(sensors))
+        for p in pk[i]:
+            sns = sensors[p[0]]
+            l[p[0]] = True
+            ptime[p[0]] = p[1]
+            if dmappings is not None:
+                lcol[p[0]] = collist[int(dmappings[sns][p[2]])]
+            else:
+                lcol[p[0]] = collist[p[2]]
+
+        tm1 = np.min([t for _, t, _ in pk[i]])
+        tm2 = np.max([t for _, t, _ in pk[i]])
+        coord = tm1 / tres
+        lng = (tm2 - tm1) / tres
+
+        dcoord = int(coord / step)
+        ypos = dcoord * dpos
+        if stt != dcoord:
+            stt = dcoord
+            c.text(-2, 3 + ypos, str(tm1), [text.size(3)])
+            for j, sn in enumerate(sensors):
+                c.text(1, 3 + ypos + 1 - j, sn, [text.size(3)])
+
+        p = path.rect(3 + (coord - (dcoord * step)), 3 + ypos + 2 - len(sensors), lng + .05, len(sensors))
+        c.stroke(p)
+
+        for j in range(len(sensors)):
+
+            if l[j]:
+                tcoord = ptime[j] / tres
+                c.fill(path.rect(3 + (tcoord - (dcoord * step)), 3 + ypos + 1 - j, 0.05, 1), [lcol[j]])
+                # p = path.line(3 + (tcoord - (dcoord*step)), 3+ypos + 1+j,  3 + (tcoord - (dcoord*step)), 3+ypos + 2+j)
+                # c.stroke(p, [deco.filled([lcol[j]])])
+
+    lpages.append(document.page(c))
+
+    d = document.document(lpages)
+
+    d.writePDFfile(
+        datainfo.dpath + '/' + datainfo.name + "/Results/peakssyncboxes-%s-%s-%s" % (datainfo.name, dfile, ename))
 
 
 def compute_synchs(seq, labels, window=15, minlen=1):
@@ -308,7 +411,7 @@ def compute_synchs(seq, labels, window=15, minlen=1):
         # Compute the peak with the lower value
         imin = minind()
         if len(seq[imin]) > counts[imin] + 1 and \
-            seq[imin][counts[imin]] <= (seq[imin][counts[imin] + 1] + window):
+                        seq[imin][counts[imin]] <= (seq[imin][counts[imin] + 1] + window):
             # Look for the peaks inside the window length
             psynch = [(imin, seq[imin][counts[imin]], labels[imin][counts[imin]])]
             for i in range(len(seq)):
@@ -319,8 +422,8 @@ def compute_synchs(seq, labels, window=15, minlen=1):
             counts[imin] += 1
             if len(psynch) >= minlen:
                 lsynch.append(psynch)
-            # else:
-            #     lsynch.append(psynch)
+                # else:
+                #     lsynch.append(psynch)
 
                 # print psynch
         else:
@@ -333,7 +436,7 @@ def compute_synchs(seq, labels, window=15, minlen=1):
     return lsynch
 
 
-def compute_data_labels(fname, dfilec, dfile, sensorref, sensor):
+def compute_data_labels(fname, dfilec, dfile, sensor):
     """
     Computes the labels of the data using the centroids of the cluster in the file
     the labels are relabeled acording to the matching with the reference sensor
@@ -345,25 +448,16 @@ def compute_data_labels(fname, dfilec, dfile, sensorref, sensor):
     :param sensor:
     :return:
     """
-    f = h5py.File(fname + '.hdf5', 'r')
+    f = h5py.File(datainfo.dpath + '/' + fname + '/' + fname + '.hdf5', 'r')
 
     d = f[dfilec + '/' + sensor + '/Clustering/' + 'Centers']
     centers = d[()]
     d = f[dfile + '/' + sensor + '/' + 'PeaksResamplePCA']
     data = d[()]
-    d = f[dfilec + '/' + sensorref + '/Clustering/' + 'Centers']
-    centersref = d[()]
     f.close()
 
-    # clabels, _ = pairwise_distances_argmin_min(centers, centersref)
-    #
-    # m = Munkres()
-    # dist = euclidean_distances(centers, centersref)
-    # indexes = m.compute(dist)
-    # print indexes
-    # print clabels
     labels, _ = pairwise_distances_argmin_min(data, centers)
-    return labels #[indexes[i][1] for i in labels]
+    return labels
 
 
 def select_sensor(synchs, sensor, slength):
@@ -376,10 +470,11 @@ def select_sensor(synchs, sensor, slength):
     """
     lres = []
     for syn in synchs:
-        for s, _,_ in syn:
+        for s, _, _ in syn:
             if s == sensor and len(syn) >= slength:
                 lres.append(syn)
     return lres
+
 
 def save_sync_sequence(lsync, nfile, lengths=False):
     """
@@ -397,12 +492,13 @@ def save_sync_sequence(lsync, nfile, lengths=False):
     if lengths:
         for syn in lsync:
             mtime = min([v for _, v, _ in syn])
-            rfile.write('%d, %s \n'% (mtime, ttable[len(syn)]))
+            rfile.write('%d, %s \n' % (mtime, ttable[len(syn)]))
     else:
         for syn in lsync:
-            rfile.write('%s\n'%syn)
+            rfile.write('%s\n' % syn)
 
     rfile.close()
+
 
 # --------------------------------------------------------------------------------------------------------------------
 
@@ -419,10 +515,18 @@ if __name__ == '__main__':
     parser.add_argument('--histogram', help="Save length histograms", action='store_true', default=False)
     parser.add_argument('--coincidence', help="Save coincidence matrix", action='store_true', default=False)
     parser.add_argument('--contingency', help="Save peaks contingency matrix", action='store_true', default=False)
+    parser.add_argument('--matching', help="Perform matching of the peaks", action='store_true', default=True)
+    parser.add_argument('--boxes', help="Draws the syncronization in grouping boxes", action='store_true', default=True)
+    parser.add_argument('--draw', help="Draws the syncronization in grouping boxes", action='store_true', default=True)
+    parser.add_argument('--rescale', help="Rescale the peaks for matching", action='store_true', default=False)
 
     args = parser.parse_args()
     if args.exp:
         lexperiments = args.exp
+
+    # Matching parameters
+    isig = 2
+    fsig = 10
 
     peakdata = {}
     for expname in lexperiments:
@@ -430,20 +534,28 @@ if __name__ == '__main__':
         datainfo = experiments[expname]
 
         # dfile = datainfo.datafiles[0]
-        for dfile in [datainfo.datafiles[0]]:
+        for dfile, ename in zip(datainfo.datafiles, datainfo.expnames):
             print dfile
 
             lsens_labels = []
-            #compute the labels of the data
-            for sensor in datainfo.sensors:
-                lsens_labels.append(compute_data_labels(datainfo.dpath + '/' + datainfo.name + '/' + datainfo.name,
-                                                        datainfo.datafiles[0], dfile, datainfo.sensors[0], sensor))
+            if args.matching:
+                lsensors = datainfo.sensors[isig:fsig]
+                lclusters = datainfo.clusters[isig:fsig]
+                smatching = compute_signals_matching(expname, lsensors, rescale=args.rescale)
+            else:
+                lsensors = datainfo.sensors
+                lclusters = datainfo.clusters
+                smatching = []
+
+            # compute the labels of the data
+            for sensor in lsensors:
+                lsens_labels.append(compute_data_labels(datainfo.name, datainfo.datafiles[0], dfile, sensor))
 
             # Times of the peaks
             ltimes = []
             expcounts = []
             f = h5py.File(datainfo.dpath + '/' + datainfo.name + '/' + datainfo.name + '.hdf5', 'r')
-            for sensor in datainfo.sensors:
+            for sensor in lsensors:
                 d = f[dfile + '/' + sensor + '/' + 'Time']
                 data = d[()]
                 expcounts.append(data.shape[0])
@@ -460,16 +572,28 @@ if __name__ == '__main__':
             #     lsyn_fil = select_sensor(lsynchs, i, 1)
             #     print s, len(lsyn_fil)
 
-            peakdata = lsynchs
+            # gen_peaks_contingency(peakdata, datainfo.sensors, dfile, datainfo.clusters)
 
-            #gen_peaks_contingency(peakdata, datainfo.sensors, dfile, datainfo.clusters)
-            draw_synchs(peakdata, dfile, datainfo.sensors, window, datainfo.clusters[0])
+            if args.matching:
+                dmappings = {}
+                for ncl, sensor in zip(lclusters, lsensors):
+                    dmappings[sensor] = compute_matching_mapping(ncl, sensor, smatching)
+            else:
+                d_mappings = None
+
+            if args.draw:
+                draw_synchs(lsynchs, dfile, ename, lsensors, window, datainfo.clusters[0], lmatch=len(smatching),
+                            dmappings=dmappings)
+
+            if args.boxes:
+                draw_synchs_boxes(lsynchs, dfile, ename, lsensors, window, datainfo.clusters[0], lmatch=len(smatching),
+                                  dmappings=dmappings)
+
             if args.histogram:
                 length_synch_frequency_histograms(peakdata, dfile, window=int(round(window)))
 
             if args.coincidence:
-                synch_coincidence_matrix(peakdata, dfile, datainfo.sensors, expcounts, window)
+                synch_coincidence_matrix(lsynchs, dfile, lsensors.sensors, expcounts, window)
 
             if args.contingency:
-                coincidence_contingency(peakdata, dfile, datainfo.sensors)
-
+                coincidence_contingency(lsynchs, dfile, lsensors.sensors)

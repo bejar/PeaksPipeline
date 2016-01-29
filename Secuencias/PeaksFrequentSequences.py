@@ -380,7 +380,7 @@ def plot_sequences(nfile, lseq, nsym, sensor, lmatch=0, mapping=None):
                 pk2 = int(mapping[pk2])
 
 
-            dcoord = int(coord /step)
+            dcoord = int(coord/step)
             ypos = dcoord * dpos
             if stt != dcoord:
                 stt = dcoord
@@ -390,8 +390,9 @@ def plot_sequences(nfile, lseq, nsym, sensor, lmatch=0, mapping=None):
             p = path.rect(3+coord - (dcoord*step) +(lng/2.0), 3+ypos, lng/2.0,  1)
             c.stroke(p, [deco.filled([collist[pk2]])])
             c.stroke(p)
-            p = path.line(3+coord - (dcoord*step), 3+ypos + 1,  3+coord - (dcoord*step), 3+ypos + 2)
-            c.stroke(p)
+            # p = path.line(3+coord - (dcoord*step), 3+ypos + 1,  3+coord - (dcoord*step), 3+ypos + 2)
+            # c.stroke(p, [deco.filled([collist[pk1]])])
+            c.fill(path.rect(3+coord - (dcoord*step), 3+ypos + 1, 0.05, 1),[collist[pk1]])
         else:
             tm1, pk1 = seq
             if lmatch != 0:
@@ -402,13 +403,11 @@ def plot_sequences(nfile, lseq, nsym, sensor, lmatch=0, mapping=None):
             if stt != dcoord:
                 stt = dcoord
                 c.text(0,3+ ypos, str(tm1), [text.size(1)])
-            p = path.line(3+coord - (dcoord*step), 3+ypos + 1, 3+coord - (dcoord*step), 3+ypos + 2)
-            c.stroke(p, [deco.filled([collist[pk1]])])
+            # p = path.line(3+coord - (dcoord*step), 3+ypos + 1, 3+coord - (dcoord*step), 3+ypos + 2)
+            # c.stroke(p, [deco.filled([collist[pk1]])])
+            c.fill(path.rect(3+coord - (dcoord*step), 3+ypos + 1, 0.05, 1),[collist[pk1]])
 
 
-        # cnt += 1
-        # if cnt == 1000:
-        #     break
     lpages.append(document.page(c))
 
     d = document.document(lpages)
@@ -746,12 +745,16 @@ if __name__ == '__main__':
     parser.add_argument('--string', help="generate a string representation of the sequences", action='store_true', default=True)
     parser.add_argument('--alternative', help="Alternative Coloring for the Graph", action='store_true', default=True)
     parser.add_argument('--matching', help="Perform matching of the peaks", action='store_true', default=False)
+    parser.add_argument('--rescale', help="Rescale the peaks for matching", action='store_true', default=False)
 
     args = parser.parse_args()
     if args.exp:
         lexperiments = args.exp
 
+    args.graph = True
+    args.sequence = True
     args.matching = True
+    args.string = False
     galt = args.alternative
     colors = ['red', 'blue', 'green']
     npart = 3
@@ -768,7 +771,8 @@ if __name__ == '__main__':
         if args.matching:
             lsensors = datainfo.sensors[isig:fsig]
             lclusters = datainfo.clusters[isig:fsig]
-            smatching = compute_signals_matching(expname, lsensors)
+            smatching = compute_signals_matching(expname, lsensors, rescale=args.rescale)
+            print len(smatching)
         else:
             lsensors = datainfo.sensors
             lclusters = datainfo.clusters
@@ -787,20 +791,20 @@ if __name__ == '__main__':
                     clpeaks = compute_data_labels(datainfo.datafiles[0], dfile, sensor)
                     d = f[dfile + '/' + sensor + '/' + 'Time']
                     timepeaks = data = d[()]
-                    # if args.graph:
-                    #     if len(smatching)!= 0:
-                    #         partition = generate_partition(len(smatching), npart, colors)
-                    #     else:
-                    #         partition = generate_partition(ncl, npart, colors)
-                    #
-                    #     generate_sequences(dfile, ename, timepeaks, clpeaks, sensor, ncl,
-                    #                        lmatch=len(smatching), mapping=mapping,
-                    #                        gap=2000, sup=None, rand=False, galt=galt, partition=partition)
+                    if args.graph:
+                        if len(smatching)!= 0:
+                            partition = generate_partition(len(smatching), npart, colors)
+                        else:
+                            partition = generate_partition(ncl, npart, colors)
+
+                        generate_sequences(dfile, ename, timepeaks, clpeaks, sensor, ncl,
+                                           lmatch=len(smatching), mapping=mapping,
+                                           gap=2000, sup=None, rand=False, galt=galt, partition=partition)
 
                     if args.sequence:
                         lseq = freq_seq_positions(datainfo.name, clpeaks, timepeaks, sensor, ename, ncl,
                                                    gap=2000, sup=None)
                         plot_sequences(dfile, lseq, ncl, sensor, lmatch=len(smatching), mapping=mapping)
-                    #
-                    # if args.string:
-                    #     sequence_to_string(dfile, clpeaks, timepeaks, sensor, dfile, ename, gap=2000)
+
+                    if args.string:
+                        sequence_to_string(dfile, clpeaks, timepeaks, sensor, dfile, ename, gap=2000)

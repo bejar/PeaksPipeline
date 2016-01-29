@@ -111,7 +111,6 @@ def integIneqG(data, QI1, QI2, QF1, QF2):
 
     return intTest
 
-
 def fifft(Nfft, fmask, peak, dw, N):
     """
     Returns the peaks with filtered frequencies
@@ -139,7 +138,6 @@ def fifft(Nfft, fmask, peak, dw, N):
     X = np.fft.irfft(y2)
     X = X[dw:N + dw - 1] * N
     return X, y, y2
-
 
 def ffft(fmask, y):
     """

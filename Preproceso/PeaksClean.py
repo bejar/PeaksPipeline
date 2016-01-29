@@ -26,8 +26,9 @@ from Config.experiments import experiments
 from joblib import Parallel, delayed
 from util.plots import show_signal
 import argparse
+from numba import jit
 
-
+@jit
 def is_wavy_signal(signal, thresh):
     """
     Detects if a signal has many cuts over the positive middle part of the signal

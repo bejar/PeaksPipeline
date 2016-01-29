@@ -212,7 +212,7 @@ def choose_color(nsym):
     for i in  np.arange(380,750,370.0/nsym):
         r,g,b = wavelength_to_rgb(i)
         lcols.append(rgb(r, g, b))
-    return lcols
+    return lcols[0:nsym]
 
 if __name__ == '__main__':
    print  wavelength_to_rgb(390)
