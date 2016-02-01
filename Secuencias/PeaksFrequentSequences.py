@@ -47,7 +47,7 @@ def randomize_string(s):
     return result
 
 def drawgraph_alternative(nnodes, edges, nfile, sensor, dfile, ename, legend, partition, lmatch=0, mapping=None):
-    rfile = open(datainfo.dpath + '/' + datainfo.name + '/Results/maxseqAlt-' + nfile + '-' + dfile + '-' + sensor + '.dot', 'w')
+    rfile = open(datainfo.dpath + '/' + datainfo.name + '/Results/maxseqAlt-' + nfile + '-' + dfile + '-' + sensor + '-' + ename + '.dot', 'w')
 
     rfile.write('digraph G {\nsize="20,20"\nlayout="neato"\n' +
                 'imagepath="' + datainfo.dpath + '/'+ datainfo.name + '/Results/icons/' + '"\n' +
@@ -536,7 +536,7 @@ def max_seq_exp(nfile, clpeaks, timepeaks, sensor, dfile, ename, nclust,
         #                       nfile + '-' + ename + '-' + sensor + ' sup(%d)' % sup,
         #                       partition=partition, lmatch=lmatch, mapping=mapping)
         drawgraph_alternative(nclust, lstringsg, nfile, sensor, dfile, ename,
-                              sensor,
+                              sensor+'-'+ename,
                               partition=partition, lmatch=lmatch, mapping=mapping)
     else:
         drawgraph(nclust, lstringsg, nfile, sensor, dfile,

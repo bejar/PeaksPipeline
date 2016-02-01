@@ -20,19 +20,20 @@ PeakSyncroPloy
 __author__ = 'bejar'
 
 from  matplotlib.backends.backend_pdf import PdfPages
-from Sincronizaciones.PeaksSynchro import compute_data_labels, compute_synchs
+from Sincronizaciones.PeaksSynchro import  compute_synchs
 from Config.experiments import experiments
 import h5py
 import numpy as np
 import matplotlib.pyplot as plt
 from pylab import *
 import argparse
+from sklearn.metrics import pairwise_distances_argmin_min
 
 def plotSignals(signals,pp,n,m, title):
     fig = plt.figure()
     fig.set_figwidth(30)
     fig.set_figheight(16)
-    fig.suptitle(str(title), fontsize=48)
+    #fig.suptitle(str(title), fontsize=48)
     i=1
     vmax = []
     vmin = []
@@ -59,7 +60,7 @@ def plotSignalValues(fig,signal1,n,m,p,name,v, maxaxis, minaxis):
     # maxaxis=max(signal1)
     num=len(signal1)
     sp1=fig.add_subplot(n,m,p)
-    plt.title(name)
+    #plt.title(name)
     sp1.axis([0,num,minaxis,maxaxis])
     t = arange(0.0, num, 1)
     if v !=0:
@@ -127,6 +128,30 @@ def draw_sincro(raw, lsync, num, nums, cres, name, sens):
 
     pp.close()
 
+def compute_data_labels(fname, dfilec, dfile, sensor):
+    """
+    Computes the labels of the data using the centroids of the cluster in the file
+    the labels are relabeled acording to the matching with the reference sensor
+
+    Disabled the association using the Hungarian algorithm so the cluster index are
+    the original ones
+
+    :param dfile:
+    :param sensor:
+    :return:
+    """
+    f = h5py.File(datainfo.dpath + '/' + fname + '/' + fname + '.hdf5', 'r')
+
+    d = f[dfilec + '/' + sensor + '/Clustering/' + 'Centers']
+    centers = d[()]
+    d = f[dfile + '/' + sensor + '/' + 'PeaksResamplePCA']
+    data = d[()]
+    f.close()
+
+    labels, _ = pairwise_distances_argmin_min(data, centers)
+    return labels
+
+
 
 def select_sensor(synchs, sensor, slength):
     """
@@ -149,7 +174,7 @@ if __name__ == '__main__':
     window = 400
     print 'W=', int(round(window))
     # 'e150514''e120503''e110616''e150707''e151126''e120511'
-    lexperiments = ['e120511e']
+    lexperiments = ['e110906o']
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
@@ -163,7 +188,7 @@ if __name__ == '__main__':
     for expname in lexperiments:
 
         datainfo = experiments[expname]
-        rsensor = 'L5ci'
+        rsensor = 'L6ri'
         nsensor = datainfo.sensors.index(rsensor)
         slength = 2
         filter = True
@@ -175,15 +200,15 @@ if __name__ == '__main__':
             lsens_labels = []
             #compute the labels of the data
             for sensor in datainfo.sensors:
-                lsens_labels.append(compute_data_labels(datainfo.dpath + '/' + datainfo.name + '/' + datainfo.name,
-                                                        datainfo.datafiles[0], dfile, datainfo.sensors[0], sensor))
+                lsens_labels.append(compute_data_labels( datainfo.name,
+                                                        datainfo.datafiles[0], dfile, sensor))
 
             # Times of the peaks
             ltimes = []
             expcounts = []
             f = h5py.File(datainfo.dpath + '/' + datainfo.name + '/' + datainfo.name+ '.hdf5', 'r')
             if filter:
-                ext = '-F200'
+                ext = '-F400'
                 d = f[dfile + '/RawFiltered']
             else:
                 ext = ''
@@ -191,7 +216,7 @@ if __name__ == '__main__':
 
             raw = d[()]
             for sensor in datainfo.sensors:
-                d = f[dfile + '/' + sensor + '/' + 'TimeClean']
+                d = f[dfile + '/' + sensor + '/' + 'Time']
                 data = d[()]
                 #expcounts.append(data.shape[0])
                 ltimes.append(data)

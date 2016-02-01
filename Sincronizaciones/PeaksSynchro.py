@@ -534,8 +534,8 @@ if __name__ == '__main__':
     window = 400
 
     print 'W=', int(round(window))
-    # 'e120503''e110616''e150707''e151126''e120511''e110906e'
-    lexperiments = ['e150514']
+    # 'e120503''e110616''e150707''e151126''e120511''e110906e''e150514'
+    lexperiments = ['e110906e']
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
@@ -554,7 +554,7 @@ if __name__ == '__main__':
         lexperiments = args.exp
 
     args.matching = True
-    args.histogram = False
+    args.histogram = True
     args.draw = True
     args.boxes = False
     args.rescale = True
