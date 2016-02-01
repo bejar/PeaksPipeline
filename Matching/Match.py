@@ -160,7 +160,7 @@ def compute_matching_mapping(ncl, sensor, matching):
     return mapping
 
 
-def save_matching(matching, sensors):
+def save_matching(matching, lsensors):
     """
 
     :param smatching:
@@ -224,5 +224,5 @@ if __name__ == '__main__':
 
         lsensors = datainfo.sensors[isig:fsig]
         lclusters = datainfo.clusters[isig:fsig]
-        smatching = compute_signals_matching(expname, lsensors, rescale=False)
+        smatching = compute_signals_matching(expname, lsensors, rescale=True)
         save_matching(smatching, lsensors)

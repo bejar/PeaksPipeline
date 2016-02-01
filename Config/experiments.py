@@ -186,8 +186,8 @@ experiments = \
                 peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
                 peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 10},
                 peaks_filter={'lowpass': 1.0, 'highpass':200.0},
-                expnames=['ctrl1', 'ctrl2',  'capsa1', 'capsa2', 'capsa3',
-                          'lido1', 'lido2', 'lido3', 'lido4', 'lido5', 'lido6']
+                expnames=['Control1', 'Control2',  'Capsaicin1', 'Capsaicin2', 'Capsaicin3',
+                          'Lidocaine1', 'Lidocaine2', 'Lidocaine3', 'Lidocaine4', 'Lidocaine5', 'Lidocaine6']
             ),
         'e110906e':
             Experiment(
@@ -204,8 +204,8 @@ experiments = \
                 peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
                 peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 10},
                 peaks_filter={'lowpass': 1.0, 'highpass':200.0},
-                expnames=['ctrl1', 'ctrl2',  'capsa1', 'capsa2', 'capsa3',
-                          'lido1', 'lido2', 'lido3', 'lido4', 'lido5', 'lido6']
+                expnames=['Control1', 'Control2',  'Capsaicin1', 'Capsaicin2', 'Capsaicin3',
+                          'Lidocaine1', 'Lidocaine2', 'Lidocaine3', 'Lidocaine4', 'Lidocaine5', 'Lidocaine6']
             ),
         'e120511':
             Experiment(

@@ -56,7 +56,7 @@ def plotSignalValues(signals, dfile, sensor, nc):
 
 if __name__ == '__main__':
     # 'e150514''e120503''e110616''e150707''e151126''e120511'
-    lexperiments = ['e150707']
+    lexperiments = ['e110906o']
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")

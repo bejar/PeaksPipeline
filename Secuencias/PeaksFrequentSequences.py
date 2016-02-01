@@ -46,7 +46,7 @@ def randomize_string(s):
     result = ''.join(l)
     return result
 
-def drawgraph_alternative(nnodes, edges, nfile, sensor, dfile, legend, partition, lmatch=0, mapping=None):
+def drawgraph_alternative(nnodes, edges, nfile, sensor, dfile, ename, legend, partition, lmatch=0, mapping=None):
     rfile = open(datainfo.dpath + '/' + datainfo.name + '/Results/maxseqAlt-' + nfile + '-' + dfile + '-' + sensor + '.dot', 'w')
 
     rfile.write('digraph G {\nsize="20,20"\nlayout="neato"\n' +
@@ -92,9 +92,9 @@ def drawgraph_alternative(nnodes, edges, nfile, sensor, dfile, legend, partition
     rfile.write('}\n')
 
     rfile.close()
-    os.system('dot -Tpdf '+datainfo.dpath + '/'+ datainfo.name+ '/Results/maxseqAlt-' + nfile + '-' + dfile + '-' + sensor + '.dot ' + '-o '
-              + datainfo.dpath + '/'+ datainfo.name+ '/Results/maxseqAlt-' + nfile + '-' + dfile + '-' + sensor + '.pdf')
-    os.system(' rm -fr ' + datainfo.dpath + '/'+ datainfo.name+ '/Results/maxseqAlt-' + nfile + '-' + dfile + '-' + sensor + '.dot')
+    os.system('dot -Tpdf '+datainfo.dpath + '/'+ datainfo.name+ '/Results/maxseqAlt-' + nfile + '-' + dfile + '-' + sensor + '-' + ename+ '.dot ' + '-o '
+              + datainfo.dpath + '/'+ datainfo.name+ '/Results/maxseqAlt-' + nfile + '-' + dfile + '-' + sensor + '-' + ename + '.pdf')
+    os.system(' rm -fr ' + datainfo.dpath + '/'+ datainfo.name+ '/Results/maxseqAlt-' + nfile + '-' + dfile + '-' + sensor + '-' + ename + '.dot')
 
 
 def drawgraph(nnodes, edges, nfile, sensor, dfile, legend, lmatch=0, mapping=None):
@@ -532,8 +532,11 @@ def max_seq_exp(nfile, clpeaks, timepeaks, sensor, dfile, ename, nclust,
         nsig -= 1
 
     if galt:
-        drawgraph_alternative(nclust, lstringsg, nfile, sensor, dfile,
-                              nfile + '-' + ename + '-' + sensor + ' sup(%d)' % sup,
+        # drawgraph_alternative(nclust, lstringsg, nfile, sensor, dfile, ename,
+        #                       nfile + '-' + ename + '-' + sensor + ' sup(%d)' % sup,
+        #                       partition=partition, lmatch=lmatch, mapping=mapping)
+        drawgraph_alternative(nclust, lstringsg, nfile, sensor, dfile, ename,
+                              sensor,
                               partition=partition, lmatch=lmatch, mapping=mapping)
     else:
         drawgraph(nclust, lstringsg, nfile, sensor, dfile,
@@ -736,7 +739,7 @@ voc = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789*+-$%&/<>[]{}()!?#'
 
 if __name__ == '__main__':
     # 'e150514''e120503''e110616''e150707''e151126''e120511'
-    lexperiments = ['e150514']
+    lexperiments = ['e110906o']
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
@@ -753,9 +756,10 @@ if __name__ == '__main__':
 
     args.graph = True
     args.sequence = True
-    args.matching = True
+    args.matching = False
     args.string = False
     galt = args.alternative
+
     colors = ['red', 'blue', 'green']
     npart = 3
 

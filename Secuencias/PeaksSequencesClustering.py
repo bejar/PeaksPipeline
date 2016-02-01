@@ -79,8 +79,8 @@ def generate_prob_matrix(timepeaks, clpeaks, nsym, gap, laplace=0.0, norm='All')
 # --------------------------------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    # 'e150514''e120503''e110616''e150707''e151126''e120511'
-    lexperiments = ['e120511']
+    # 'e150514''e120503''e110616''e150707''e151126''e120511''e110906e'
+    lexperiments = ['e110906o']
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
@@ -90,7 +90,7 @@ if __name__ == '__main__':
         lexperiments = args.exp
 
 
-    norm = 'Row' # 'Row'
+    norm = 'Row' # 'Row', 'All'
 
     peakdata = {}
     for expname in lexperiments:
@@ -98,7 +98,7 @@ if __name__ == '__main__':
         datainfo = experiments[expname]
         f = h5py.File(datainfo.dpath + '/' + datainfo.name + '/' + datainfo.name + '.hdf5', 'r')
 
-        for ncl, sensor in zip(datainfo.clusters[3:], datainfo.sensors[3:]):
+        for ncl, sensor in zip(datainfo.clusters[6:10], datainfo.sensors[6:10]):
             print(sensor)
             lmatrix = []
             for dfile, ename in zip(datainfo.datafiles, datainfo.expnames):
@@ -106,13 +106,14 @@ if __name__ == '__main__':
                 d = f[dfile + '/' + sensor + '/' + 'Time']
                 timepeaks =  d[()]
 
-                mtrx = generate_prob_matrix( timepeaks, clpeaks, ncl, gap=2000, laplace=1, norm= norm)
+                mtrx = generate_prob_matrix( timepeaks, clpeaks, ncl, gap=3000, laplace=0.1, norm= norm)
                 lmatrix.append(mtrx)
 
                 fig = plt.figure()
+                plt.title(ename)
                 fig.set_figwidth(50)
                 fig.set_figheight(60)
-                sns.heatmap(mtrx, cmap='jet')
+                sns.heatmap(mtrx, cmap='jet', vmin=0, vmax=0.25)
                 plt.show()
 
             # distance matrix among probability matrices
@@ -123,7 +124,7 @@ if __name__ == '__main__':
                     mdist[pos] = hamming_frobenius_distance(lmatrix[i], lmatrix[j])
                     pos += 1
 
-            clust = linkage(mdist, method='single')
+            clust = linkage(mdist, method='complete')
 
             plt.figure(figsize=(15,15))
             dendrogram(clust, distance_sort=True, orientation='left', labels=datainfo.expnames)

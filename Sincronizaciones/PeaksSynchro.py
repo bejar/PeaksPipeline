@@ -37,6 +37,7 @@ import seaborn as sns
 import argparse
 from util.misc import choose_color
 from Matching.Match import compute_matching_mapping, compute_signals_matching
+from fim import fpgrowth
 
 voc = ' ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
@@ -326,7 +327,11 @@ def draw_synchs_boxes(pk, exp, ename, sensors, window, nsym, lmatch=0, dmappings
         p = path.rect((i * 0.25) + 5, 7, 0.25, 0.25)
         c.stroke(p, [deco.filled([col])])
 
-    dpos = -9
+    if lmatch != 0:
+        dpos = -len(lmatch)-1
+    else:
+        dpos = -nsym -1
+
     step = 200
     tres = 500.0
     stt = -1
@@ -499,6 +504,29 @@ def save_sync_sequence(lsync, nfile, lengths=False):
 
     rfile.close()
 
+def compute_frequent_transactions(lsynchs, sup, lsensors):
+    """
+    Applies FP-growth for finding the frequent transactions in the syncronizations
+
+    :return:
+    """
+    ltrans = []
+
+    for synch in lsynchs:
+        trans = []
+        for sn, _, cl in synch:
+            trans.append('%s-C%s'%(lsensors[sn],str(cl)))
+        ltrans.append(trans)
+
+    lfreq = []
+    cnt_len = np.zeros(len(lsensors))
+    for itemset, sval in fpgrowth(ltrans, supp=-sup, zmin=2, target='m'):
+        lfreq.append((itemset, sval))
+        cnt_len[len(itemset)-2] += 1
+
+    return lfreq, cnt_len
+
+
 
 # --------------------------------------------------------------------------------------------------------------------
 
@@ -506,7 +534,7 @@ if __name__ == '__main__':
     window = 400
 
     print 'W=', int(round(window))
-    # 'e150514''e120503''e110616''e150707''e151126''e120511'
+    # 'e120503''e110616''e150707''e151126''e120511''e110906e'
     lexperiments = ['e150514']
 
     parser = argparse.ArgumentParser()
@@ -517,12 +545,19 @@ if __name__ == '__main__':
     parser.add_argument('--contingency', help="Save peaks contingency matrix", action='store_true', default=False)
     parser.add_argument('--matching', help="Perform matching of the peaks", action='store_true', default=True)
     parser.add_argument('--boxes', help="Draws the syncronization in grouping boxes", action='store_true', default=True)
-    parser.add_argument('--draw', help="Draws the syncronization in grouping boxes", action='store_true', default=True)
+    parser.add_argument('--draw', help="Draws the syncronization matching", action='store_true', default=True)
     parser.add_argument('--rescale', help="Rescale the peaks for matching", action='store_true', default=False)
+    parser.add_argument('--frequent', help="Computes frequent transactions algorithm for the synchonization", action='store_true', default=True)
 
     args = parser.parse_args()
     if args.exp:
         lexperiments = args.exp
+
+    args.matching = True
+    args.histogram = False
+    args.draw = True
+    args.boxes = False
+    args.rescale = True
 
     # Matching parameters
     isig = 2
@@ -579,9 +614,10 @@ if __name__ == '__main__':
                 for ncl, sensor in zip(lclusters, lsensors):
                     dmappings[sensor] = compute_matching_mapping(ncl, sensor, smatching)
             else:
-                d_mappings = None
+                dmappings = None
 
-            if args.draw:
+            if args.draw and args.matching:
+
                 draw_synchs(lsynchs, dfile, ename, lsensors, window, datainfo.clusters[0], lmatch=len(smatching),
                             dmappings=dmappings)
 
@@ -590,10 +626,14 @@ if __name__ == '__main__':
                                   dmappings=dmappings)
 
             if args.histogram:
-                length_synch_frequency_histograms(peakdata, dfile, window=int(round(window)))
+                length_synch_frequency_histograms(lsynchs, dfile, window=int(round(window)))
 
             if args.coincidence:
-                synch_coincidence_matrix(lsynchs, dfile, lsensors.sensors, expcounts, window)
+                synch_coincidence_matrix(lsynchs, dfile, lsensors, expcounts, window)
 
             if args.contingency:
-                coincidence_contingency(lsynchs, dfile, lsensors.sensors)
+                coincidence_contingency(lsynchs, dfile, lsensors)
+
+            if args.frequent:
+                lfreq, cntlen = compute_frequent_transactions(lsynchs, sup=50, lsensors=lsensors)
+                print len(lfreq), cntlen
