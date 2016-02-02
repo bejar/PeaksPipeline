@@ -755,7 +755,7 @@ if __name__ == '__main__':
         lexperiments = args.exp
 
     args.graph = True
-    args.sequence = True
+    args.sequence = False
     args.matching = False
     args.string = False
     galt = args.alternative

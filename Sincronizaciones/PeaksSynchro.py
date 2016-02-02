@@ -173,7 +173,7 @@ def synch_coincidence_matrix(peaksynchs, exp, sensors, expcounts, window):
                [x for x in range(len(sensors))], [x for x in sensors], datainfo.dpath + '/Results/')
 
 
-def length_synch_frequency_histograms(dsynchs, dfile, window):
+def length_synch_frequency_histograms(dsynchs, dfile, ename, lsensors, window):
     """
     Histograms of the frequencies of the lengths of the synchronizations
     :param dsynch: Dictionary with the synchronizations computed by
@@ -185,9 +185,11 @@ def length_synch_frequency_histograms(dsynchs, dfile, window):
         x.append(len(pk))
 
     P.figure()
-    n, bins, patches = P.hist(x, max(x) - 1, normed=1, histtype='bar', fill=True)
-    P.title('%s-W%d' % (dfile, window), fontsize=48)
-    P.savefig(datainfo.dpath + '/' + datainfo.name + '/' + '/Results/histo-' + datainfo.name + '-' + dfile + '-W' + str(
+
+    #sns.distplot(x,  hist=True, norm_hist= True, kde=False, rug=False)
+    n, bins, patches = P.hist(x, max(x) , normed=1, histtype='bar', fill=True)
+    P.title('%s-%s-W%d' % (dfile, ename, window), fontsize=24)
+    P.savefig(datainfo.dpath + '/' + datainfo.name +  '/Results/histo-' + datainfo.name + '-' + dfile + '-W' + str(
         window) + '.pdf', orientation='landscape', format='pdf')
     P.close()
 
@@ -534,8 +536,8 @@ if __name__ == '__main__':
     window = 400
 
     print 'W=', int(round(window))
-    # 'e120503''e110616''e150707''e151126''e120511''e110906e''e150514'
-    lexperiments = ['e110906e']
+    # 'e120503''e110616''e150707''e151126''e120511''e150514''e110906o'
+    lexperiments = ['e150707']
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
@@ -553,11 +555,12 @@ if __name__ == '__main__':
     if args.exp:
         lexperiments = args.exp
 
-    args.matching = True
+    args.matching = False
     args.histogram = True
-    args.draw = True
+    args.draw = False
     args.boxes = False
-    args.rescale = True
+    args.rescale = False
+    args.frequent = True
 
     # Matching parameters
     isig = 2
@@ -626,7 +629,7 @@ if __name__ == '__main__':
                                   dmappings=dmappings)
 
             if args.histogram:
-                length_synch_frequency_histograms(lsynchs, dfile, window=int(round(window)))
+                length_synch_frequency_histograms(lsynchs, dfile, ename, lsensors, window=int(round(window)))
 
             if args.coincidence:
                 synch_coincidence_matrix(lsynchs, dfile, lsensors, expcounts, window)
@@ -635,5 +638,10 @@ if __name__ == '__main__':
                 coincidence_contingency(lsynchs, dfile, lsensors)
 
             if args.frequent:
-                lfreq, cntlen = compute_frequent_transactions(lsynchs, sup=50, lsensors=lsensors)
-                print len(lfreq), cntlen
+                lsynchs_pruned = [trans for trans in lsynchs if len(trans)>1]
+                support = len(lsynchs_pruned) /20
+                print  support
+                lfreq, cntlen = compute_frequent_transactions(lsynchs, sup=support, lsensors=lsensors)
+                print ename, len(lfreq), cntlen
+                # for item in lfreq:
+                #     print item

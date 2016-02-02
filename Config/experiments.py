@@ -261,23 +261,27 @@ experiments = \
                 peaks_filter={'lowpass': 1.0, 'highpass':200.0},
                 expnames=['ctrl1', 'ctrl2', 'ctrl3']
             ),
+
         'e140225':
             Experiment(
                 dpath=datapath,
                 name='e140225',
-                sampling=10416.7,
-                datafiles=['e140225f31-cntrl1', 'e140225f34-cntrl2', 'e140225f39-cntrl3', 'e140225f47-cntrl4',
-                        'e140225f50-cntrl5', 'e140225f59-cntrl6'],
+                sampling=10204.08,
+                datafiles=['14225f31', '14225f32', '14225f33', '14225f34', '14225f36', '14225f37', '14225f38', '14225f39', '14225f47',
+                        '14225f48', '14225f49', '14225f50', '14225f58', '14225f59', '14225f60', '14225f61', '14225f62', '14225f63',
+                        '14225f64', '14225f65', '14225f66', '14225f67', '14225f68', '14225f76', '14225f77', '14225f78', '14225f79',
+                        '14225f80', '14225f81',   '14225f82', '14225f83', '14225f84', '14225f85'],
                 sensors=['L4cd', 'L4ci', 'L5rd', 'L5ri', 'L5cd', 'L5ci', 'L6rd', 'L6ri', 'L6cd', 'L6ci', 'L7ri', 'L7rd'],
                 abfsensors=[0,1,2,3,4,5,6,7,8,9,10,11],
-                clusters=[12]*6,
-                colors='rrrrrr',
+                clusters=[12]*33,
+                colors='r'*33,
                 peaks_id_params={'wtime': 120e-3, 'low':0, 'high':70, 'threshold': 0.05},
                 peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
                 peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 10},
                 peaks_filter={'lowpass': 1.0, 'highpass':200.0},
                 expnames=['ctrl1', 'ctrl2', 'ctrl3', 'ctrl4', 'ctrl5', 'ctrl6']
             ),
+
         'e140311':
             Experiment(
                 dpath=datapath,
@@ -410,6 +414,27 @@ experiments = \
                 peaks_filter={'lowpass': 1.0, 'highpass':200.0},
                 expnames=['ctrl1', 'ctrl2', 'ctrl3']
             ),
+        'e130221':
+            Experiment(
+                dpath=datapath,
+                name='e130221',
+                sampling=10416.66,
+                datafiles=['13221f30', '13221f31', '13221f32', '13221f33', '13221f35', '13221f36', '13221f37', '13221f38',
+                           '13221f46', '13221f47', '13221f48', '13221f49', '13221f57', '13221f58', '13221f59', '13221f60',
+                           '13221f61', '13221f62', '13221f63', '13221f64', '13222f09', '13222f10', '13222f11', '13222f24',
+                           '13222f25', '13222f26', '13222f27'],
+                sensors=['L4cd', 'L4ci', 'L5rd', 'L5ri', 'L5cd', 'L5ci', 'L6rd', 'L6ri', 'L6cd', 'L6ci', 'L7ri', 'L7rd'],
+                abfsensors=[0,1,2,3,4,5,6,7,8,9,10,11],
+                clusters=[12]*27,
+                colors='r'*27,
+                peaks_id_params={'wtime': 120e-3, 'low':0, 'high':70, 'threshold': 0.05},
+                peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
+                peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 10},
+                peaks_filter={'lowpass': 1.0, 'highpass':200.0},
+                expnames=['ctrl1', 'ctrl2', 'ctrl3']
+            ),
+
+
 
     }
 
