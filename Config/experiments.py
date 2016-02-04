@@ -68,7 +68,7 @@ experiments = \
                            '15707016', '15707017', '15707018', '15707019', '15707020', '15707021', '15707022', '15707023',
                            '15707024', '15707025', '15707026', '15707027', '15707028', '15707029', '15707030', '15707031',
                            '15707032', '15707035', '15707036', '15708000', '15708001', '15708002', '15708003', '15708004',
-                           '15708005', '15708006', '15708007', '15708008'],
+                           '15708005', '15708006', '15708007'],
                 sensors=['L4ci', 'L4cd', 'L5ri', 'L5rd', 'L5ci', 'L5cd', 'L6ri', 'L6rd', 'L6ci', 'L6cd', 'L7ri', 'L7rd'],
                 abfsensors=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                 clusters=[12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
@@ -102,7 +102,7 @@ experiments = \
                 colors='rrryyyyyyyyybbbbbbbbbbbrrggggggggg',
                 peaks_id_params={'wtime': 120e-3, 'low': 0, 'high': 70, 'threshold': 0.05},
                 peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
-                peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 0},
+                peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 15},
                 peaks_filter={'lowpass': 1.0, 'highpass':200.0},
                 expnames=['15514005ctr1', '15514006ctr2', '15514007ctr3',
                         '15514008cap1', '15514009cap2', '15514010cap3', '15514011cap4', '15514012cap5', '15514013cap6',
@@ -279,7 +279,7 @@ experiments = \
                 peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
                 peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 10},
                 peaks_filter={'lowpass': 1.0, 'highpass':200.0},
-                expnames=['ctrl1', 'ctrl2', 'ctrl3', 'ctrl4', 'ctrl5', 'ctrl6']
+                expnames=[str(i) for i in range(33)]
             ),
 
         'e140311':
@@ -431,7 +431,7 @@ experiments = \
                 peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
                 peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 10},
                 peaks_filter={'lowpass': 1.0, 'highpass':200.0},
-                expnames=['ctrl1', 'ctrl2', 'ctrl3']
+                expnames=[str(i) for i in range(27)]
             ),
 
 

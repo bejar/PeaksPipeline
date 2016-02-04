@@ -544,7 +544,7 @@ def max_seq_exp(nfile, clpeaks, timepeaks, sensor, dfile, ename, nclust,
                   lmatch=lmatch, mapping=mapping)
 
 
-def sequence_to_string(nfile, clpeaks, timepeaks, sensor, dfile, ename, gap=0):
+def sequence_to_string(nfile, clpeaks, timepeaks, sensor, dfile, ename, gap=0, npart=1):
     """
     Generates frequent subsequences and the graphs representing the two step frequent
     subsequences
@@ -561,24 +561,36 @@ def sequence_to_string(nfile, clpeaks, timepeaks, sensor, dfile, ename, gap=0):
     :return:
     """
     # Build the sequence string
+
+    mtime = timepeaks[-1]/npart
     peakstr = ''
-
-
+    part = 1
     for i in range(timepeaks.shape[0]):
+        if timepeaks[i] > part*mtime:
+            rfile = open(datainfo.dpath+ '/'+ datainfo.name + '/Results/stringseq-%s-%s-%s-%d.txt'%(nfile, ename, sensor, part), 'w')
+            for k in range(0, len(peakstr), 250):
+                wstr = ''
+                for j in range(250):
+                    if k+j < len(peakstr):
+                        wstr += peakstr[k+j]
+                rfile.write(wstr + '\n')
+            rfile.close()
+            peakstr = ''
+            part += 1
         peakstr += voc[clpeaks[i]]
         if i < timepeaks.shape[0] - 1 and gap != 0:
             if (timepeaks[i + 1] - timepeaks[i]) > gap:
                 peakstr += '#' * ((timepeaks[i + 1] - timepeaks[i]) /gap)
 
-    rfile = open(datainfo.dpath+ '/'+ datainfo.name + '/Results/stringseq-' + nfile + '-' + ename + '-' + sensor + '.txt', 'w')
-
-    for i in range(0, len(peakstr), 250):
-        wstr = ''
-        for j in range(250):
-            if i+j < len(peakstr):
-                wstr += peakstr[i+j]
-        rfile.write(wstr + '\n')
-    rfile.close()
+    if part < npart+1:
+        rfile = open(datainfo.dpath+ '/'+ datainfo.name + '/Results/stringseq-%s-%s-%s-%d.txt'%(nfile, ename, sensor, part), 'w')
+        for i in range(0, len(peakstr), 250):
+            wstr = ''
+            for j in range(250):
+                if i+j < len(peakstr):
+                    wstr += peakstr[i+j]
+            rfile.write(wstr + '\n')
+        rfile.close()
 
 
 def max_peaks_edges(nexp, clpeaks, timepeaks, sup, gap=0):
@@ -738,11 +750,12 @@ voc = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789*+-$%&/<>[]{}()!?#'
 # --------------------------------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    # 'e150514''e120503''e110616''e150707''e151126''e120511'
-    lexperiments = ['e110906o']
+    # 'e150514''e120503''e110616''e150707''e151126''e120511', 'e150707', 'e151126'
+    lexperiments = ['e150514', 'e150707', 'e151126']
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
+    parser.add_argument('--batch', help="Ejecucion no interactiva", action='store_true', default=False)
     parser.add_argument('--graph', help="circular graph of the sequences", action='store_true', default=True)
     parser.add_argument('--sequence', help="linear graph of the sequences", action='store_true', default=True)
     parser.add_argument('--string', help="generate a string representation of the sequences", action='store_true', default=True)
@@ -754,10 +767,12 @@ if __name__ == '__main__':
     if args.exp:
         lexperiments = args.exp
 
-    args.graph = True
-    args.sequence = False
-    args.matching = False
-    args.string = False
+    if not args.batch:
+        args.graph = False
+        args.sequence = False
+        args.matching = False
+        args.string = True
+
     galt = args.alternative
 
     colors = ['red', 'blue', 'green']
@@ -811,4 +826,4 @@ if __name__ == '__main__':
                         plot_sequences(dfile, lseq, ncl, sensor, lmatch=len(smatching), mapping=mapping)
 
                     if args.string:
-                        sequence_to_string(dfile, clpeaks, timepeaks, sensor, dfile, ename, gap=2000)
+                        sequence_to_string(dfile, clpeaks, timepeaks, sensor, dfile, ename, gap=2000, npart=2)

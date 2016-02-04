@@ -160,7 +160,7 @@ def compute_matching_mapping(ncl, sensor, matching):
     return mapping
 
 
-def save_matching(matching, lsensors):
+def save_matching(matching, lsensors, rescale=True):
     """
 
     :param smatching:
@@ -200,13 +200,15 @@ def save_matching(matching, lsensors):
     lpages.append(document.page(c))
 
     d = document.document(lpages)
+    if rescale:
+        res = 'rescale'
 
-    d.writePDFfile(datainfo.dpath + '/' + datainfo.name + "/Results/peaksmatching-%s" % (datainfo.name))
+    d.writePDFfile(datainfo.dpath + '/' + datainfo.name + "/Results/peaksmatching-%s-%s" % (datainfo.name, rescale))
 
 
 if __name__ == '__main__':
     # 'e150514''e120503''e110616''e150707''e151126''e120511'
-    lexperiments = ['e150514']
+    lexperiments = ['e130221', 'e140225']
 
     # Matching parameters
     isig = 2
@@ -225,4 +227,4 @@ if __name__ == '__main__':
         lsensors = datainfo.sensors[isig:fsig]
         lclusters = datainfo.clusters[isig:fsig]
         smatching = compute_signals_matching(expname, lsensors, rescale=True)
-        save_matching(smatching, lsensors)
+        save_matching(smatching, lsensors, rescale=True)

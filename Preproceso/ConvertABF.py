@@ -39,7 +39,7 @@ def convert_from_ABF_to_HDF5(experiment):
     """
 
     # Asumimos que el fichero no existe todavia
-    f = h5py.File(experiment.dpath + experiment.name + '/' + experiment.name + '.hdf5', 'w')
+    f = experiment.open_experiment_data(mode='w')
 
     nsig = experiment.abfsensors
     datafiles = experiment.datafiles
@@ -56,18 +56,14 @@ def convert_from_ABF_to_HDF5(experiment):
         for i, j in enumerate(nsig):
             matrix[i][:] = bl.segments[0].analogsignals[j][:].magnitude
 
-        # Los guardamos en una carpeta del fichero HDF5 para el fichero dentro de /Raw
+        # Los guardamos en el almacenamiento del experimento
         print('Saving: ', dataf, '...')
-        dgroup = f.create_group(dataf)
+        experiment.save_raw_data(f, dataf, matrix.T)
 
-        dgroup.create_dataset('Raw', matrix.T.shape, dtype='f', data=matrix.T, compression='gzip')
         del matrix
         del bl
 
-        f[dataf + '/Raw'].attrs['Sampling'] = experiment.sampling
-        f[dataf + '/Raw'].attrs['Sensors'] = experiment.sensors
-        f.flush()
-    f.close()
+    datainfo.close_experiment_data(f)
 
 
 # Convierte un experimento, para convertir un grupo de experimentos se puede modificar para
@@ -78,17 +74,19 @@ if __name__ == '__main__':
     lexperiments = ['e130221']
 
     parser = argparse.ArgumentParser()
+    parser.add_argument('--batch', help="Ejecucion no interactiva", action='store_true', default=False)
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
 
     args = parser.parse_args()
-    if args.exp:
+
+    if args.batch:
         lexperiments = args.exp
 
     for expname in lexperiments:
 
         datainfo = experiments[expname]
         convert_from_ABF_to_HDF5(datainfo)
-        # Create the results directory if does not exists
+        # Create the results directory if it does not exists
         if not os.path.exists(datainfo.dpath + '/' + datainfo.name + '/Results'):
             os.makedirs(datainfo.dpath + '/' + datainfo.name + '/Results')
 

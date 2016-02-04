@@ -17,7 +17,9 @@ PeaksPCA
 
 :Version: 
 
-:Created on: 26/03/2015 7:52 
+:Created on: 26/03/2015 7:52
+
+* 4/2/2016 - Adapting to changes in Experiment class
 
 """
 
@@ -33,7 +35,7 @@ import argparse
 __author__ = 'bejar'
 
 
-def do_the_job(dfile, sensor, components, lbasal, pcap=True, recenter=True, wtsel=None, clean=False):
+def do_the_job(dfile, sensor, recenter=True, wtsel=None, clean=False, basal='meanfirst'):
     """
     Transforms the data reconstructing the peaks using some components of the PCA
     and uses the mean of the baseline points to move the peak
@@ -44,22 +46,29 @@ def do_the_job(dfile, sensor, components, lbasal, pcap=True, recenter=True, wtse
     :param components: Components selected from the PCA
     :param lbasal: Points to use to move the peak
     :param recenter: recenters the peak so it is in the center of the window
+    :param basal: moving the peak so the begginning is closer to zero
+                 'meanfirst', first n points
+                 'meanmin', first min points of the first half of the peak
     :return:
     """
     print(datainfo.dpath + datainfo.name, sensor)
-    f = h5py.File(datainfo.dpath + datainfo.name + '/' + datainfo.name + '.hdf5', 'r')
-    if dfile + '/' + sensor + '/' + 'PeaksResample' in f:
 
-        d = f[dfile + '/' + sensor + '/' + 'PeaksResample']
-        data = d[()]
+    f = datainfo.open_experiment_data(mode='r')
+    data = datainfo.get_peaks_resample(f, dfile, sensor)
+    pcap = datainfo.get_peaks_smooth_parameters('pcasmooth')
+    components = datainfo.get_peaks_smooth_parameters('components')
+    baseline = datainfo.get_peaks_smooth_parameters('wbaseline')
+    lbasal = range(baseline)
 
+    if data is not None:
         # if there is a clean list of peaks then the PCA is computed only for the clean peaks
-        if clean and dfile + '/' + sensor + '/TimeClean' in f:
-            lt = f[dfile + '/' + sensor + '/' + 'TimeClean']
-            ltime = list(lt[()])
-            print(data.shape)
-            data = data[ltime]
-            print(data.shape)
+        if clean:
+            lt = datainfo.get_clean_time(f, dfile, sensor)
+            if lt is not None:
+                ltime = list(lt[()])
+                print(data.shape)
+                data = data[ltime]
+                print(data.shape)
 
         if pcap:
             pca = PCA(n_components=data.shape[1])
@@ -75,7 +84,7 @@ def do_the_job(dfile, sensor, components, lbasal, pcap=True, recenter=True, wtse
         # If recenter, find the new center of the peak and crop the data to wtsel milliseconds
         if recenter:
             # Original window size in milliseconds
-            wtsel_orig = f[dfile + '/' + sensor + '/PeaksResample'].attrs['wtsel']
+            wtsel_orig = datainfo.get_peaks_resample_parameters('wtsel')
             # current window midpoint
             midpoint = int(trans.shape[1]/2.0)
             # New window size
@@ -98,13 +107,19 @@ def do_the_job(dfile, sensor, components, lbasal, pcap=True, recenter=True, wtse
 
         # Substract the basal
 
-        if lbasal:
+        if basal == 'meanfirst' and lbasal:
             for row in range(trans.shape[0]):
                 vals = trans[row, lbasal]
                 basal = np.mean(vals)
                 trans[row] -= basal
+        elif basal == 'meanmin' and lbasal:
+             for row in range(trans.shape[0]):
+                vals = trans[row, 0:trans.shape[1]/2]
+                vals = np.array(sorted(list(vals)))
+                basal = np.mean(vals[lbasal])
+                trans[row] -= basal
 
-        f.close()
+        datainfo.close_experiment_data(f)
         return trans
     else:
         return None
@@ -116,52 +131,46 @@ if __name__ == '__main__':
     lexperiments = ['e150514']
 
     parser = argparse.ArgumentParser()
+    parser.add_argument('--batch', help="Ejecucion no interactiva", action='store_true', default=False)
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
+    parser.add_argument('--basal', default='meanfirst', help="Nombre de los experimentos")
 
     args = parser.parse_args()
     if args.exp:
         lexperiments = args.exp
 
+    mbasal = args.basal
+
+    if not args.batch:
+        mbasal = 'meanfirst'
+
+
     for expname in lexperiments:
 
         datainfo = experiments[expname]
-        fpca = datainfo.peaks_smooth['pcasmooth']
-        components = datainfo.peaks_smooth['components']
-        baseline = datainfo.peaks_smooth['wbaseline']
-        if 'recenter' in datainfo.peaks_smooth:
-            # If recenter is true a subwindow of the data has to be indicated to be able to re-crop the signal
-            recenter = datainfo.peaks_smooth['recenter']
-            wtsel = datainfo.peaks_smooth['wtsel']
-        else:
-            recenter = False
-            wtsel = None
-        lbasal = range(baseline)
+
+        # if 'recenter' in datainfo.peaks_smooth:
+        #     # If recenter is true a subwindow of the data has to be indicated to be able to re-crop the signal
+        #     recenter = datainfo.peaks_smooth['recenter']
+        #     wtsel = datainfo.peaks_smooth['wtsel']
+        # else:
+        #     recenter = False
+        #     wtsel = None
 
         for dfile in datainfo.datafiles:
             print(dfile)
             # Paralelize PCA computation
             res = Parallel(n_jobs=-1)(
-                    delayed(do_the_job)(dfile, s, components, lbasal, pcap=fpca, recenter=recenter, wtsel=wtsel, clean=False) for s in datainfo.sensors)
+                    delayed(do_the_job)(dfile, s, recenter=False, wtsel=None, clean=False, basal=mbasal) for s in datainfo.sensors)
             # print 'Parallelism ended'
             # Save all the data
-            f = h5py.File(datainfo.dpath + datainfo.name + '/' + datainfo.name + '.hdf5', 'r+')
+            f = datainfo.open_experiment_data(mode='r+')
             for trans, sensor in zip(res, datainfo.sensors):
                 if trans is not None:
                     print(dfile + '/' + sensor + '/' + 'PeaksResamplePCA')
-                    if dfile + '/' + sensor + '/' + 'PeaksResamplePCA' in f:
-                        del f[dfile + '/' + sensor + '/' + 'PeaksResamplePCA']
-                    d = f.require_dataset(dfile + '/' + sensor + '/' + 'PeaksResamplePCA', trans.shape, dtype='f',
-                                          data=trans, compression='gzip')
-                    if fpca:
-                        f[dfile + '/' + sensor + '/PeaksResamplePCA'].attrs['Components'] = components
-                    else:
-                        f[dfile + '/' + sensor + '/PeaksResamplePCA'].attrs['Components'] = 0
+                    datainfo.save_peaks_resample_PCA(f, dfile, sensor, trans)
+                    # if recenter:
+                    #     f[dfile + '/' + sensor + '/PeaksResamplePCA'].attrs['baseline'] = recenter
+                    #     f[dfile + '/' + sensor + '/PeaksResamplePCA'].attrs['wtsel'] = wtsel
 
-                    f[dfile + '/' + sensor + '/PeaksResamplePCA'].attrs['baseline'] = baseline
-                    if recenter:
-                        f[dfile + '/' + sensor + '/PeaksResamplePCA'].attrs['baseline'] = recenter
-                        f[dfile + '/' + sensor + '/PeaksResamplePCA'].attrs['wtsel'] = wtsel
-
-                    d[()] = trans
-
-            f.close()
+            datainfo.close_experiment_data(f)

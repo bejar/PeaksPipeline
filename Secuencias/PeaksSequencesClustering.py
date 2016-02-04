@@ -31,8 +31,35 @@ from sklearn.metrics import pairwise_distances_argmin_min
 from scipy.cluster.hierarchy import linkage, dendrogram, fcluster
 import seaborn as sns
 import argparse
+import networkx as nx
 
 __author__ = 'bejar'
+
+
+def compute_experiments_graph(experiments, mdist, sensor, knn=1):
+    """
+    Computes a graph with the k-nn links according to the probability matrices distances
+    :return:
+    """
+
+    experimentsGraph=nx.Graph()
+
+    for i, nex in enumerate(experiments):
+        ldist = []
+
+        for j, dist in enumerate(mdist[i]):
+            ldist.append((dist,j))
+        ldist = sorted(ldist, key=lambda edge: edge[0], reverse=True)
+        for j in range(knn):
+            experimentsGraph.add_weighted_edges_from([(experiments[i][8:], experiments[ldist[j][1]][8:], ldist[j][0])])
+
+    pos=nx.graphviz_layout(experimentsGraph)
+    nx.draw_networkx_nodes(experimentsGraph, pos)
+    nx.draw_networkx_edges(experimentsGraph, pos)
+    nx.draw_networkx_labels(experimentsGraph, pos)
+    #nx.draw_graphviz(experimentsGraph)
+    plt.show()
+
 
 def compute_data_labels(dfilec, dfile, sensor):
     """
@@ -50,7 +77,6 @@ def compute_data_labels(dfilec, dfile, sensor):
     labels, _ = pairwise_distances_argmin_min(data, centers)
     f.close()
     return labels
-
 
 
 def generate_prob_matrix(timepeaks, clpeaks, nsym, gap, laplace=0.0, norm='All'):
@@ -74,13 +100,14 @@ def generate_prob_matrix(timepeaks, clpeaks, nsym, gap, laplace=0.0, norm='All')
     else:
         for i in range(nsym):
             pm[i] /= np.sum(pm[i])
+        print pm
         return pm
 
 # --------------------------------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
     # 'e150514''e120503''e110616''e150707''e151126''e120511''e110906e'
-    lexperiments = ['e110906o']
+    lexperiments = ['e150514']
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
@@ -106,15 +133,15 @@ if __name__ == '__main__':
                 d = f[dfile + '/' + sensor + '/' + 'Time']
                 timepeaks =  d[()]
 
-                mtrx = generate_prob_matrix( timepeaks, clpeaks, ncl, gap=3000, laplace=0.1, norm= norm)
+                mtrx = generate_prob_matrix( timepeaks, clpeaks, ncl, gap=2000, laplace=0, norm= norm)
                 lmatrix.append(mtrx)
 
-                fig = plt.figure()
-                plt.title(ename)
-                fig.set_figwidth(50)
-                fig.set_figheight(60)
-                sns.heatmap(mtrx, cmap='jet', vmin=0, vmax=0.25)
-                plt.show()
+                # fig = plt.figure()
+                # plt.title(ename)
+                # fig.set_figwidth(50)
+                # fig.set_figheight(60)
+                # sns.heatmap(mtrx, cmap='jet', vmin=0, vmax=0.25)
+                # plt.show()
 
             # distance matrix among probability matrices
             mdist = np.zeros(len(lmatrix) * (len(lmatrix)-1) / 2)
@@ -124,8 +151,14 @@ if __name__ == '__main__':
                     mdist[pos] = hamming_frobenius_distance(lmatrix[i], lmatrix[j])
                     pos += 1
 
-            clust = linkage(mdist, method='complete')
+            clust = linkage(mdist, method='single')
 
             plt.figure(figsize=(15,15))
             dendrogram(clust, distance_sort=True, orientation='left', labels=datainfo.expnames)
             plt.show()
+            mdist = np.zeros((len(lmatrix),  len(lmatrix)))
+            for i in range(len(lmatrix)):
+                for j in range(len(lmatrix)):
+                    mdist[i,j] = hamming_frobenius_distance(lmatrix[i], lmatrix[j])
+
+            compute_experiments_graph(datainfo.expnames, mdist, sensor, knn=1)

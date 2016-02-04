@@ -194,7 +194,7 @@ def length_synch_frequency_histograms(dsynchs, dfile, ename, lsensors, window):
     P.close()
 
 
-def draw_synchs(peakdata, exp, ename, sensors, window, nsym, lmatch=0, dmappings=None):
+def draw_synchs(peakdata, exp, ename, sensors, window, nsym, nmatch=0, dmappings=None):
     """
     Generates a PDF of the synchronizations
     :param peakdata: Dictionary with the synchronizations computed by compute_syncs
@@ -231,10 +231,10 @@ def draw_synchs(peakdata, exp, ename, sensors, window, nsym, lmatch=0, dmappings
                 can.stroke(p)
 
     # Generates the list of colors
-    if lmatch == 0:
+    if nmatch == 0:
         collist = choose_color(nsym)
     else:
-        collist = choose_color(lmatch)
+        collist = choose_color(nmatch)
 
     ncol = 0
     npage = 1
@@ -301,7 +301,7 @@ def draw_synchs(peakdata, exp, ename, sensors, window, nsym, lmatch=0, dmappings
         datainfo.dpath + '/' + datainfo.name + "/Results/peaksynchs-%s-%s-%s-W%d" % (datainfo.name, exp, ename, window))
 
 
-def draw_synchs_boxes(pk, exp, ename, sensors, window, nsym, lmatch=0, dmappings=None):
+def draw_synchs_boxes(pk, exp, ename, sensors, window, nsym, nmatch=0, dmappings=None):
     """
     Draws syncronizations and their time window boxes
 
@@ -311,12 +311,12 @@ def draw_synchs_boxes(pk, exp, ename, sensors, window, nsym, lmatch=0, dmappings
     :param sensors:
     :param window:
     :param nsym:
-    :param lmatch:
+    :param nmatch:
     :param dmappings:
     :return:
     """
-    if lmatch != 0:
-        collist = choose_color(lmatch)
+    if nmatch != 0:
+        collist = choose_color(nmatch)
     else:
         collist = choose_color(nsym)
 
@@ -329,10 +329,7 @@ def draw_synchs_boxes(pk, exp, ename, sensors, window, nsym, lmatch=0, dmappings
         p = path.rect((i * 0.25) + 5, 7, 0.25, 0.25)
         c.stroke(p, [deco.filled([col])])
 
-    if lmatch != 0:
-        dpos = -len(lmatch)-1
-    else:
-        dpos = -nsym -1
+    dpos = -len(sensors)- 1
 
     step = 200
     tres = 500.0
@@ -550,17 +547,19 @@ if __name__ == '__main__':
     parser.add_argument('--draw', help="Draws the syncronization matching", action='store_true', default=True)
     parser.add_argument('--rescale', help="Rescale the peaks for matching", action='store_true', default=False)
     parser.add_argument('--frequent', help="Computes frequent transactions algorithm for the synchonization", action='store_true', default=True)
+    parser.add_argument('--batch', help="Ejecucion no interactiva", action='store_true', default=False)
 
     args = parser.parse_args()
     if args.exp:
         lexperiments = args.exp
 
-    args.matching = False
-    args.histogram = True
-    args.draw = False
-    args.boxes = False
-    args.rescale = False
-    args.frequent = True
+    if not args.batch:
+        args.matching = False
+        args.histogram = True
+        args.draw = False
+        args.boxes = False
+        args.rescale = False
+        args.frequent = True
 
     # Matching parameters
     isig = 2
@@ -621,11 +620,11 @@ if __name__ == '__main__':
 
             if args.draw and args.matching:
 
-                draw_synchs(lsynchs, dfile, ename, lsensors, window, datainfo.clusters[0], lmatch=len(smatching),
+                draw_synchs(lsynchs, dfile, ename, lsensors, window, datainfo.clusters[0], nmatch=len(smatching),
                             dmappings=dmappings)
 
             if args.boxes:
-                draw_synchs_boxes(lsynchs, dfile, ename, lsensors, window, datainfo.clusters[0], lmatch=len(smatching),
+                draw_synchs_boxes(lsynchs, dfile, ename, lsensors, window, datainfo.clusters[0], nmatch=len(smatching),
                                   dmappings=dmappings)
 
             if args.histogram:
@@ -640,7 +639,7 @@ if __name__ == '__main__':
             if args.frequent:
                 lsynchs_pruned = [trans for trans in lsynchs if len(trans)>1]
                 support = len(lsynchs_pruned) /20
-                print  support
+                print support
                 lfreq, cntlen = compute_frequent_transactions(lsynchs, sup=support, lsensors=lsensors)
                 print ename, len(lfreq), cntlen
                 # for item in lfreq:

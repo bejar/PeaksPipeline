@@ -13,13 +13,16 @@ Experiment
 
 :Version: 
 
-:Created on: 23/03/2015 11:44 
+:Created on: 23/03/2015 11:44
+
+* 4/2/2016, modifying the class to gain independence from data storage
 
 """
 
 __author__ = 'bejar'
 
 # from ConfigParser import SafeConfigParser
+import h5py
 
 class Experiment:
     """
@@ -139,6 +142,101 @@ class Experiment:
     #                              'wsbaseline': cnf.getint('Smoothing', 'wbaseline')}
     # 
     #     self.peaks_filter = {'lowpass': cnf.getfloat('Filter', 'lowpass'), 'highpass': cnf.getfloat('Filter', 'highpass')}
+
+
+    def open_experiment_data(self, mode):
+        """
+        Returns a handle to the experiment data
+
+        Depends on the backend of the data
+        :return:
+        """
+        return h5py.File(self.dpath + self.name + '/' + self.name + '.hdf5', mode)
+
+    def close_experiment_data(self, handle):
+        """
+        Closes access to the experiment data
+
+        :param handle:
+        :return:
+        """
+        handle.close()
+
+    def get_peaks_resample(self, f, dfile, sensor):
+        """
+        Gets the resample peaks from the file
+
+        :param dfile:
+        :param sensor:
+        :return:
+        """
+        if dfile + '/' + sensor + '/' + 'PeaksResample' in f:
+            d = f[dfile + '/' + sensor + '/' + 'PeaksResample']
+            return d[()]
+        else:
+            return None
+
+    def get_clean_time(self, f, dfile, sensor):
+        """
+        returns the cleaned list of time peaks
+
+        :param f:
+        :return:
+        """
+        if dfile + '/' + sensor + '/TimeClean' in f:
+            return f[dfile + '/' + sensor + '/' + 'TimeClean']
+        else:
+            return None
+
+    def save_peaks_resample_PCA(self, f, dfile, sensor, trans):
+        """
+        saves the resampled and PCAded peaks in the dataset
+
+        :param dfile:
+        :param sensor:
+        :return:
+        """
+        if dfile + '/' + sensor + '/' + 'PeaksResamplePCA' in f:
+            del f[dfile + '/' + sensor + '/' + 'PeaksResamplePCA']
+        d = f.require_dataset(dfile + '/' + sensor + '/' + 'PeaksResamplePCA', trans.shape, dtype='f',
+                              data=trans, compression='gzip')
+        d[()] = trans
+        if self.peaks_smooth['pcasmooth']:
+            f[dfile + '/' + sensor + '/PeaksResamplePCA'].attrs['Components'] = self.peaks_smooth['components']
+        else:
+            f[dfile + '/' + sensor + '/PeaksResamplePCA'].attrs['Components'] = 0
+
+        f[dfile + '/' + sensor + '/PeaksResamplePCA'].attrs['baseline'] = self.peaks_smooth['wbaseline']
+
+    def save_raw_data(self, f, dfile, matrix):
+        """
+        Saves the raw data for an experiment file
+        :param f:
+        :return:
+        """
+
+        dgroup = f.create_group(dfile)
+        dgroup.create_dataset('Raw', matrix.shape, dtype='f', data=matrix, compression='gzip')
+        f[dfile + '/Raw'].attrs['Sampling'] = self.sampling
+        f[dfile + '/Raw'].attrs['Sensors'] = self.sensors
+        f.flush()
+
+    def get_peaks_smooth_parameters(self, param):
+        """
+        Returns the parameters for the smoothing of the peaks
+
+        :return:
+        """
+        return self.peaks_smooth[param]
+
+    def get_peaks_resample_parameters(self, param):
+        """
+        Gets values from the parameters for peak resampling
+        :param param:
+        :return:
+        """
+        return self.peaks_resampling[param]
+
 
 # ---------------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
