@@ -24,13 +24,14 @@ PeaksPCA
 """
 
 
-import h5py
+
 import numpy as np
 from joblib import Parallel, delayed
 from sklearn.decomposition import PCA
 
 from Config.experiments import experiments
 import argparse
+from util.plots import show_two_signals
 
 __author__ = 'bejar'
 
@@ -74,8 +75,13 @@ def do_the_job(dfile, sensor, recenter=True, wtsel=None, clean=False, basal='mea
             pca = PCA(n_components=data.shape[1])
             res = pca.fit_transform(data)
 
-            print('VEX=', np.sum(pca.explained_variance_ratio_[0:components]))
-
+            sexp = 0.0
+            ncomp = 0
+            while sexp < 0.95:
+                sexp += pca.explained_variance_ratio_[ncomp]
+                ncomp += 1
+            components = ncomp
+            print('VEX=', np.sum(pca.explained_variance_ratio_[0:components]), components)
             res[:, components:] = 0
             trans = pca.inverse_transform(res)
         else:
@@ -118,6 +124,16 @@ def do_the_job(dfile, sensor, recenter=True, wtsel=None, clean=False, basal='mea
                 vals = np.array(sorted(list(vals)))
                 basal = np.mean(vals[lbasal])
                 trans[row] -= basal
+                #show_two_signals(trans[row]+basal, trans[row])
+        elif basal == 'meanlast' and lbasal:
+             for row in range(trans.shape[0]):
+
+                vals = trans[row, (trans.shape[1]/3)*2:trans.shape[1]]
+                basal = np.mean(vals)
+
+                trans[row] -= basal
+                #show_two_signals(trans[row]+basal, trans[row])
+
 
         datainfo.close_experiment_data(f)
         return trans
@@ -127,8 +143,6 @@ def do_the_job(dfile, sensor, recenter=True, wtsel=None, clean=False, basal='mea
 
 # ---------------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
-    # 'e150514''e120503''e110616''e150707''e151126''e120511'
-    lexperiments = ['e150514']
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--batch', help="Ejecucion no interactiva", action='store_true', default=False)
@@ -136,12 +150,13 @@ if __name__ == '__main__':
     parser.add_argument('--basal', default='meanfirst', help="Nombre de los experimentos")
 
     args = parser.parse_args()
-    if args.exp:
-        lexperiments = args.exp
+    lexperiments = args.exp
 
     mbasal = args.basal
 
     if not args.batch:
+        # 'e150514''e120503''e110616''e150707''e151126''e120511'
+        lexperiments = ['e150514']
         mbasal = 'meanfirst'
 
 
@@ -162,7 +177,7 @@ if __name__ == '__main__':
             # Paralelize PCA computation
             res = Parallel(n_jobs=-1)(
                     delayed(do_the_job)(dfile, s, recenter=False, wtsel=None, clean=False, basal=mbasal) for s in datainfo.sensors)
-            # print 'Parallelism ended'
+
             # Save all the data
             f = datainfo.open_experiment_data(mode='r+')
             for trans, sensor in zip(res, datainfo.sensors):

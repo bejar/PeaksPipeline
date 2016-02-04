@@ -162,6 +162,23 @@ class Experiment:
         """
         handle.close()
 
+
+    def get_peaks_smooth_parameters(self, param):
+        """
+        Returns the parameters for the smoothing of the peaks
+
+        :return:
+        """
+        return self.peaks_smooth[param]
+
+    def get_peaks_resample_parameters(self, param):
+        """
+        Gets values from the parameters for peak resampling
+        :param param:
+        :return:
+        """
+        return self.peaks_resampling[param]
+
     def get_peaks_resample(self, f, dfile, sensor):
         """
         Gets the resample peaks from the file
@@ -188,6 +205,49 @@ class Experiment:
         else:
             return None
 
+    def save_peaks_time_clean(self, f, dfile, sensor, ntimes):
+        """
+        Saves the times of the peaks after cleaning the data
+
+        :param f:
+        :param dfile:
+        :param sensor:
+        :param times:
+        :return:
+        """
+        if dfile + '/' + sensor + '/' + 'TimeClean' in f:
+            del f[dfile + '/' + sensor + '/' + 'TimeClean']
+        d = f.require_dataset(dfile + '/' + sensor + '/' + 'TimeClean', ntimes.shape, dtype='i',
+                              data=ntimes, compression='gzip')
+        d[()] = ntimes
+
+
+    def get_peaks_time(self, f, dfile, sensor):
+        """
+        returns the cleaned list of time peaks
+
+        :param f:
+        :return:
+        """
+        if dfile + '/' + sensor + '/Time' in f:
+            return f[dfile + '/' + sensor + '/' + 'Time']
+        else:
+            return None
+
+    def get_peaks_resample_PCA(self, f, dfile, sensor):
+        """
+        Gets the resample peaks from the file
+
+        :param dfile:
+        :param sensor:
+        :return:
+        """
+        if dfile + '/' + sensor + '/' + 'PeaksResamplePCA' in f:
+            d = f[dfile + '/' + sensor + '/' + 'PeaksResamplePCA']
+            return d[()]
+        else:
+            return None
+
     def save_peaks_resample_PCA(self, f, dfile, sensor, trans):
         """
         saves the resampled and PCAded peaks in the dataset
@@ -208,6 +268,23 @@ class Experiment:
 
         f[dfile + '/' + sensor + '/PeaksResamplePCA'].attrs['baseline'] = self.peaks_smooth['wbaseline']
 
+    def save_peaks_clustering_centroids(self, f, dfile, sensor, centers):
+        """
+        Saves the centroids of the clusters in the dataset
+
+        :param f:
+        :param dfile:
+        :param sensor:
+        :param centers:
+        :return:
+        """
+
+        if dfile + '/' + sensor + '/Clustering/Centers' in f:
+            del f[dfile + '/' + sensor + '/Clustering/Centers']
+        d = f.require_dataset(dfile + '/' + sensor + '/Clustering/' + 'Centers', centers.shape, dtype='f',
+                              data=centers, compression='gzip')
+        d[()] = centers
+
     def save_raw_data(self, f, dfile, matrix):
         """
         Saves the raw data for an experiment file
@@ -221,21 +298,6 @@ class Experiment:
         f[dfile + '/Raw'].attrs['Sensors'] = self.sensors
         f.flush()
 
-    def get_peaks_smooth_parameters(self, param):
-        """
-        Returns the parameters for the smoothing of the peaks
-
-        :return:
-        """
-        return self.peaks_smooth[param]
-
-    def get_peaks_resample_parameters(self, param):
-        """
-        Gets values from the parameters for peak resampling
-        :param param:
-        :return:
-        """
-        return self.peaks_resampling[param]
 
 
 # ---------------------------------------------------------------------------------------------------------------

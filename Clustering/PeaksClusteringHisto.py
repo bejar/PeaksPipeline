@@ -23,7 +23,6 @@ PeaksClustering
 from collections import Counter
 from operator import itemgetter
 
-import h5py
 import matplotlib.pyplot as plt
 from pylab import *
 import seaborn as sn
@@ -39,32 +38,31 @@ warnings.filterwarnings("ignore")
 __author__ = 'bejar'
 
 if __name__ == '__main__':
-    # 'e150514''e120503''e110616''e150707''e151126''e120511'
-    lexperiments = ['e150514']
 
     parser = argparse.ArgumentParser()
+    parser.add_argument('--batch', help="Ejecucion no interactiva", action='store_true', default=False)
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
 
     args = parser.parse_args()
-    if args.exp:
-        lexperiments = args.exp
+
+    lexperiments = args.exp
+
+    if not args.batch:
+        # 'e150514''e120503''e110616''e150707''e151126''e120511'
+        lexperiments = ['e150514']
+
 
     for expname in lexperiments:
         datainfo = experiments[expname]
         colors = datainfo.colors
 
-        f = h5py.File(datainfo.dpath + datainfo.name + '/' + datainfo.name + '.hdf5', 'r')
+        f = datainfo.open_experiment_data(mode='r')
 
-        for s, nclusters in zip(datainfo.sensors, datainfo.clusters):
-            print(s)
+        for sensor, nclusters in zip(datainfo.sensors, datainfo.clusters):
+            print(sensor)
             ldata = []
-            for dfiles in datainfo.datafiles:
-                if dfiles + '/' + s + '/' + 'PeaksResamplePCA' in f:
-                    d = f[dfiles + '/' + s + '/' + 'PeaksResamplePCA']
-                    dataf = d[()]
-                    ldata.append(dataf)
-                else:
-                    ldata.append(None)
+            for dfile in datainfo.datafiles:
+                ldata.append(datainfo.get_peaks_resample_PCA(f, dfile, sensor))
 
             data = ldata[0] #np.concatenate(ldata)
 
@@ -101,7 +99,7 @@ if __name__ == '__main__':
             for h in lhisto[1:]:
                 rms = np.dot(lhisto[0] - h,  lhisto[0] - h)
                 rms /= h.shape[0]
-                print np.sqrt(rms), hellinger_distance(h, lhisto[0])
+                print(np.sqrt(rms), hellinger_distance(h, lhisto[0]))
 
             fig = plt.figure()
             ax = fig.add_subplot(2, 1, 1)
@@ -113,7 +111,7 @@ if __name__ == '__main__':
             ax.set_xticklabels(ind)
             for i, h in enumerate(lhisto):
                 rects = ax.bar(ind+(i*width), h, width, color=colors[i])
-            fig.suptitle(datainfo.name + '-' + s, fontsize=48)
+            fig.suptitle(datainfo.name + '-' + sensor, fontsize=48)
 
             minaxis = np.min(km.cluster_centers_)
             maxaxis = np.max(km.cluster_centers_)
@@ -127,7 +125,7 @@ if __name__ == '__main__':
                 ax2.axis([0, len(signal), minaxis, maxaxis])
                 ax2.plot(t,signal)
                 plt.axhline(linewidth=1, color='r', y=0)
-            fig.savefig(datainfo.dpath + '/' + datainfo.name + '/Results/' + datainfo.name + '-' + s + '-histo-sort.pdf', orientation='landscape', format='pdf')
+            fig.savefig(datainfo.dpath + '/' + datainfo.name + '/Results/' + datainfo.name + '-' + sensor + '-histo-sort.pdf', orientation='landscape', format='pdf')
         #    plt.show()
 
             print('*******************')
@@ -138,6 +136,6 @@ if __name__ == '__main__':
                 part = nclusters /2
             else:
                 part = (nclusters /2) + 1
-            plotSignals(lsignals,part,2,np.max(km.cluster_centers_),np.min(km.cluster_centers_), datainfo.name + '-' + s,
-                        datainfo.name + '-' + s, datainfo.dpath+ '/' + datainfo.name + '/Results/')
-        f.close()
+            plotSignals(lsignals, part, 2, np.max(km.cluster_centers_), np.min(km.cluster_centers_), datainfo.name + '-' + sensor,
+                        datainfo.name + '-' + sensor, datainfo.dpath + '/' + datainfo.name + '/Results/')
+        datainfo.close_experiment_data(f)

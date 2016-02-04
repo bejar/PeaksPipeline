@@ -102,7 +102,7 @@ experiments = \
                 colors='rrryyyyyyyyybbbbbbbbbbbrrggggggggg',
                 peaks_id_params={'wtime': 120e-3, 'low': 0, 'high': 70, 'threshold': 0.05},
                 peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
-                peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 15},
+                peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 5},
                 peaks_filter={'lowpass': 1.0, 'highpass':200.0},
                 expnames=['15514005ctr1', '15514006ctr2', '15514007ctr3',
                         '15514008cap1', '15514009cap2', '15514010cap3', '15514011cap4', '15514012cap5', '15514013cap6',
