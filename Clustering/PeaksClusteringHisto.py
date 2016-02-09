@@ -27,11 +27,12 @@ import matplotlib.pyplot as plt
 from pylab import *
 import seaborn as sn
 from sklearn.cluster import KMeans
-
+from kemlglearn.cluster import KernelKMeans
 from Config.experiments import experiments
 from util.plots import plotSignals
 import warnings
 from util.distances import hellinger_distance
+from util.misc import compute_centroids
 import argparse
 warnings.filterwarnings("ignore")
 
@@ -66,14 +67,18 @@ if __name__ == '__main__':
 
             data = ldata[0] #np.concatenate(ldata)
 
-            km = KMeans(n_clusters=nclusters, n_jobs=-1)
-            km.fit_transform(data)
+            km = KernelKMeans(n_clusters=nclusters, kernel='rbf', degree=2, gamma=0.05)
+            #km = KMeans(n_clusters=nclusters, n_jobs=-1)
+            km.fit_predict(data)
+            #centroids = km.cluster_centers_
+            centroids = compute_centroids(data, km.labels_)
+
             lsignals = []
             cnt = Counter(list(km.labels_))
 
             lmax = []
             for i in range(km.n_clusters):
-                lmax.append((i,np.max(km.cluster_centers_[i])))
+                lmax.append((i, np.max(centroids[i])))
             lmax = sorted(lmax, key=itemgetter(1))
 
             print('LMAX ', lmax)
@@ -113,13 +118,13 @@ if __name__ == '__main__':
                 rects = ax.bar(ind+(i*width), h, width, color=colors[i])
             fig.suptitle(datainfo.name + '-' + sensor, fontsize=48)
 
-            minaxis = np.min(km.cluster_centers_)
-            maxaxis = np.max(km.cluster_centers_)
+            minaxis = np.min(centroids)
+            maxaxis = np.max(centroids)
 
 
             for nc in range(nclusters):
                 ax2 = fig.add_subplot(2, nclusters, nc+nclusters+1)
-                signal = km.cluster_centers_[lmax[nc][0]]
+                signal = centroids[lmax[nc][0]]
                 plt.title(' ( '+str(cnt[lmax[nc][0]])+' )')
                 t = arange(0.0, len(signal), 1)
                 ax2.axis([0, len(signal), minaxis, maxaxis])
@@ -130,12 +135,12 @@ if __name__ == '__main__':
 
             print('*******************')
             for nc in range(nclusters):
-                lsignals.append((km.cluster_centers_[lmax[nc][0]], str(nc)+' ( '+str(cnt[lmax[nc][0]])+' )'))
+                lsignals.append((centroids[lmax[nc][0]], str(nc)+' ( '+str(cnt[lmax[nc][0]])+' )'))
 
             if nclusters % 2 == 0:
                 part = nclusters /2
             else:
                 part = (nclusters /2) + 1
-            plotSignals(lsignals, part, 2, np.max(km.cluster_centers_), np.min(km.cluster_centers_), datainfo.name + '-' + sensor,
+            plotSignals(lsignals, part, 2, maxaxis, minaxis, datainfo.name + '-' + sensor,
                         datainfo.name + '-' + sensor, datainfo.dpath + '/' + datainfo.name + '/Results/')
         datainfo.close_experiment_data(f)

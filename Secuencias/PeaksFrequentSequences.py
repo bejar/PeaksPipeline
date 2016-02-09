@@ -567,7 +567,7 @@ def sequence_to_string(nfile, clpeaks, timepeaks, sensor, dfile, ename, gap=0, n
     part = 1
     for i in range(timepeaks.shape[0]):
         if timepeaks[i] > part*mtime:
-            rfile = open(datainfo.dpath+ '/'+ datainfo.name + '/Results/stringseq-%s-%s-%s-%d.txt'%(nfile, ename, sensor, part), 'w')
+            rfile = open(datainfo.dpath + '/' + datainfo.name + '/Results/stringseq-%s%d-%s-%s.txt'%(nfile, part, ename, sensor), 'w')
             for k in range(0, len(peakstr), 250):
                 wstr = ''
                 for j in range(250):
@@ -583,7 +583,7 @@ def sequence_to_string(nfile, clpeaks, timepeaks, sensor, dfile, ename, gap=0, n
                 peakstr += '#' * ((timepeaks[i + 1] - timepeaks[i]) /gap)
 
     if part < npart+1:
-        rfile = open(datainfo.dpath+ '/'+ datainfo.name + '/Results/stringseq-%s-%s-%s-%d.txt'%(nfile, ename, sensor, part), 'w')
+        rfile = open(datainfo.dpath+ '/'+ datainfo.name + '/Results/stringseq-%s%d-%s-%s.txt'%(nfile, part, ename, sensor), 'w')
         for i in range(0, len(peakstr), 250):
             wstr = ''
             for j in range(250):

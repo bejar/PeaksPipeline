@@ -57,7 +57,7 @@ if __name__ == '__main__':
                 if data is not None:
                     if data.shape[0] > nclusters:
                         km = KMeans(n_clusters=nclusters, n_jobs=-1)
-                        km.fit_transform(data)
+                        km.fit(data)
                         lsignals = []
                         cnt = Counter(list(km.labels_))
 

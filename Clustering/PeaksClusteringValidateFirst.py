@@ -1,0 +1,102 @@
+"""
+.. module:: PeaksClusteringValidate
+
+PeaksClusteringValidate
+*************
+
+:Description: PeaksClusteringValidate
+
+ Explores the possible number of clusters for the signals of using all the data of the phases of the experiments
+using AMI stability
+
+
+:Authors: bejar
+    
+
+:Version: 
+
+:Created on: 06/05/2015 12:10 
+
+"""
+
+__author__ = 'bejar'
+
+
+from numpy import mean, std
+from sklearn import metrics
+import h5py
+import numpy as np
+from sklearn.cluster import KMeans
+
+from Config.experiments import experiments
+from util.plots import show_signal, plotSignals
+from collections import Counter
+import logging
+import time
+import argparse
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--batch', help="Ejecucion no interactiva", action='store_true', default=False)
+    parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
+
+    args = parser.parse_args()
+
+    lexperiments = args.exp
+
+    if not args.batch:
+        # 'e150514''e120503''e110616''e150707''e151126''e120511'
+        lexperiments = ['e150514']
+
+    itime = int(time.time())
+
+    niter = 30
+    for expname in lexperiments:
+        datainfo = experiments[expname]
+        fname = datainfo.dpath + '/'+ datainfo.name + '/Results/' + datainfo.name  + '-val-%d.txt'%itime
+        logging.basicConfig(filename=fname, filemode='w',
+                            level=logging.INFO, format='%(message)s', datefmt='%m/%d/%Y %I:%M:%S')
+
+        console = logging.StreamHandler()
+        console.setLevel(logging.INFO)
+        # set a format which is simpler for console use
+        formatter = logging.Formatter('%(message)s')
+        # tell the handler to use this format
+        console.setFormatter(formatter)
+        # add the handler to the root logger
+        logging.getLogger('').addHandler(console)
+
+
+        dfile = datainfo.datafiles[0]
+
+        logging.info('****************************')
+        for sensor in datainfo.sensors:
+
+            f = datainfo.open_experiment_data(mode='r')
+            data = datainfo.get_peaks_resample_PCA(f, dfile, sensor)
+            best = 0
+            ncbest = 0
+            logging.info('S= %s' % sensor)
+
+            for nc in range(4, 21):
+                lclasif = []
+                for i in range(niter):
+                    k_means = KMeans(init='k-means++', n_clusters=nc, n_init=10, n_jobs=-1)
+                    k_means.fit(data)
+                    lclasif.append(k_means.labels_.copy())
+                    #print '.',
+                vnmi = []
+                for i in range(niter):
+                    for j in range(i+1, niter):
+                        nmi=metrics.adjusted_mutual_info_score(lclasif[i], lclasif[j])
+                        vnmi.append(nmi)
+                mn = mean(vnmi)
+                if best < mn:
+                    best = mn
+                    ncbest = nc
+                #print nc, mn
+                logging.info('%d  %f' % (nc, mn))
+
+            logging.info('S= %s NC= %d' % (sensor, ncbest))
+            logging.info('****************************')

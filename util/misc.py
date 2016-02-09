@@ -214,5 +214,29 @@ def choose_color(nsym):
         lcols.append(rgb(r, g, b))
     return lcols[0:nsym]
 
+
+def compute_centroids(data, labels):
+    """
+    Compute the cluster centroids of a data matrix given given the labels of the examples
+
+    :param data:
+    :param labels:
+    :return:
+    """
+    llabels = np.unique(labels)
+
+    ccentroid = np.zeros((len(llabels), data.shape[1]))
+
+    for idx in llabels:
+        center = np.zeros((1, data.shape[1]))
+        center_mask = labels == idx
+        center += np.sum(data[center_mask], axis=0)
+        center /= center_mask.sum()
+        ccentroid[idx] = center
+
+    return ccentroid
+
+
+
 if __name__ == '__main__':
    print  wavelength_to_rgb(390)
