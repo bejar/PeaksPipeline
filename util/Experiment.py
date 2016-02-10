@@ -294,8 +294,10 @@ class Experiment:
 
         dgroup = f.create_group(dfile)
         dgroup.create_dataset('Raw', matrix.shape, dtype='f', data=matrix, compression='gzip')
+
         f[dfile + '/Raw'].attrs['Sampling'] = self.sampling
         f[dfile + '/Raw'].attrs['Sensors'] = self.sensors
+
         f.flush()
 
 

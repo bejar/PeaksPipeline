@@ -70,22 +70,23 @@ def convert_from_ABF_to_HDF5(experiment):
 # iterar sobre una lista de los experimentos existente
 # Estos experimentos estan definidos en Config.experiments
 if __name__ == '__main__':
-    # 'e150514''e120503''e110616''e150707''e151126''e120511''e140225''e130221'
-    lexperiments = ['e130221']
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--batch', help="Ejecucion no interactiva", action='store_true', default=False)
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
 
     args = parser.parse_args()
+    lexperiments = args.exp
 
-    if args.batch:
-        lexperiments = args.exp
+    if not args.batch:
+        # 'e150514''e120503''e110616''e150707''e151126''e120511''e140225''e130221' 'e130221'
+        lexperiments = ['e120503']
 
     for expname in lexperiments:
 
         datainfo = experiments[expname]
         convert_from_ABF_to_HDF5(datainfo)
+
         # Create the results directory if it does not exists
         if not os.path.exists(datainfo.dpath + '/' + datainfo.name + '/Results'):
             os.makedirs(datainfo.dpath + '/' + datainfo.name + '/Results')

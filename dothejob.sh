@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # /bin/sh
 
-#python Preproceso/ConvertABF.py --exp e110906o
-#python Preproceso/PeaksIdentification.py --exp e130221 e140225
-#python Preproceso/PeaksResampling.py  --exp e130221 e140225
-#python Preproceso/PeaksPCA.py --batch --basal meanfirst --exp e150514 e150707 e151126
-python Clustering/PeaksSaveClustering.py --batch --exp   e150514 e150707 e151126
-python Clustering/PeaksClusteringHisto.py --batch --exp    e150514 e150707 e151126
-python Secuencias/PeaksComputeGraphsIcons.py --batch --exp   e150514 e150707 e151126
-python Secuencias/PeaksFrequentSequences.py --batch --matching --graph --sequence  --exp    e150514 e150707 e151126
-python Sincronizaciones/PeaksSynchro.py --batch --matching --boxes --draw --exp    e150514 e150707 e151126
+#python Preproceso/ConvertABF.py --batch --exp e120511 e120503 e130221
+python Preproceso/PeaksIdentification.py  --batch --exp e120511 e120503 e130221
+python Preproceso/PeaksResampling.py --batch  --exp e130221 e140225 e130221
+python Preproceso/PeaksPCA.py --batch --basal meanfirst --exp e150514 e150707 e151126 e130221
+python Clustering/PeaksSaveClustering.py --batch --exp   e150514 e150707 e151126 e130221
+python Clustering/PeaksClusteringHisto.py --batch --exp    e150514 e150707 e151126 e130221
+#python Secuencias/PeaksComputeGraphsIcons.py --batch --exp    e130221 e140225
+#python Secuencias/PeaksFrequentSequences.py --batch --matching --graph --sequence  --exp    e130221 e140225
+#python Sincronizaciones/PeaksSynchro.py --batch --matching --boxes --draw --exp    e130221 e140225

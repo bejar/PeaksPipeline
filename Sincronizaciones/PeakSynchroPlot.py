@@ -173,15 +173,17 @@ def select_sensor(synchs, sensor, slength):
 if __name__ == '__main__':
     window = 400
     print 'W=', int(round(window))
-    # 'e150514''e120503''e110616''e150707''e151126''e120511'
-    lexperiments = ['e110906o']
 
     parser = argparse.ArgumentParser()
+    parser.add_argument('--batch', help="Ejecucion no interactiva", action='store_true', default=False)
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
 
     args = parser.parse_args()
-    if args.exp:
-        lexperiments = args.exp
+    lexperiments = args.exp
+
+    if not args.batch:
+        # 'e150514''e120503''e110616''e150707''e151126''e120511'
+        lexperiments = ['e110906o']
 
 
     peakdata = {}

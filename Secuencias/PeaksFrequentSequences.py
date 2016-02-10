@@ -750,8 +750,6 @@ voc = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789*+-$%&/<>[]{}()!?#'
 # --------------------------------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    # 'e150514''e120503''e110616''e150707''e151126''e120511', 'e150707', 'e151126'
-    lexperiments = ['e150514', 'e150707', 'e151126']
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
@@ -764,14 +762,15 @@ if __name__ == '__main__':
     parser.add_argument('--rescale', help="Rescale the peaks for matching", action='store_true', default=False)
 
     args = parser.parse_args()
-    if args.exp:
-        lexperiments = args.exp
+    lexperiments = args.exp
 
     if not args.batch:
         args.graph = False
         args.sequence = False
         args.matching = False
         args.string = True
+        # 'e150514''e120503''e110616''e150707''e151126''e120511', 'e150707', 'e151126'
+        lexperiments = ['e140225', 'e130221', 'e120511', 'e110906o', 'e110616', 'e120503']
 
     galt = args.alternative
 
@@ -826,4 +825,4 @@ if __name__ == '__main__':
                         plot_sequences(dfile, lseq, ncl, sensor, lmatch=len(smatching), mapping=mapping)
 
                     if args.string:
-                        sequence_to_string(dfile, clpeaks, timepeaks, sensor, dfile, ename, gap=2000, npart=2)
+                        sequence_to_string(dfile, clpeaks, timepeaks, sensor, dfile, ename, gap=2000, npart=1)

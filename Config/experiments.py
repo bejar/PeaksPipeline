@@ -274,12 +274,15 @@ experiments = \
                 sensors=['L4cd', 'L4ci', 'L5rd', 'L5ri', 'L5cd', 'L5ci', 'L6rd', 'L6ri', 'L6cd', 'L6ci', 'L7ri', 'L7rd'],
                 abfsensors=[0,1,2,3,4,5,6,7,8,9,10,11],
                 clusters=[12]*33,
-                colors='r'*33,
+                colors='ggggkkkkkkkkkkrrrrrrrrrrbbbbbbbbb',
                 peaks_id_params={'wtime': 120e-3, 'low':0, 'high':70, 'threshold': 0.05},
                 peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
                 peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 10},
                 peaks_filter={'lowpass': 1.0, 'highpass':200.0},
-                expnames=[str(i) for i in range(33)]
+                expnames=['crtl1', 'crtl2', 'crtl3', 'crtl4', 'esp1', 'esp2', 'esp3', 'esp4', 'esp5', 'esp6', 'esp7',
+                          'esp8', 'esp9', 'esp10', 'capsa1', 'capsa2', 'capsa3', 'capsa4', 'capsa5', 'capsa6',
+                          'capsa7', 'capsa8', 'capsa9' ,'capsa10', 'lido1', 'lido2', 'lido3', 'lido4',
+                          'lido5', 'lido6','lido7','lido8','lido9']
             ),
 
         'e140311':
@@ -426,12 +429,14 @@ experiments = \
                 sensors=['L4cd', 'L4ci', 'L5rd', 'L5ri', 'L5cd', 'L5ci', 'L6rd', 'L6ri', 'L6cd', 'L6ci', 'L7ri', 'L7rd'],
                 abfsensors=[0,1,2,3,4,5,6,7,8,9,10,11],
                 clusters=[12]*27,
-                colors='r'*27,
+                colors='ggggkkkkrrrrrrrrbbbbbbbbbbb',
                 peaks_id_params={'wtime': 120e-3, 'low':0, 'high':70, 'threshold': 0.05},
                 peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
                 peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 10},
                 peaks_filter={'lowpass': 1.0, 'highpass':200.0},
-                expnames=[str(i) for i in range(27)]
+                expnames=['crtl1', 'crtl2', 'crtl3', 'crtl4', 'esp1', 'esp2', 'esp3', 'esp4', 'capsa1', 'capsa2',
+                          'capsa3','capsa4','capsa5','capsa6','capsa7','capsa8', 'lido1', 'lido2', 'lido3', 'lido4',
+                          'lido5', 'lido6','lido7','lido8','lido9','lido10','lido11']
             ),
 
 

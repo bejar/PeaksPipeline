@@ -49,8 +49,8 @@ if __name__ == '__main__':
     lexperiments = args.exp
 
     if not args.batch:
-        # 'e150514''e120503''e110616''e150707''e151126''e120511'
-        lexperiments = ['e150514']
+        # 'e150514''e120503''e110616''e150707''e151126''e120511''e150514'
+        lexperiments = ['e140225', 'e130221']
 
 
     for expname in lexperiments:
@@ -67,11 +67,11 @@ if __name__ == '__main__':
 
             data = ldata[0] #np.concatenate(ldata)
 
-            km = KernelKMeans(n_clusters=nclusters, kernel='rbf', degree=2, gamma=0.05)
-            #km = KMeans(n_clusters=nclusters, n_jobs=-1)
+            #km = KernelKMeans(n_clusters=nclusters, kernel='rbf', degree=2, gamma=0.05)
+            km = KMeans(n_clusters=nclusters, n_jobs=-1)
             km.fit_predict(data)
-            #centroids = km.cluster_centers_
-            centroids = compute_centroids(data, km.labels_)
+            centroids = km.cluster_centers_
+            #centroids = compute_centroids(data, km.labels_)
 
             lsignals = []
             cnt = Counter(list(km.labels_))

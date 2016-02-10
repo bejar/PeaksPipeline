@@ -23,6 +23,9 @@ from scipy.signal import butter, filtfilt
 from Config.experiments import experiments, lexperiments
 import matplotlib.pyplot as plt
 import seaborn as sns
+import argparse
+
+
 __author__ = 'bejar'
 
 
@@ -82,7 +85,16 @@ def filter_data(experiment):
 
 # ---------------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--batch', help="Ejecucion no interactiva", action='store_true', default=False)
+    parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
 
-    lexperiments = ['e151126']
+    args = parser.parse_args()
+    lexperiments = args.exp
+
+    if not args.batch:
+        # 'e150514''e120503''e110616''e150707''e151126''e120511'
+        lexperiments =['e110906o']
+
     for exp in lexperiments:
         filter_data(experiments[exp])

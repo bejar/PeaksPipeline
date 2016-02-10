@@ -106,15 +106,16 @@ def generate_prob_matrix(timepeaks, clpeaks, nsym, gap, laplace=0.0, norm='All')
 # --------------------------------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    # 'e150514''e120503''e110616''e150707''e151126''e120511''e110906e'
-    lexperiments = ['e150514']
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
 
     args = parser.parse_args()
-    if args.exp:
-        lexperiments = args.exp
+    lexperiments = args.exp
+
+    if not args.exp:
+        # 'e150514''e120503''e110616''e150707''e151126''e120511''e110906e'
+        lexperiments = ['e150514']
 
 
     norm = 'Row' # 'Row', 'All'
