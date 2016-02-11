@@ -768,9 +768,10 @@ if __name__ == '__main__':
         args.graph = False
         args.sequence = False
         args.matching = False
+        args.rescale = False
         args.string = True
-        # 'e150514''e120503''e110616''e150707''e151126''e120511', 'e150707', 'e151126'
-        lexperiments = ['e140225', 'e130221', 'e120511', 'e110906o', 'e110616', 'e120503']
+        # 'e150514''e120503''e110616''e150707''e151126''e120511', 'e150707', 'e151126''e120511', 'e120503'
+        lexperiments = ['e150514']
 
     galt = args.alternative
 

@@ -22,9 +22,9 @@ import h5py
 from Config.experiments import experiments
 import numpy as np
 from sklearn.metrics.pairwise import euclidean_distances
-import argparse
 from util.misc import choose_color
 from pyx import *
+import argparse
 
 __author__ = 'bejar'
 
@@ -48,6 +48,22 @@ def compute_signals_matching(expname, lsensors, rescale=True):
             else:
                 alldiff = False
         return alldiff
+
+    def listify(mat):
+        """
+        Transforms an numpy matrix to list of lists
+        :param mat:
+        :return:
+        """
+        lmat = []
+        for i in range(mat.shape[0]):
+            lrow = []
+            for j in range(mat.shape[1]):
+                lrow.append(mat[i,j])
+            lmat.append(lrow)
+        return lmat
+
+
 
     nsignals = len(lsensors)
 
@@ -79,23 +95,24 @@ def compute_signals_matching(expname, lsensors, rescale=True):
 
                 if s1 < s2:
                     if rescale:
-                        proportion = lscales[s1]/lscales[s2]
+                        proportion = lscales[s1] / lscales[s2]
                         centers1 = lcenters[s1]
                         centers2 = lcenters[s2] * proportion
                     else:
                         centers1 = lcenters[s1]
                         centers2 = lcenters[s2]
 
-                    dist = euclidean_distances(centers1,centers2)
+                    dist = euclidean_distances(centers1, centers2)
+                    dist = listify(dist)
 
                     m = Munkres()
-                    indexes = m.compute(dist.copy())
+                    indexes = m.compute(dist)
 
-
-                    lhun=[(row,column,dist[row][column]) for row, column in indexes]
+                    lhun = [(row,column,dist[row][column]) for row, column in indexes]
                     lassoc.append((sensor1, sensor2, lhun))
+
         ledges = []
-        signalGraph=nx.Graph()
+        signalGraph = nx.Graph()
         for sensor1, sensor2, assoc in lassoc:
             for s1, s2, dist in assoc:
                 signalGraph.add_weighted_edges_from([(sensor1+str(s1), sensor2+str(s2), dist)])
@@ -172,7 +189,7 @@ def save_matching(matching, lsensors, rescale=True):
     lpages = []
 
     c = canvas.canvas()
-    c.text(0, 10, "%s" % (datainfo.name), [text.size(5)])
+    c.text(0, (len(matching)+1)*5, "%s" % (datainfo.name), [text.size(5)])
 
     for i, s in enumerate(lsensors):
         c.text((i*5)+1, len(matching)*5, s, [text.size(5)])
@@ -207,18 +224,25 @@ def save_matching(matching, lsensors, rescale=True):
 
 
 if __name__ == '__main__':
-    # 'e150514''e120503''e110616''e150707''e151126''e120511'
-    lexperiments = ['e130221', 'e140225']
 
     # Matching parameters
     isig = 2
     fsig = 10
 
     parser = argparse.ArgumentParser()
+    parser.add_argument('--batch', help="Ejecucion no interactiva", action='store_true', default=False)
+    parser.add_argument('--rescale', help="Reescala proporcionalmente el matching", action='store_true', default=False)
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
+
     args = parser.parse_args()
-    if args.exp:
-        lexperiments = args.exp
+
+    lexperiments = args.exp
+    rescale = args.rescale
+
+    if not args.batch:
+        # 'e150514''e120503''e110616''e150707''e151126''e120511'
+        lexperiments = ['e150514']
+        rescale = True
 
     for expname in lexperiments:
 
@@ -226,5 +250,5 @@ if __name__ == '__main__':
 
         lsensors = datainfo.sensors[isig:fsig]
         lclusters = datainfo.clusters[isig:fsig]
-        smatching = compute_signals_matching(expname, lsensors, rescale=True)
-        save_matching(smatching, lsensors, rescale=True)
+        smatching = compute_signals_matching(expname, lsensors, rescale=rescale)
+        save_matching(smatching, lsensors, rescale=rescale)
