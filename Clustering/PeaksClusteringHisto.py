@@ -106,6 +106,7 @@ if __name__ == '__main__':
                 rms /= h.shape[0]
                 print(np.sqrt(rms), hellinger_distance(h, lhisto[0]))
 
+            matplotlib.rcParams.update({'font.size': 30})
             fig = plt.figure()
             ax = fig.add_subplot(2, 1, 1)
             fig.set_figwidth(60)

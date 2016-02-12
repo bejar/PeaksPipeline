@@ -329,13 +329,19 @@ def draw_synchs_boxes(pk, exp, ename, sensors, window, nsym, nmatch=0, dmappings
         p = path.rect((i * 0.25) + 5, 7, 0.25, 0.25)
         c.stroke(p, [deco.filled([col])])
 
-    dpos = -len(sensors)- 1
+    dpos = -len(sensors) - 1
 
-    step = 200
+    lppage = 10
+    step = 100
     tres = 500.0
     stt = -1
 
-    c.text(0, 10, "%s-%s-%s" % (datainfo.name, dfile, ename), [text.size(5)])
+    lpages = []
+    npages = 0
+    nline = 1
+
+    c.text(-4, 14, " ", [text.size(5)])
+    c.text(0, 10, "%s-%s-%s-W%d" % (datainfo.name, dfile, ename, window), [text.size(5)])
 
     for i in range(len(pk)):
         l = [False] * len(sensors)
@@ -356,25 +362,52 @@ def draw_synchs_boxes(pk, exp, ename, sensors, window, nsym, nmatch=0, dmappings
         lng = (tm2 - tm1) / tres
 
         dcoord = int(coord / step)
-        ypos = dcoord * dpos
         if stt != dcoord:
+
+            # New page
+            if nline % lppage == 0:
+                c.text(step+10, 3 + (lppage-1) * dpos, str(npages+1), [text.size(5)])
+                c.text(step+12, -1 + (lppage-1) * dpos, " ", [text.size(5)])
+
+                nline = 1
+                npages += 1
+                lpages.append(document.page(c))
+                c = canvas.canvas()
+                c.text(-4, 14, " ", [text.size(5)])
+                c.text(0, 10, "%s-%s-%s-W%d" % (datainfo.name, dfile, ename, window), [text.size(5)])
+                # Paleta de colores
+                for i, col in enumerate(collist):
+                    p = path.rect((i * 0.25) + 5, 7, 0.25, 0.25)
+                    c.stroke(p, [deco.filled([col])])
+
+            nline += 1
+
             stt = dcoord
+            ypos = (dcoord * dpos) - (npages * (lppage-1) * dpos)
+
+            # Legend on the left for the names of the sensors
             c.text(-2, 3 + ypos, str(tm1), [text.size(3)])
             for j, sn in enumerate(sensors):
                 c.text(1, 3 + ypos + 1 - j, sn, [text.size(3)])
+        else:
+            ypos = (dcoord * dpos) - (npages * (lppage-1) * dpos)
 
+
+        # Rectangulo que rodea las sincronizaciones
         p = path.rect(3 + (coord - (dcoord * step)), 3 + ypos + 2 - len(sensors), lng + .05, len(sensors))
         c.stroke(p)
 
         for j in range(len(sensors)):
-
             if l[j]:
                 tcoord = ptime[j] / tres
                 c.fill(path.rect(3 + (tcoord - (dcoord * step)), 3 + ypos + 1 - j, 0.05, 1), [lcol[j]])
                 # p = path.line(3 + (tcoord - (dcoord*step)), 3+ypos + 1+j,  3 + (tcoord - (dcoord*step)), 3+ypos + 2+j)
                 # c.stroke(p, [deco.filled([lcol[j]])])
 
-    lpages.append(document.page(c))
+    if nline != 0:
+        c.text(step+10, 3 + (lppage-1) * dpos, str(npages+1), [text.size(5)])
+        c.text(step+12, -1 + (lppage-1) * dpos, " ", [text.size(5)])
+        lpages.append(document.page(c))
 
     d = document.document(lpages)
 
@@ -553,11 +586,11 @@ if __name__ == '__main__':
     if not args.batch:
        # 'e120503''e110616''e150707''e151126''e120511''e150514''e110906o'
         lexperiments = ['e150707']
-        args.matching = False
-        args.histogram = True
+        args.matching = True
+        args.histogram = False
         args.draw = False
-        args.boxes = False
-        args.rescale = False
+        args.boxes = True
+        args.rescale = True
         args.frequent = True
 
     # Matching parameters
