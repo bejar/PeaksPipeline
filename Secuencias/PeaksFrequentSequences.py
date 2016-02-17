@@ -765,13 +765,13 @@ if __name__ == '__main__':
     lexperiments = args.exp
 
     if not args.batch:
-        args.graph = True
-        args.sequence = True
-        args.matching = True
+        args.graph = False
+        args.sequence = False
+        args.matching = False
         args.rescale = False
-        args.string = False
+        args.string = True
         # 'e150514''e120503''e110616''e150707''e151126''e120511', 'e150707', 'e151126''e120511', 'e120503'
-        lexperiments = ['e150707']
+        lexperiments = ['e151126']
 
     galt = args.alternative
 

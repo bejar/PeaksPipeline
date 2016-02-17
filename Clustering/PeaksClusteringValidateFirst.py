@@ -33,6 +33,9 @@ import logging
 import time
 import argparse
 
+rclust = range(3, 16)
+repl = 30
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
@@ -44,12 +47,12 @@ if __name__ == '__main__':
     lexperiments = args.exp
 
     if not args.batch:
-        # 'e150514''e120503''e110616''e150707''e151126''e120511'
-        lexperiments = ['e150707']
+        # 'e150514''e120503''e110616''e150707''e151126''e120511' 'e150707'
+        lexperiments = ['e151126']
 
     itime = int(time.time())
 
-    niter = 30
+    niter = repl
     for expname in lexperiments:
         datainfo = experiments[expname]
         fname = datainfo.dpath + '/'+ datainfo.name + '/Results/' + datainfo.name  + '-val-%d.txt'%itime
@@ -77,7 +80,7 @@ if __name__ == '__main__':
             ncbest = 0
             logging.info('S= %s' % sensor)
 
-            for nc in range(4, 21):
+            for nc in rclust:
                 lclasif = []
                 for i in range(niter):
                     k_means = KMeans(init='k-means++', n_clusters=nc, n_init=10, n_jobs=-1)
