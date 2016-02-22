@@ -30,6 +30,35 @@ lexperiments = ['e150514']
 # Todos los experimentos estan en el directorio cinvesdata dentro de una carpeta que tenga el nombre del experimento
 experiments = \
     {
+        'e160204':
+            Experiment(
+                dpath=datapath,
+                name='e160204',
+                sampling=10204.08,
+                datafiles=['16204f02', '16204f03', '16204f04', '16204f05', '16204f06', '16204f07', '16204f08', '16204f09',
+                            '16204f10', '16204f11', '16204f12', '16204f13', '16204f14', '16204f15', '16204f16', '16204f17',
+                            '16204f18', '16204f19', '16204f20', '16204f21', '16204f22', '16204f23', '16204f24', '16204f25',
+                            '16204f26', '16204f27', '16204f28', '16204f29', '16204f30', '16204f31', '16204f32', '16204f33',
+                            '16204f34', '16204f35', '16204f36', '16204f37', '16204f38', '16204f39', '16204f40', '16204f41',
+                            '16204f42', '16204f43', '16204f44', '16204f45', '16204f46', '16204f47', '16204f48', '16204f49',
+                            '16204f50', '16204f51', '16204f52', '16204f53', '16204f54', '16204f55', '16204f56', '16204f57',
+                            '16204f58', '16204f59', '16204f60', '16204f61', '16204f62', '16204f63', '16204f64', '16204f65',
+                            '16204f66', '16204f67', '16204f68', '16204f69', '16204f70', '16204f71', '16204f72', '16204f73',
+                            '16204f74', '16204f75'],
+                sensors=['L4ci', 'L4cd', 'L5ri', 'L5rd', 'L5cd', 'L5ci', 'L6ri', 'L6rd', 'L6ci', 'L6cd', 'L7ri',
+                         'L7rd'],
+                abfsensors=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                clusters=[12] * 74,  # [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
+                colors='r' * 11 + 'g' * 19 + 'b' * 20 + 'k' * 6 + 'b' * 18,
+                peaks_id_params={'wtime': 120e-3, 'low': 0, 'high': 70, 'threshold': 0.03},
+                peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
+                peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 20},
+                peaks_filter={'lowpass': 1.0, 'highpass': 200.0},
+                expnames= ['crtl{:0>2}'.format(i) for i in range(1,12)] + ['capsa{:0>2}'.format(i) for i in range(1,20)]+
+                          ['lido1{:0>2}'.format(i) for i in range(1,21)] + ['esp{:0>2}'.format(i) for i in range(1,7)]+
+                          ['lido2{:0>2}'.format(i) for i in range(1,19)]
+            ),
+
         'e151126':
             Experiment(
                 dpath=datapath,
@@ -444,5 +473,6 @@ experiments = \
     }
 
 if __name__ == '__main__':
-    experiment = experiments['e120503']
+    experiment = experiments['e160204']
+    print len(experiment.expnames)
 

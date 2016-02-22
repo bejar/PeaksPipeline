@@ -532,12 +532,12 @@ def max_seq_exp(nfile, clpeaks, timepeaks, sensor, dfile, ename, nclust,
         nsig -= 1
 
     if galt:
-        # drawgraph_alternative(nclust, lstringsg, nfile, sensor, dfile, ename,
-        #                       nfile + '-' + ename + '-' + sensor + ' sup(%d)' % sup,
-        #                       partition=partition, lmatch=lmatch, mapping=mapping)
         drawgraph_alternative(nclust, lstringsg, nfile, sensor, dfile, ename,
-                              sensor+'-'+ename,
+                              nfile + '-' + ename + '-' + sensor + ' sup(%d)' % sup,
                               partition=partition, lmatch=lmatch, mapping=mapping)
+        # drawgraph_alternative(nclust, lstringsg, nfile, sensor, dfile, ename,
+        #                       sensor+'-'+ename,
+        #                       partition=partition, lmatch=lmatch, mapping=mapping)
     else:
         drawgraph(nclust, lstringsg, nfile, sensor, dfile,
                   nfile + '-' + ename + '-' + sensor + ' sup(%d)' % sup,
@@ -765,13 +765,13 @@ if __name__ == '__main__':
     lexperiments = args.exp
 
     if not args.batch:
-        args.graph = False
-        args.sequence = False
+        args.graph = True
+        args.sequence = True
         args.matching = False
         args.rescale = False
         args.string = True
         # 'e150514''e120503''e110616''e150707''e151126''e120511', 'e150707', 'e151126''e120511', 'e120503'
-        lexperiments = ['e151126']
+        lexperiments = ['e160204']
 
     galt = args.alternative
 

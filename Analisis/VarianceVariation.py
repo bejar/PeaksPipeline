@@ -71,7 +71,7 @@ def butter_bandpass_filter(data, lowcut, highcut, fs, order=8):
 
 if __name__ == '__main__':
     # 'e150514''e110616''e120503'
-    lexperiments = ['e150707']
+    lexperiments = ['e160204']
 
     ext = ''
     for expname in lexperiments:

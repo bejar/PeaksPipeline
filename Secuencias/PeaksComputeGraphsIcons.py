@@ -45,6 +45,8 @@ def plotSignalValues(signals, dfile, sensor, nc):
     fig.set_figheight(1.5)
 
     # plt.show()
+    fig.savefig(datainfo.dpath + '/' + datainfo.name +'/Results/icons/' + dfile + sensor + '.cl' + str(nc) + '.pdf', orientation='landscape', format='pdf',
+                pad_inches=0.1)
     fig.savefig(datainfo.dpath + '/' + datainfo.name +'/Results/icons/' + dfile + sensor + '.cl' + str(nc) + '.png', orientation='landscape', format='png',
                 pad_inches=0.1)
     fig.savefig(datainfo.dpath + '/' + datainfo.name +'/Results/icons/' + dfile + sensor + '.cl' + str(nc) + '.jpg', orientation='landscape', format='jpeg',
@@ -65,7 +67,7 @@ if __name__ == '__main__':
 
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511'
-        lexperiments = ['e151126']
+        lexperiments = ['e110906o']
 
     peakdata = {}
     for expname in lexperiments:

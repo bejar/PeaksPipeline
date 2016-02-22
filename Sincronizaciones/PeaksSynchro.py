@@ -188,7 +188,12 @@ def length_synch_frequency_histograms(dsynchs, dfile, ename, lsensors, window):
 
     #sns.distplot(x,  hist=True, norm_hist= True, kde=False, rug=False)
     n, bins, patches = P.hist(x, max(x) , normed=1, histtype='bar', fill=True)
-    P.title('%s-%s-W%d' % (dfile, ename, window), fontsize=24)
+    #P.title('%s-%s-W%d' % (dfile, ename, window), fontsize=24)
+    P.title('%s' %  ename, fontsize=22)
+    P.ylabel('% of synchronizations', fontsize=20)
+    P.xlabel('Synchronization Lengths', fontsize=20)
+    P.xlim([2,12])
+
     P.savefig(datainfo.dpath + '/' + datainfo.name +  '/Results/histo-' + datainfo.name + '-' + dfile + '-W' + str(
         window) + '.pdf', orientation='landscape', format='pdf')
     P.close()
@@ -429,7 +434,7 @@ def compute_synchs(seq, labels, window=15, minlen=1):
 
     def minind():
         """
-        computes the index of the sequence with the lower value
+        computes the index of the sensor with the lower value for the current indices
         """
         mind = 0
         mval = float('inf')
@@ -447,8 +452,9 @@ def compute_synchs(seq, labels, window=15, minlen=1):
     while not fin:
         # Compute the peak with the lower value
         imin = minind()
+        # If imin peak is not the last one and its time separated from the next one by more than a window length
         if len(seq[imin]) > counts[imin] + 1 and \
-                        seq[imin][counts[imin]] <= (seq[imin][counts[imin] + 1] + window):
+                        seq[imin][counts[imin]] + window <= (seq[imin][counts[imin] + 1]):
             # Look for the peaks inside the window length
             psynch = [(imin, seq[imin][counts[imin]], labels[imin][counts[imin]])]
             for i in range(len(seq)):
@@ -471,6 +477,86 @@ def compute_synchs(seq, labels, window=15, minlen=1):
         for i in range(len(seq)):
             fin = fin and (counts[i] == len(seq[i]))
     return lsynch
+
+
+def compute_synchs_new(lpeaks, labels, window=15, minlen=1):
+    """
+    Computes the synchronizations of the peaks of several sensors
+
+    :param lpeaks: List of the peaks for all the sensors
+                The list contains the time where the maximum of the peaks occur
+    :param labels: Labels of the classes of the peaks
+    :param window: Window to consider that a set of peaks is synchronized
+    :param minlen: Minimum length of the syncronization
+    :return: List of synchronizations (sensor, time, class)
+    """
+    def ind_conv(pos, ncol):
+        """
+        Transforms from coordinates of triangular matrix
+        :param pos:
+        :return:
+        """
+        i = 0
+        pos = pos - ncol - i
+        while pos > ncol:
+            i += 1
+            pos = pos - ncol - i
+
+        return i, pos-1
+
+
+    # Contadores de avance
+    counts = [0] * len(lpeaks)
+
+    fin = False
+    lsynch = []
+    nsyn = 0
+    while not fin:
+        lcand = []
+        # Get the first two peaks from each list
+        for i, syn in enumerate(lpeaks):
+            lcand.append(syn[counts[i]])
+            lcand.append(syn[counts[i]+1])
+
+        print lcand
+        # Triangular distance matrix as a vector
+        mdist = np.zeros((len(lpeaks) * (len(lpeaks)*2)-1))
+
+        pos = 0
+        for i in range(len(lcand)-1):
+            print pos
+            if i % 2 == 0:
+                nx = i + 2
+                mdist[pos] = window*10
+                pos += 1
+            else:
+                nx = i + 1
+            for j in range(nx, len(lcand)):
+                mdist[pos] = np.abs(lcand[j] - lcand[i])
+                print mdist[pos]
+                pos += 1
+
+        for i in range(10):
+            mpos = np.argmin(mdist)
+            print ind_conv(mpos, len(lpeaks)-1), mdist[mpos]
+            mdist[mpos] = window * 10
+
+        print mdist
+        for i in range(len(lpeaks)):
+            counts[i] += 1
+
+        nsyn += 1
+        fin = (nsyn == 2)
+
+
+
+
+
+
+
+
+
+
 
 
 def compute_data_labels(fname, dfilec, dfile, sensor):
@@ -585,13 +671,13 @@ if __name__ == '__main__':
 
     if not args.batch:
        # 'e120503''e110616''e150707''e151126''e120511''e150514''e110906o'
-        lexperiments = ['e150707']
-        args.matching = True
+        lexperiments = ['e150514']
+        args.matching = False
         args.histogram = False
         args.draw = False
-        args.boxes = True
-        args.rescale = True
-        args.frequent = True
+        args.boxes = False
+        args.rescale = False
+        args.frequent = False
 
     # Matching parameters
     isig = 2
@@ -631,7 +717,9 @@ if __name__ == '__main__':
                 ltimes.append(data)
             f.close()
 
-            lsynchs = compute_synchs(ltimes, lsens_labels, window=window, minlen=1)
+            #lsynchs = compute_synchs(ltimes, lsens_labels, window=window, minlen=1)
+            lsynchs = compute_synchs_new(ltimes, lsens_labels, window=window, minlen=1)
+            break
 
             if args.save:
                 save_sync_sequence(lsynchs, dfile)
@@ -651,7 +739,6 @@ if __name__ == '__main__':
                 dmappings = None
 
             if args.draw and args.matching:
-
                 draw_synchs(lsynchs, dfile, ename, lsensors, window, datainfo.clusters[0], nmatch=len(smatching),
                             dmappings=dmappings)
 
