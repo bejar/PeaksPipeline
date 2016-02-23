@@ -45,12 +45,11 @@ experiments = \
                             '16204f58', '16204f59', '16204f60', '16204f61', '16204f62', '16204f63', '16204f64', '16204f65',
                             '16204f66', '16204f67', '16204f68', '16204f69', '16204f70', '16204f71', '16204f72', '16204f73',
                             '16204f74', '16204f75'],
-                sensors=['L4ci', 'L4cd', 'L5ri', 'L5rd', 'L5cd', 'L5ci', 'L6ri', 'L6rd', 'L6ci', 'L6cd', 'L7ri',
-                         'L7rd'],
-                abfsensors=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                sensors=['L4ci', 'L4cd', 'L5ri', 'L5rd', 'L5cd', 'L5ci', 'L6ri', 'L6rd', 'L6ci', 'L6cd', 'L7ri', 'L7rd'],
+                abfsensors=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
                 clusters=[12] * 74,  # [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
                 colors='r' * 11 + 'g' * 19 + 'b' * 20 + 'k' * 6 + 'b' * 18,
-                peaks_id_params={'wtime': 120e-3, 'low': 0, 'high': 70, 'threshold': 0.03},
+                peaks_id_params={'wtime': 120e-3, 'low': 0, 'high': 70, 'threshold': 0.05},
                 peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
                 peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 20},
                 peaks_filter={'lowpass': 1.0, 'highpass': 200.0},
@@ -144,136 +143,7 @@ experiments = \
         
             ),
 
-        'e120503':
-            Experiment(
-                dpath=datapath,
-                name='e120503',
-                sampling=10416.66,
-                datafiles=[
-                    '12503f02', '12503f03', '12503f24', '12503f25', '12503f36', '12503f37', '12503f48', '12503f49',
-                    '12503f61', '12503f62', '12503f73',  '12503f74', '12503f85', '12503f86'],
-                sensors=['L4ci', 'L4cd', 'L5ri', 'L5rd', 'L5ci', 'L5cd', 'L6ri', 'L6rd', 'L6ci', 'L6cd', 'L7ri'],
-                abfsensors=[1,2,3,4,5,6,7,8,9,10,11],
-                clusters=[12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
-                colors='rryyyybbbggggg',
-                peaks_id_params={'wtime': 120e-3, 'low': 0, 'high': 70, 'threshold': 0.05},
-                peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
-                peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 20},
-                peaks_filter={'lowpass': 1.0, 'highpass':200.0},
-                expnames=['ctrl1', 'ctrl2', 'lido11', 'lido12', 'lido13', 'lido14', 'capsa1', 'capsa2', 'capsa3',
-                          'lido21', 'lido22', 'lido23', 'lido24', 'lido25']
-            ),
-
-        'e110616':
-            Experiment(
-                dpath=datapath,
-                name='e110616',
-                sampling=10416.08,
-                datafiles=['11616f08', '11616f16', '11616f18',  '11616f29', '11616f30', '11616f31','11616f39', '11616f40',
-                           '11616f49', '11616f50', '11616f51', '11616f59', '11617f00', '11617f08', '11617f09'],
-                sensors=['L4ci', 'L5ri', 'L5rd', 'L5ci', 'L5cd', 'L6ri', 'L6rd', 'L6ci', 'L6cd', 'L7ri'],
-                abfsensors=[1,2,3,4,5,6,7,8,9,10],
-                clusters=[12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
-                colors='rrryyyyybbbbbbb',
-                peaks_id_params={'wtime': 120e-3, 'low': 0, 'high': 70, 'threshold': 0.05},
-                peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
-                peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 20},
-                peaks_filter={'lowpass': 1.0, 'highpass':200.0},
-                expnames=['ctrl1', 'ctrl2', 'ctrl3', 'capsa1', 'capsa2', 'capsa3', 'capsa4', 'capsa5',
-                          'lido1', 'lido2', 'lido3', 'lido4', 'lido5', 'lido6', 'lido7']
-            ),
-        'e110906':
-            Experiment(
-                dpath=datapath,
-                name='e110906',
-                sampling=1670.08,
-                datafiles=['11906001', '11906002', '11906028', '11906061', '11906087', '11906118',
-                           '11906119', '11906145', '11906172', '11906173', '11906210'],
-                sensors=['L4ci', 'L4cd', 'L5ri', 'L5rd', 'L5ci', 'L5cd', 'L6ri', 'L6rd', 'L6ci', 'L6cd', 'L7ri'],
-                abfsensors=[1,2,3,4,5,6,7,8,9,10,11],
-                clusters=[15]*11,
-                colors='rryyybbbbbb',
-                peaks_id_params={'wtime': 120e-3, 'low': 0, 'high': 70, 'threshold': 0.05},
-                peaks_resampling={'wtsel': 100, 'rsfactor': 1.0, 'filtered': False},
-                peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 10},
-                peaks_filter={'lowpass': 1.0, 'highpass':200.0},
-                expnames=['ctrl1', 'ctrl2',  'capsa1', 'capsa2', 'capsa3',
-                          'lido1', 'lido2', 'lido3', 'lido4', 'lido5', 'lido6']
-            ),
-        'e110906o':
-            Experiment(
-                dpath=datapath,
-                name='e110906o',
-                sampling=10204.08,
-                datafiles=['11906001', '11906002', '11906028', '11906061', '11906087', '11906118',
-                           '11906119', '11906145', '11906172', '11906173', '11906210'],
-                sensors=['L4ci', 'L4cd', 'L5ri', 'L5rd', 'L5ci', 'L5cd', 'L6ri', 'L6rd', 'L6ci', 'L6cd', 'L7ri'],
-                abfsensors=[1,2,3,4,5,6,7,8,9,10,11],
-                clusters=[15]*11,
-                colors='rryyybbbbbb',
-                peaks_id_params={'wtime': 120e-3, 'low': 0, 'high': 70, 'threshold': 0.05},
-                peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
-                peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 10},
-                peaks_filter={'lowpass': 1.0, 'highpass':200.0},
-                expnames=['Control1', 'Control2',  'Capsaicin1', 'Capsaicin2', 'Capsaicin3',
-                          'Lidocaine1', 'Lidocaine2', 'Lidocaine3', 'Lidocaine4', 'Lidocaine5', 'Lidocaine6']
-            ),
-        'e110906e':
-            Experiment(
-                dpath=datapath,
-                name='e110906e',
-                sampling=10204.08,
-                datafiles=['11906001', '11906002', '11906028', '11906061', '11906087', '11906118',
-                           '11906119', '11906145', '11906172', '11906173', '11906210'],
-                sensors=['L4ci', 'L4cd', 'L5ri', 'L5rd', 'L5ci', 'L5cd', 'L6ri', 'L6rd', 'L6ci', 'L6cd', 'L7ri'],
-                abfsensors=[1,2,3,4,5,6,7,8,9,10,11],
-                clusters=[15]*11,
-                colors='rryyybbbbbb',
-                peaks_id_params={'wtime': 120e-3, 'low': 0, 'high': 70, 'threshold': 0.05},
-                peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
-                peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 10},
-                peaks_filter={'lowpass': 1.0, 'highpass':200.0},
-                expnames=['Control1', 'Control2',  'Capsaicin1', 'Capsaicin2', 'Capsaicin3',
-                          'Lidocaine1', 'Lidocaine2', 'Lidocaine3', 'Lidocaine4', 'Lidocaine5', 'Lidocaine6']
-            ),
-        'e120511':
-            Experiment(
-                dpath=datapath,
-                name='e120511',
-                sampling=10204.0,
-                datafiles=['12511000', '12511001', '12511005', '12511006', '12511010', '12511015', '12511019',
-                           '12511020', '12511024', '12511025'],
-                sensors=['L4ci', 'L4cd', 'L5ri', 'L5rd', 'L5ci', 'L5cd', 'L6ri', 'L6rd', 'L6ci', 'L6cd', 'L7ri'],
-                abfsensors=[1,2,3,4,5,6,7,8,9,10,11],
-                clusters=[12]*11,
-                colors='rryyyykbbbb',
-                peaks_id_params={'wtime': 120e-3, 'low': 0, 'high': 70, 'threshold': 0.05},
-                peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
-                peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 10},
-                peaks_filter={'lowpass': 1.0, 'highpass':200.0},
-                expnames=['ctrl1', 'ctrl2',  'capsa1', 'capsa2', 'capsa3', 'capsa4',
-                          'sec1', 'lido1', 'lido2', 'lido3', 'lido4']
-            ),
-        'e120511e':
-            Experiment(
-                dpath=datapath,
-                name='e120511e',
-                sampling=10204.0,
-                datafiles=['12511000', '12511001', '12511005', '12511006', '12511010', '12511015', '12511019',
-                           '12511020', '12511024', '12511025'],
-                sensors=['L4ci', 'L4cd', 'L5ri', 'L5rd', 'L5ci', 'L5cd', 'L6ri', 'L6rd', 'L6ci', 'L6cd', 'L7ri'],
-                abfsensors=[1,2,3,4,5,6,7,8,9,10,11],
-                clusters=[12]*11,
-                colors='rryyyykbbbb',
-                peaks_id_params={'wtime': 120e-3, 'low': 0, 'high': 70, 'threshold': 0.05},
-                peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
-                peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 10},
-                peaks_filter={'lowpass': 1.0, 'highpass':200.0},
-                expnames=['ctrl1', 'ctrl2',  'capsa1', 'capsa2', 'capsa3', 'capsa4',
-                          'sec1', 'lido1', 'lido2', 'lido3', 'lido4']
-            ),
-
-        # ------------------------------------------------------------------------
+       # ------------------------------------------------------------------------
         'e140220':
             Experiment(
                 dpath=datapath,
@@ -394,13 +264,34 @@ experiments = \
                 peaks_filter={'lowpass': 1.0, 'highpass':200.0},
                 expnames=['ctrl1', 'ctrl2', 'ctrl3']
             ),
-        'e130903':
+        'e130221':
             Experiment(
                 dpath=datapath,
-                name='e130903',
-                sampling=10256.4,
-                datafiles=['e130903f20-cntrl1', 'e130903f22-cntrl2', 'e130903f25-cntrl3'],
-                sensors=['L4ri', 'L4cd', 'L4ci', 'L5rd', 'L5ri', 'L5cd', 'L5ci', 'L6rd', 'L6ri', 'L6cd', 'L6ci'],
+                name='e130221',
+                sampling=10416.66,
+                datafiles=['13221f30', '13221f31', '13221f32', '13221f33', '13221f35', '13221f36', '13221f37', '13221f38',
+                           '13221f46', '13221f47', '13221f48', '13221f49', '13221f57', '13221f58', '13221f59', '13221f60',
+                           '13221f61', '13221f62', '13221f63', '13221f64', '13222f09', '13222f10', '13222f11', '13222f24',
+                           '13222f25', '13222f26', '13222f27'],
+                sensors=['L4cd', 'L4ci', 'L5rd', 'L5ri', 'L5cd', 'L5ci', 'L6rd', 'L6ri', 'L6cd', 'L6ci', 'L7ri', 'L7rd'],
+                abfsensors=[0,1,2,3,4,5,6,7,8,9,10,11],
+                clusters=[12]*27,
+                colors='ggggkkkkrrrrrrrrbbbbbbbbbbb',
+                peaks_id_params={'wtime': 120e-3, 'low':0, 'high':70, 'threshold': 0.05},
+                peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
+                peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 10},
+                peaks_filter={'lowpass': 1.0, 'highpass':200.0},
+                expnames=['crtl1', 'crtl2', 'crtl3', 'crtl4', 'esp1', 'esp2', 'esp3', 'esp4', 'capsa1', 'capsa2',
+                          'capsa3','capsa4','capsa5','capsa6','capsa7','capsa8', 'lido1', 'lido2', 'lido3', 'lido4',
+                          'lido5', 'lido6','lido7','lido8','lido9','lido10','lido11']
+            ),
+        'e130716':
+            Experiment(
+                dpath=datapath,
+                name='e130716',
+                sampling=10204.1,
+                datafiles=['e130716f00-cntrl1', 'e130716f02-cntrl2', 'e130716f03-cntrl3'],
+                sensors=['L4cd', 'L4ci', 'L5rd', 'L5ri', 'L5cd', 'L5ci', 'L6rd', 'L6ri', 'L6cd', 'L6ci', 'L7ri', 'L7rd'],
                 abfsensors=[0,1,2,3,4,5,6,7,8,9,10,11],
                 clusters=[12]*3,
                 colors='rrr',
@@ -430,13 +321,13 @@ experiments = \
                 expnames=['ctrl1', 'ctrl2', 'ctrl3', 'ctrl4', 'ctrl5', 'cap1', 'cap2', 'cap4', 'cap5', 'cap6', 'cap11',
                           'cap12', 'cap17', 'cap19']
             ),
-        'e130716':
+        'e130903':
             Experiment(
                 dpath=datapath,
-                name='e130716',
-                sampling=10204.1,
-                datafiles=['e130716f00-cntrl1', 'e130716f02-cntrl2', 'e130716f03-cntrl3'],
-                sensors=['L4cd', 'L4ci', 'L5rd', 'L5ri', 'L5cd', 'L5ci', 'L6rd', 'L6ri', 'L6cd', 'L6ci', 'L7ri', 'L7rd'],
+                name='e130903',
+                sampling=10256.4,
+                datafiles=['e130903f20-cntrl1', 'e130903f22-cntrl2', 'e130903f25-cntrl3'],
+                sensors=['L4ri', 'L4cd', 'L4ci', 'L5rd', 'L5ri', 'L5cd', 'L5ci', 'L6rd', 'L6ri', 'L6cd', 'L6ci'],
                 abfsensors=[0,1,2,3,4,5,6,7,8,9,10,11],
                 clusters=[12]*3,
                 colors='rrr',
@@ -446,29 +337,136 @@ experiments = \
                 peaks_filter={'lowpass': 1.0, 'highpass':200.0},
                 expnames=['ctrl1', 'ctrl2', 'ctrl3']
             ),
-        'e130221':
+
+        'e120503':
             Experiment(
                 dpath=datapath,
-                name='e130221',
+                name='e120503',
                 sampling=10416.66,
-                datafiles=['13221f30', '13221f31', '13221f32', '13221f33', '13221f35', '13221f36', '13221f37', '13221f38',
-                           '13221f46', '13221f47', '13221f48', '13221f49', '13221f57', '13221f58', '13221f59', '13221f60',
-                           '13221f61', '13221f62', '13221f63', '13221f64', '13222f09', '13222f10', '13222f11', '13222f24',
-                           '13222f25', '13222f26', '13222f27'],
-                sensors=['L4cd', 'L4ci', 'L5rd', 'L5ri', 'L5cd', 'L5ci', 'L6rd', 'L6ri', 'L6cd', 'L6ci', 'L7ri', 'L7rd'],
-                abfsensors=[0,1,2,3,4,5,6,7,8,9,10,11],
-                clusters=[12]*27,
-                colors='ggggkkkkrrrrrrrrbbbbbbbbbbb',
-                peaks_id_params={'wtime': 120e-3, 'low':0, 'high':70, 'threshold': 0.05},
+                datafiles=[
+                    '12503f02', '12503f03', '12503f24', '12503f25', '12503f36', '12503f37', '12503f48', '12503f49',
+                    '12503f61', '12503f62', '12503f73', '12503f74', '12503f85', '12503f86'],
+                sensors=['L4ci', 'L4cd', 'L5ri', 'L5rd', 'L5ci', 'L5cd', 'L6ri', 'L6rd', 'L6ci', 'L6cd', 'L7ri'],
+                abfsensors=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+                clusters=[12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
+                colors='rryyyybbbggggg',
+                peaks_id_params={'wtime': 120e-3, 'low': 0, 'high': 70, 'threshold': 0.05},
+                peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
+                peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 20},
+                peaks_filter={'lowpass': 1.0, 'highpass': 200.0},
+                expnames=['ctrl1', 'ctrl2', 'lido11', 'lido12', 'lido13', 'lido14', 'capsa1', 'capsa2', 'capsa3',
+                          'lido21', 'lido22', 'lido23', 'lido24', 'lido25']
+            ),
+        'e120511':
+            Experiment(
+                dpath=datapath,
+                name='e120511',
+                sampling=10204.0,
+                datafiles=['12511000', '12511001', '12511005', '12511006', '12511010', '12511015', '12511019',
+                           '12511020', '12511024', '12511025'],
+                sensors=['L4ci', 'L4cd', 'L5ri', 'L5rd', 'L5ci', 'L5cd', 'L6ri', 'L6rd', 'L6ci', 'L6cd', 'L7ri'],
+                abfsensors=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+                clusters=[12] * 11,
+                colors='rryyyykbbbb',
+                peaks_id_params={'wtime': 120e-3, 'low': 0, 'high': 70, 'threshold': 0.05},
                 peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
                 peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 10},
-                peaks_filter={'lowpass': 1.0, 'highpass':200.0},
-                expnames=['crtl1', 'crtl2', 'crtl3', 'crtl4', 'esp1', 'esp2', 'esp3', 'esp4', 'capsa1', 'capsa2',
-                          'capsa3','capsa4','capsa5','capsa6','capsa7','capsa8', 'lido1', 'lido2', 'lido3', 'lido4',
-                          'lido5', 'lido6','lido7','lido8','lido9','lido10','lido11']
+                peaks_filter={'lowpass': 1.0, 'highpass': 200.0},
+                expnames=['ctrl1', 'ctrl2', 'capsa1', 'capsa2', 'capsa3', 'capsa4',
+                          'sec1', 'lido1', 'lido2', 'lido3', 'lido4']
+            ),
+        'e120511e':
+            Experiment(
+                dpath=datapath,
+                name='e120511e',
+                sampling=10204.0,
+                datafiles=['12511000', '12511001', '12511005', '12511006', '12511010', '12511015', '12511019',
+                           '12511020', '12511024', '12511025'],
+                sensors=['L4ci', 'L4cd', 'L5ri', 'L5rd', 'L5ci', 'L5cd', 'L6ri', 'L6rd', 'L6ci', 'L6cd', 'L7ri'],
+                abfsensors=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+                clusters=[12] * 11,
+                colors='rryyyykbbbb',
+                peaks_id_params={'wtime': 120e-3, 'low': 0, 'high': 70, 'threshold': 0.05},
+                peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
+                peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 10},
+                peaks_filter={'lowpass': 1.0, 'highpass': 200.0},
+                expnames=['ctrl1', 'ctrl2', 'capsa1', 'capsa2', 'capsa3', 'capsa4',
+                          'sec1', 'lido1', 'lido2', 'lido3', 'lido4']
             ),
 
-
+        'e110616':
+            Experiment(
+                dpath=datapath,
+                name='e110616',
+                sampling=10416.08,
+                datafiles=['11616f08', '11616f16', '11616f18', '11616f29', '11616f30', '11616f31', '11616f39',
+                           '11616f40',
+                           '11616f49', '11616f50', '11616f51', '11616f59', '11617f00', '11617f08', '11617f09'],
+                sensors=['L4ci', 'L5ri', 'L5rd', 'L5ci', 'L5cd', 'L6ri', 'L6rd', 'L6ci', 'L6cd', 'L7ri'],
+                abfsensors=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                clusters=[12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
+                colors='rrryyyyybbbbbbb',
+                peaks_id_params={'wtime': 120e-3, 'low': 0, 'high': 70, 'threshold': 0.05},
+                peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
+                peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 20},
+                peaks_filter={'lowpass': 1.0, 'highpass': 200.0},
+                expnames=['ctrl1', 'ctrl2', 'ctrl3', 'capsa1', 'capsa2', 'capsa3', 'capsa4', 'capsa5',
+                          'lido1', 'lido2', 'lido3', 'lido4', 'lido5', 'lido6', 'lido7']
+            ),
+        'e110906':
+            Experiment(
+                dpath=datapath,
+                name='e110906',
+                sampling=1670.08,
+                datafiles=['11906001', '11906002', '11906028', '11906061', '11906087', '11906118',
+                           '11906119', '11906145', '11906172', '11906173', '11906210'],
+                sensors=['L4ci', 'L4cd', 'L5ri', 'L5rd', 'L5ci', 'L5cd', 'L6ri', 'L6rd', 'L6ci', 'L6cd', 'L7ri'],
+                abfsensors=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+                clusters=[15] * 11,
+                colors='rryyybbbbbb',
+                peaks_id_params={'wtime': 120e-3, 'low': 0, 'high': 70, 'threshold': 0.05},
+                peaks_resampling={'wtsel': 100, 'rsfactor': 1.0, 'filtered': False},
+                peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 10},
+                peaks_filter={'lowpass': 1.0, 'highpass': 200.0},
+                expnames=['ctrl1', 'ctrl2', 'capsa1', 'capsa2', 'capsa3',
+                          'lido1', 'lido2', 'lido3', 'lido4', 'lido5', 'lido6']
+            ),
+        'e110906o':
+            Experiment(
+                dpath=datapath,
+                name='e110906o',
+                sampling=10204.08,
+                datafiles=['11906001', '11906002', '11906028', '11906061', '11906087', '11906118',
+                           '11906119', '11906145', '11906172', '11906173', '11906210'],
+                sensors=['L4ci', 'L4cd', 'L5ri', 'L5rd', 'L5ci', 'L5cd', 'L6ri', 'L6rd', 'L6ci', 'L6cd', 'L7ri'],
+                abfsensors=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+                clusters=[15] * 11,
+                colors='rryyybbbbbb',
+                peaks_id_params={'wtime': 120e-3, 'low': 0, 'high': 70, 'threshold': 0.05},
+                peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
+                peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 10},
+                peaks_filter={'lowpass': 1.0, 'highpass': 200.0},
+                expnames=['Control1', 'Control2', 'Capsaicin1', 'Capsaicin2', 'Capsaicin3',
+                          'Lidocaine1', 'Lidocaine2', 'Lidocaine3', 'Lidocaine4', 'Lidocaine5', 'Lidocaine6']
+            ),
+        'e110906e':
+            Experiment(
+                dpath=datapath,
+                name='e110906e',
+                sampling=10204.08,
+                datafiles=['11906001', '11906002', '11906028', '11906061', '11906087', '11906118',
+                           '11906119', '11906145', '11906172', '11906173', '11906210'],
+                sensors=['L4ci', 'L4cd', 'L5ri', 'L5rd', 'L5ci', 'L5cd', 'L6ri', 'L6rd', 'L6ci', 'L6cd', 'L7ri'],
+                abfsensors=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+                clusters=[15] * 11,
+                colors='rryyybbbbbb',
+                peaks_id_params={'wtime': 120e-3, 'low': 0, 'high': 70, 'threshold': 0.05},
+                peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
+                peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 10},
+                peaks_filter={'lowpass': 1.0, 'highpass': 200.0},
+                expnames=['Control1', 'Control2', 'Capsaicin1', 'Capsaicin2', 'Capsaicin3',
+                          'Lidocaine1', 'Lidocaine2', 'Lidocaine3', 'Lidocaine4', 'Lidocaine5', 'Lidocaine6']
+            ),
 
     }
 

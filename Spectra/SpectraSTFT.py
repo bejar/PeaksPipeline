@@ -45,18 +45,18 @@ if __name__ == '__main__':
 
     if not args.batch:
        # 'e120503''e110616''e150707''e151126''e120511''e150514''e110906o''e160204'
-        lexperiments = ['e151126']
+        lexperiments = ['e160204']
 
 
     peakdata = {}
     for expname in lexperiments:
 
         datainfo = experiments[expname]
-        f = h5py.File(datainfo.dpath + datainfo.name + '/' + datainfo.name  + '.hdf5', 'r')
+        f = h5py.File(datainfo.dpath + datainfo.name + '/' + datainfo.name + '.hdf5', 'r')
         chunk = 2000000
 
         rate = datainfo.sampling
-        for dfile in [0]:#range(len(datainfo.datafiles)):
+        for dfile in range(len(datainfo.datafiles)):
             d = f[datainfo.datafiles[dfile] + '/' + 'Raw']
             print d.shape, datainfo.sampling/2
             for s in range(len(datainfo.sensors)):

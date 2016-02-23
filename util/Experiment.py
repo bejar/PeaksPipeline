@@ -23,6 +23,7 @@ __author__ = 'bejar'
 
 # from ConfigParser import SafeConfigParser
 import h5py
+import os
 
 class Experiment:
     """
@@ -151,7 +152,11 @@ class Experiment:
         Depends on the backend of the data
         :return:
         """
-        return h5py.File(self.dpath + self.name + '/' + self.name + '.hdf5', mode)
+
+        if mode == 'w' and os.path.exists(self.dpath + self.name + '/' + self.name + '.hdf5'):
+            raise NameError('Fichero de datos existente')
+        else:
+            return h5py.File(self.dpath + self.name + '/' + self.name + '.hdf5', mode)
 
     def close_experiment_data(self, handle):
         """
@@ -285,6 +290,19 @@ class Experiment:
                               data=centers, compression='gzip')
         d[()] = centers
 
+    def get_raw_data(self, f, dfile):
+        """
+        Saves the raw data for an experiment file
+        :param f:
+        :return:
+        """
+
+        if dfile + '/Raw' in f:
+            d = f[dfile + '/Raw']
+            return d[()]
+        else:
+            return None
+
     def save_raw_data(self, f, dfile, matrix):
         """
         Saves the raw data for an experiment file
@@ -299,8 +317,6 @@ class Experiment:
         f[dfile + '/Raw'].attrs['Sensors'] = self.sensors
 
         f.flush()
-
-
 
 # ---------------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':

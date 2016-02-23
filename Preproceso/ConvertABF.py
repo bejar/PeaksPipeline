@@ -39,7 +39,7 @@ def convert_from_ABF_to_HDF5(experiment):
     """
 
     # Asumimos que el fichero no existe todavia
-    f = experiment.open_experiment_data(mode='r+')
+    f = experiment.open_experiment_data(mode='w')
 
     nsig = experiment.abfsensors
     datafiles = experiment.datafiles
