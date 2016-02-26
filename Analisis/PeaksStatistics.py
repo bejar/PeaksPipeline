@@ -47,14 +47,15 @@ def peaks_histogram(experiment):
     for s in experiment.sensors:
         dhisto[s] = []
 
-    for i, df in enumerate(experiment.datafiles):
-        print(df)
+    for df, ename in zip(experiment.datafiles, experiment.expnames):
+        print(df, ename)
         for s in experiment.sensors:
             times = experiment.get_peaks_time(f, df, s)
             if times is not None:
                 npk = times.shape[0]
+                print(s, npk)
             else:
-                print(s,0)
+                print(s, 0)
                 npk = 0
             dhisto[s].append(npk)
 
@@ -119,8 +120,8 @@ if __name__ == '__main__':
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511'
         lexperiments =['e160204']
-        hpeaks = False
-        hsignal = True
+        hpeaks = True
+        hsignal = False
 
 
 
