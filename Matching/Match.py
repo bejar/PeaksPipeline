@@ -240,8 +240,8 @@ if __name__ == '__main__':
     rescale = args.rescale
 
     if not args.batch:
-        # 'e150514''e120503''e110616''e150707''e151126''e120511''e160204'
-        lexperiments = ['e110906o']
+        # 'e150514''e120503''e110616''e150707''e151126''e120511''e160204''e110906o'
+        lexperiments = ['e160204', 'e150707', 'e151126']
         rescale = True
 
     for expname in lexperiments:

@@ -791,11 +791,67 @@ def max_peaks_edges(nexp, clpeaks, timepeaks, sup, gap=0):
     return lstringsg
 
 
-def compute_intersection_graphs(datainfo, lfrstrings, ncl, sensor, lmatch=0, mapping=None, galt=False, partition=None):
+def partition_experiment(expnames):
+    """
+    partitions an experiment in sections according the the three first characters of the expnames
+    :param expnames:
+    :return:
+    """
+
+    lpart = []
+    lpartact = [(expnames[0], 0)]
+    for iname in range(1, len(expnames)):
+        if expnames[iname-1][0:3] == expnames[iname][0:3]:
+            lpartact.append((expnames[iname], iname))
+        else:
+            lpart.append(lpartact)
+            lpartact = [(expnames[iname], iname)]
+
+    lpart.append(lpartact)
+
+    return(lpart)
+
+
+def frequent_strings_intersection(lfrstrings):
+    """
+    intersection of frequent pairs of peaks
+
+    :param lfrstrings:
+    :return:
+    """
+    base = lfrstrings[0]
+    result = []
+
+    for elem in base:
+        memb = True
+        for cnj in lfrstrings[1:]:
+            if elem not in cnj:
+                memb = False
+                break
+        if memb:
+            result.append(elem)
+
+    return [(r, 0.0, 0.0) for r in result]
+
+def compute_intersection_graphs(datainfo, exppartition, lfrstrings, ncl, sensor, lmatch=0, mapping=None, galt=False, partition=None):
     """
     Computes the intersection graph among files from the same type of experiment
     """
-    pass
+
+    ext = '' if lmatch == 0 else '-match'
+    for part in exppartition:
+        lfreq = []
+        for _, i in part:
+            lfreq.append([st for st, _, _ in lfrstrings[i]])
+
+        inter = frequent_strings_intersection(lfreq)
+        nfile = datainfo.name + '-inter'
+        ename = part[0][0]
+        dfile = ''
+        drawgraph_alternative(ncl, inter, nfile, sensor, dfile, ename,
+                                  nfile + '-' + ename + '-' + sensor + ext,
+                                  partition=partition, lmatch=lmatch, mapping=mapping)
+
 # ----------------------------------------
 
 
@@ -897,22 +953,21 @@ if __name__ == '__main__':
     parser.add_argument('--rescale', help="Rescale the peaks for matching", action='store_true', default=False)
     parser.add_argument('--diff', help="Computes the differences among circular graphs", action='store_true', default=False)
 
-
     args = parser.parse_args()
     lexperiments = args.exp
 
     if not args.batch:
-        args.graph = False
-        args.freqstr = False
+        args.graph = True
+        args.freqstr = True
         args.contingency = True
-        args.sequence = False
+        args.sequence = True
         args.matching = True
         args.rescale = False
         args.string = False
         args.galternative = True
         args.diffs = True
-        # 'e150514''e120503''e110616''e150707''e151126''e120511', 'e150707', 'e151126''e120511', 'e120503', 'e160204'
-        lexperiments = ['e110906o']
+        # 'e120503''e110616''e150707''e151126''e120511', 'e150707', 'e151126''e120511', 'e120503', 'e110906o', 'e160204'
+        lexperiments = ['e150514'] # 'e160204', 'e151126', 'e150707'
 
     colors = ['red', 'blue', 'green']
     npart = 3
@@ -928,7 +983,9 @@ if __name__ == '__main__':
     for expname in lexperiments:
 
         datainfo = experiments[expname]
-        f = h5py.File(datainfo.dpath + '/' + datainfo.name + '/' + datainfo.name + '.hdf5', 'r')
+        exppartition = partition_experiment(datainfo.expnames)
+
+        f = datainfo.open_experiment_data(mode='r')
         if args.matching:
             lsensors = datainfo.sensors[isig:fsig]
             lclusters = datainfo.clusters[isig:fsig]
@@ -939,18 +996,19 @@ if __name__ == '__main__':
             lclusters = datainfo.clusters
             smatching = []
 
-        lfrstrings = []
-        for dfile, ename in zip(datainfo.datafiles, datainfo.expnames):
-            print(dfile)
+        for ncl, sensor in zip(lclusters, lsensors):
+            print(sensor)
+            if args.matching:
+                mapping = compute_matching_mapping(ncl, sensor, smatching)
+            else:
+                mapping = None
 
-            for ncl, sensor in zip(lclusters, lsensors):
+            lfrstrings = []
+            for dfile, ename in zip(datainfo.datafiles, datainfo.expnames):
+                print(dfile)
+
                 d = datainfo.get_peaks_time(f, dfile, sensor)
                 if d is not None:
-                    if args.matching:
-                        mapping = compute_matching_mapping(ncl, sensor, smatching)
-                    else:
-                        mapping = None
-
                     clpeaks = compute_data_labels(datainfo.datafiles[0], dfile, sensor)
                     timepeaks = d[()]
 
@@ -966,7 +1024,6 @@ if __name__ == '__main__':
                                                 lmatch=len(smatching), mapping=mapping, rand=rand, galt=args.galternative,
                                                 partition=partition, sup=sup, save=(args.freqstr, args.contingency, args.graph))
                         lfrstrings.append(fstrings)
-
                         # generate_sequences(dfile, ename, timepeaks, clpeaks, sensor, ncl,
                         #                    lmatch=len(smatching), mapping=mapping,
                         #                    gap=gap, sup=None, rand=False, galt=args.galternative, partition=partition)
@@ -979,6 +1036,7 @@ if __name__ == '__main__':
                     if args.string:
                         sequence_to_string(dfile, clpeaks, timepeaks, sensor, ename, gap=gap, npart=1)
 
-                if args.diffs:
-                    compute_intersection_graphs(datainfo, lfrstrings, ncl, sensor, lmatch=len(smatching), mapping=mapping, galt=args.galternative,
-                                                partition=partition)
+            if args.diffs:
+                compute_intersection_graphs(datainfo, exppartition, lfrstrings, ncl, sensor, lmatch=len(smatching), mapping=mapping,
+                                            galt=args.galternative, partition=partition)
+        datainfo.close_experiment_data(f)

@@ -36,6 +36,9 @@ from util.misc import compute_centroids
 import argparse
 warnings.filterwarnings("ignore")
 
+
+
+
 __author__ = 'bejar'
 
 if __name__ == '__main__':
@@ -43,6 +46,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--batch', help="Ejecucion no interactiva", action='store_true', default=False)
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
+    parser.add_argument('--hellinger', help="Show Hellinger distance", action='store_true', default=False)
 
     args = parser.parse_args()
 
@@ -50,6 +54,7 @@ if __name__ == '__main__':
 
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511''e150514'
+        args.hellinger = False
         lexperiments = ['e151126']
 
 
@@ -61,11 +66,9 @@ if __name__ == '__main__':
 
         for sensor, nclusters in zip(datainfo.sensors, datainfo.clusters):
             print(sensor)
-            ldata = []
-            for dfile in datainfo.datafiles:
-                ldata.append(datainfo.get_peaks_resample_PCA(f, dfile, sensor))
 
-            data = ldata[0] #np.concatenate(ldata)
+            # We only use the first file to compute the cluster
+            data = datainfo.get_peaks_resample_PCA(f, datainfo.datafiles[0], sensor)
 
             #km = KernelKMeans(n_clusters=nclusters, kernel='rbf', degree=2, gamma=0.05)
             km = KMeans(n_clusters=nclusters, n_jobs=-1)
@@ -85,14 +88,16 @@ if __name__ == '__main__':
             print('SHAPE ', data.shape)
 
             lhisto = []
-            for dataf, ndata in zip(ldata, datainfo.datafiles):
+            for ndata in datainfo.datafiles:
+
+                dataf = datainfo.get_peaks_resample_PCA(f, ndata, sensor)
                 if dataf is not None:
                     histo = np.zeros(nclusters)
                     for i in range(dataf.shape[0]):
                         histo[km.predict(dataf[i])] += 1.0
                     histo /= dataf.shape[0]
-                    print(datainfo.name, ndata)
-                    print('HISTO ', histo)
+                    # print(datainfo.name, ndata)
+                    # print('HISTO ', histo)
                     histosorted = np.zeros(nclusters)
                     for i in range(histosorted.shape[0]):
                         histosorted[i] = histo[lmax[i][0]]
@@ -100,11 +105,11 @@ if __name__ == '__main__':
                     histosorted = np.zeros(nclusters)
                 lhisto.append(histosorted)
 
-
-            for h in lhisto[1:]:
-                rms = np.dot(lhisto[0] - h,  lhisto[0] - h)
-                rms /= h.shape[0]
-                print(np.sqrt(rms), hellinger_distance(h, lhisto[0]))
+            if args.hellinger:
+                for h in lhisto[1:]:
+                    rms = np.dot(lhisto[0] - h,  lhisto[0] - h)
+                    rms /= h.shape[0]
+                    print(np.sqrt(rms), hellinger_distance(h, lhisto[0]))
 
             matplotlib.rcParams.update({'font.size': 30})
             fig = plt.figure()
@@ -121,7 +126,6 @@ if __name__ == '__main__':
 
             minaxis = np.min(centroids)
             maxaxis = np.max(centroids)
-
 
             for nc in range(nclusters):
                 ax2 = fig.add_subplot(2, nclusters, nc+nclusters+1)

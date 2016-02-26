@@ -66,8 +66,8 @@ if __name__ == '__main__':
     lexperiments = args.exp
 
     if not args.batch:
-        # 'e150514''e120503''e110616''e150707''e151126''e120511'
-        lexperiments = ['e110906o']
+        # 'e150514''e120503''e110616''e150707''e151126''e120511''e110906o'
+        lexperiments = ['e150514']
 
     peakdata = {}
     for expname in lexperiments:
