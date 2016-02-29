@@ -17,8 +17,8 @@ Spectra
 
 """
 from __future__ import division
+import argparse
 
-__author__ = 'bejar'
 
 
 import h5py
@@ -35,6 +35,8 @@ from collections import Counter
 import matplotlib.pyplot as plt
 from sklearn.metrics import mean_squared_error
 from operator import itemgetter
+
+__author__ = 'bejar'
 
 def filterSignal(data, iband, fband, freq):
     if iband == 1:
@@ -70,15 +72,23 @@ def butter_bandpass_filter(data, lowcut, highcut, fs, order=8):
 
 
 if __name__ == '__main__':
-    # 'e150514''e110616''e120503'
-    lexperiments = ['e160204']
 
-    ext = ''
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--batch', help="Ejecucion no interactiva", action='store_true', default=False)
+    parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
+
+    args = parser.parse_args()
+    lexperiments = args.exp
+
+    if not args.batch:
+        # 'e120503''e110616''e150707''e151126''e120511''e150514''e110906o''e160204'
+        lexperiments = ['e150514']
+
     for expname in lexperiments:
 
 
         datainfo = experiments[expname]
-        f = h5py.File(datainfo.dpath + datainfo.name + '/' + datainfo.name + ext + '.hdf5', 'r')
+        f = h5py.File(datainfo.dpath + datainfo.name + '/' + datainfo.name + '.hdf5', 'r')
 
         rslt = 50000
         step = 10000
@@ -87,7 +97,7 @@ if __name__ == '__main__':
             length = int(d.shape[0]/float(step))
             lsignalsvar = []
             lsignalsmean = []
-            for s in [4,5,6,7]: # range(len(datainfo.sensors)):
+            for s in range(len(datainfo.sensors)):
                 print dfile, datainfo.sensors[s]
                 pvar = np.zeros(length)
                 pmean = np.zeros(length)
@@ -100,10 +110,10 @@ if __name__ == '__main__':
                 plot(range(length), pvar)
                 #plt.show()
                 plt.title(datainfo.datafiles[dfile]+'-'+ datainfo.expnames[dfile]+ '-' + datainfo.sensors[s], fontsize=48)
-                plt.savefig(datainfo.dpath + '/' + datainfo.name + '/Results/' + datainfo.datafiles[dfile]+'-'+ datainfo.expnames[dfile] + '-' + datainfo.sensors[s]
-                            + '-variance.pdf', orientation='landscape', format='pdf')
+                plt.savefig(datainfo.dpath + '/' + datainfo.name + '/Results/' + 'variance-' + datainfo.datafiles[dfile]+'-'+ datainfo.expnames[dfile] + '-' + datainfo.sensors[s]
+                            + '.pdf', orientation='landscape', format='pdf')
                 plt.close()
-            plotSignals(lsignalsvar, 2, 2, 0.2, 0,
-                        datainfo.datafiles[dfile]+'-'+datainfo.expnames[dfile]+'-'+str(rslt)+'-'+str(step)+'-variance',
+            plotSignals(lsignalsvar, 6, 2, 0.2, 0,
+                        'variance-'+datainfo.datafiles[dfile]+'-'+datainfo.expnames[dfile]+'-'+str(rslt)+'-'+str(step),
                         datainfo.datafiles[dfile]+'-'+datainfo.expnames[dfile],
-                        datainfo.dpath + '/' + datainfo.name + '/Results/', orientation='portrait', cstd=[0.05, 0.05, 0.05, 0.05])
+                        datainfo.dpath + '/' + datainfo.name + '/Results/', orientation='portrait', cstd=[0.05]*12)

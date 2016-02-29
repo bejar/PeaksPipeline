@@ -967,7 +967,7 @@ if __name__ == '__main__':
         args.galternative = True
         args.diffs = True
         # 'e120503''e110616''e150707''e151126''e120511', 'e150707', 'e151126''e120511', 'e120503', 'e110906o', 'e160204'
-        lexperiments = ['e150514'] # 'e160204', 'e151126', 'e150707'
+        lexperiments = ['e110906e']
 
     colors = ['red', 'blue', 'green']
     npart = 3

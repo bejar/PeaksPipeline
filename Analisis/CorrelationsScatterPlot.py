@@ -26,17 +26,28 @@ from Config.experiments import experiments
 import matplotlib.pyplot as plt
 
 from operator import itemgetter
+import argparse
+
 
 if __name__ == '__main__':
-    lexperiments = ['e150514']
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--batch', help="Ejecucion no interactiva", action='store_true', default=False)
+    parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
+
+    args = parser.parse_args()
+    lexperiments = args.exp
+
+    if not args.batch:
+        # 'e120503''e110616''e150707''e151126''e120511''e150514''e110906o'
+        lexperiments = ['e160204', 'e151126', 'e150707']
 
     peakdata = {}
     for expname in lexperiments:
         datainfo = experiments[expname]
-        f = h5py.File(datainfo.dpath + datainfo.name + '/' + datainfo.name + '.hdf5', 'r+')
+        f = datainfo.open_experiment_data(mode='r+')
 
         # Correlation matrix for the first file of the experiment is used as reference
-        d = np.array(f[datainfo.datafiles[0] + '/' + 'Raw'])
+        d = datainfo.get_raw_data(f, datainfo.datafiles[0])
         corrmat = np.corrcoef(d, rowvar=0)
         ylabels = []
         for i, si in enumerate(datainfo.sensors):
@@ -50,7 +61,7 @@ if __name__ == '__main__':
         # Correlation matrices for all the experiment
         lcormat = []
         for ei in range(len(datainfo.datafiles)):
-            d = np.array(f[datainfo.datafiles[ei] + '/' + 'Raw'])
+            d = datainfo.get_raw_data(f, datainfo.datafiles[ei])
             corrmat1 = np.corrcoef(d, rowvar=0)
             lcormat.append(corrmat1)
 
@@ -78,7 +89,8 @@ if __name__ == '__main__':
 
                     plt.scatter(ydata1, ydata2)
 
-                    plt.savefig(datainfo.dpath + datainfo.name + '/' + '/Results/' + datainfo.datafiles[ei] + '-'
-                                + datainfo.datafiles[ej] + '-crosscorr.pdf', orientation='landscape', format='pdf')
+                    plt.savefig(datainfo.dpath + datainfo.name + '/' + '/Results/crosscorr-' + datainfo.datafiles[ei] + '-'
+                                + datainfo.datafiles[ej] + '.pdf', orientation='landscape', format='pdf')
                     plt.close()
 
+        datainfo.close_experiment_data(f)

@@ -670,14 +670,16 @@ if __name__ == '__main__':
     lexperiments = args.exp
 
     if not args.batch:
-       # 'e120503''e110616''e150707''e151126''e120511''e150514''e110906o'
-        lexperiments = ['e150514']
-        args.matching = False
-        args.histogram = False
+       # 'e120503''e110616''e151126''e120511''e150514''e110906o'
+        lexperiments = ['e110906e']
+        args.matching = True
+        args.histogram = True
         args.draw = False
-        args.boxes = False
+        args.boxes = True
         args.rescale = False
         args.frequent = False
+        args.contingency = False
+        args.coincidence = False
 
     # Matching parameters
     isig = 2
@@ -717,9 +719,8 @@ if __name__ == '__main__':
                 ltimes.append(data)
             f.close()
 
-            #lsynchs = compute_synchs(ltimes, lsens_labels, window=window, minlen=1)
-            lsynchs = compute_synchs_new(ltimes, lsens_labels, window=window, minlen=1)
-            break
+            lsynchs = compute_synchs(ltimes, lsens_labels, window=window, minlen=1)
+            #lsynchs = compute_synchs_new(ltimes, lsens_labels, window=window, minlen=1)
 
             if args.save:
                 save_sync_sequence(lsynchs, dfile)

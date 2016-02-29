@@ -79,7 +79,7 @@ if __name__ == '__main__':
     lexperiments = args.exp
 
     if not args.batch:
-       # 'e120503''e110616''e150707''e151126''e120511''e150514''e110906o'
+       # 'e120503''e110616''e150707''e151126''e120511''e150514''e110906o''e120511'
         lexperiments = ['e150514']
 
     peakdata = {}
@@ -89,11 +89,11 @@ if __name__ == '__main__':
         f = h5py.File(datainfo.dpath + datainfo.name + '/' + datainfo.name + '.hdf5', 'r')
 
 
-        for dfile in range(0,len(datainfo.datafiles)):
-            d = f[datainfo.datafiles[dfile] + '/' + 'Raw']
+        for dfile in datainfo.datafiles:
+            d = f[dfile + '/' + 'Raw']
             print d.shape, datainfo.sampling/2
-            for s in range(len(datainfo.sensors)):
-                print dfile, datainfo.sensors[s]
+            for s, sensor in enumerate(datainfo.sensors):
+                print dfile, sensor
                 rate = datainfo.sampling
                 t = np.arange(0, 10, 1/rate)
                 freq = rate * 0.5
@@ -122,13 +122,13 @@ if __name__ == '__main__':
                 # plt.show()
                 # print x.shape
 #                print x[0:100], d[0:100,s]
-                p = np.abs(np.fft.rfft(d[0:6000000,s]))**2
+                p = np.abs(np.fft.rfft(d[0:int(d.shape[0]/2), s])) ** 2
                 spec = np.linspace(0, (rate)/2, len(p))
                 #p = decimate(p,20)
                 plt.subplots(figsize=(20, 10))
                 plot(spec[0:12000], p[0:12000])
+                plt.title(dfile + '-' + sensor, fontsize=48)
+                plt.savefig(datainfo.dpath + '/' + datainfo.name + '/Results/spectra-' + datainfo.name + dfile + '-' + sensor
+                            + '.pdf', orientation='landscape', format='pdf')
+                plt.close()
                 plt.show()
-                # plt.title(datainfo.datafiles[dfile]+ '-' + datainfo.sensors[s], fontsize=48)
-                # plt.savefig(datainfo.dpath + '/Results/' + datainfo.datafiles[dfile] + '-' + datainfo.sensors[s]
-                #             + '-spectra.pdf', orientation='landscape', format='pdf')
-                # plt.close()

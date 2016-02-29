@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
     if not args.batch:
        # 'e120503''e110616''e150707''e151126''e120511''e150514''e110906o''e160204'
-        lexperiments = ['e160204']
+        lexperiments = ['e150514']
 
 
     peakdata = {}
@@ -71,7 +71,7 @@ if __name__ == '__main__':
 
                 sp1 = fig.add_subplot(1, 1, 1)
                 img = sp1.imshow(vec[:,0:100].T, cmap=plt.cm.seismic, interpolation='none')
-                fig.savefig(datainfo.dpath + datainfo.name + '/' + '/Results/' + datainfo.datafiles[dfile] + '-'
-                            + datainfo.sensors[s] + '-ftft.pdf', orientation='landscape', format='pdf')
+                fig.savefig(datainfo.dpath + datainfo.name + '/' + '/Results/ftft-' + datainfo.datafiles[dfile] + '-'
+                            + datainfo.sensors[s] + '.pdf', orientation='landscape', format='pdf')
                 #plt.show()
                 plt.close()

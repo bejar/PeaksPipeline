@@ -72,7 +72,7 @@ def peaks_histogram(experiment):
         for i, df in enumerate(experiment.datafiles):
             rects = ax.bar(ind[i], dhisto[s][i], 1, color= experiment.colors[i])
         #plt.show()
-        fig.savefig(experiment.dpath + '/' + experiment.name + '/Results/' + experiment.name + '-' + s + '-peaks-count.pdf', orientation='landscape', format='pdf')
+        fig.savefig(experiment.dpath + '/' + experiment.name + '/Results/peaks-count-' + experiment.name + '-' + s + '.pdf', orientation='landscape', format='pdf')
         plt.close()
     experiment.close_experiment_data(f)
 
@@ -91,16 +91,13 @@ def signal_distribution(experiment):
         print(dfile)
         data = experiment.get_raw_data(f, dfile)
         print data.shape
-        data = pd.DataFrame(data[1000,:], columns=experiment.sensors)
-        # for i, sensor in enumerate(experiment.sensors):
-        #     print(sensor)
-        sns.boxplot(data)
-        # fig = plt.figure()
-        #
-        # ax = fig.add_subplot(1, 1, 1)
-        # fig.set_figwidth(60)
-        # fig.set_figheight(40)
-        plt.show()
+        data = pd.DataFrame(data, columns=experiment.sensors)
+        plt.title(experiment.name + ' - ' + dfile)
+        sns.boxplot(data, whis=6)
+        #plt.show()
+        plt.savefig(experiment.dpath + '/' + experiment.name + '/Results/signal-dist-' + experiment.name + '-' + dfile + '.pdf', orientation='landscape', format='pdf')
+        del data
+        plt.close()
 
     experiment.close_experiment_data(f)
 
@@ -118,10 +115,10 @@ if __name__ == '__main__':
     hsignal = args.hsignal
 
     if not args.batch:
-        # 'e150514''e120503''e110616''e150707''e151126''e120511'
-        lexperiments =['e160204']
+        # 'e150514''e120503''e110616''e150707''e151126''e120511''e160204'
+        lexperiments =['e150514']
         hpeaks = True
-        hsignal = False
+        hsignal = True
 
 
 
