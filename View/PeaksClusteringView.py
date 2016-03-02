@@ -29,11 +29,35 @@ from pylab import *
 from sklearn.cluster import KMeans
 
 from Config.experiments import experiments
-from util.plots import plotSignals, show_vsignals
+
 
 __author__ = 'bejar'
 # 'e150514''e120503'
-lexperiments = ['e150514']
+lexperiments = ['e110906e']
+
+
+def show_vsignals(signal, centroid, title=''):
+    """
+    Plots a list of signals
+    :param signal:
+    :return:
+    """
+    matplotlib.rcParams.update({'font.size': 26})
+    fig = plt.figure()
+    fig.set_figwidth(30)
+    fig.set_figheight(40)
+    fig.suptitle(title, fontsize=48)
+    minaxis = np.min(signal)
+    maxaxis = np.max(signal)
+    num = signal.shape[1]
+    sp1 = fig.add_subplot(111)
+    sp1.axis([0, num, minaxis, maxaxis])
+    t = arange(0.0, num, 1)
+    for i in range(signal.shape[0]):
+        sp1.plot(t, signal[i,:])
+    sp1.plot(t, centroid, color='r', linewidth=8.0)
+
+    plt.show()
 
 
 for expname in lexperiments:
@@ -42,11 +66,11 @@ for expname in lexperiments:
 
     f = h5py.File(datainfo.dpath + datainfo.name + '/' + datainfo.name + '.hdf5', 'r')
 
-    for s, nclusters in zip([datainfo.sensors[0]], [datainfo.clusters[0]]):
+    for s, nclusters in zip([datainfo.sensors[5]], [datainfo.clusters[5]]):
         print(s)
         ldata = []
         for dfiles in [datainfo.datafiles[0]]:
-            d = f[dfiles + '/' + s + '/' + 'PeaksFilter']
+            d = f[dfiles + '/' + s + '/' + 'PeaksResample']
             dataf = d[()]
             ldata.append(dataf)
 
@@ -58,7 +82,7 @@ for expname in lexperiments:
         cnt = Counter(list(km.labels_))
         for i in np.unique(km.labels_):
             print len(dataf[km.labels_ == i, :])
-            show_vsignals(dataf[km.labels_ == i, :])
+            show_vsignals(dataf[km.labels_ == i, :], km.cluster_centers_[i])
 
 
     f.close()

@@ -26,45 +26,60 @@ from Config.experiments import experiments
 import matplotlib.pyplot as plt
 
 from operator import itemgetter
+import seaborn as sns
 import argparse
+import pandas as pd
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--batch', help="Ejecucion no interactiva", action='store_true', default=False)
-    parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
+def correlation_scatter_plot(datainfo, corrplot=False, barplot=False):
+    """
+    Generates the cross-correlation scatterplots of the experiment files
 
-    args = parser.parse_args()
-    lexperiments = args.exp
+    :param datainfo:
+    :return:
+    """
+    f = datainfo.open_experiment_data(mode='r')
 
-    if not args.batch:
-        # 'e120503''e110616''e150707''e151126''e120511''e150514''e110906o'
-        lexperiments = ['e160204', 'e151126', 'e150707']
+    # Correlation matrix for the first file of the experiment is used as reference
+    d = datainfo.get_raw_data(f, datainfo.datafiles[0])
+    corrmat = np.corrcoef(d, rowvar=0)
+    ylabels = []
+    for i, si in enumerate(datainfo.sensors):
+        for j, sj in enumerate(datainfo.sensors):
+            if i < j:
+                ylabels.append((si + '-' + sj, corrmat[i, j]))
 
-    peakdata = {}
-    for expname in lexperiments:
-        datainfo = experiments[expname]
-        f = datainfo.open_experiment_data(mode='r+')
+    ylabels = sorted(ylabels, key=itemgetter(1))
+    ylabels = [x for x, _ in ylabels]
 
-        # Correlation matrix for the first file of the experiment is used as reference
-        d = datainfo.get_raw_data(f, datainfo.datafiles[0])
-        corrmat = np.corrcoef(d, rowvar=0)
-        ylabels = []
-        for i, si in enumerate(datainfo.sensors):
-            for j, sj in enumerate(datainfo.sensors):
-                if i < j:
-                    ylabels.append((si+'-'+sj, corrmat[i,j]))
+    # Correlation matrices for all the experiment
+    lcormat = []
+    for ei in range(len(datainfo.datafiles)):
+        d = datainfo.get_raw_data(f, datainfo.datafiles[ei])
+        corrmat1 = np.corrcoef(d, rowvar=0)
+        lcormat.append(corrmat1)
 
-        ylabels = sorted(ylabels, key=itemgetter(1))
-        ylabels = [x for x, _ in ylabels]
+    matplotlib.rcParams.update({'font.size': 12})
+    if barplot:
+       for ei, dfile in enumerate(datainfo.datafiles):
+            cmat = lcormat[ei]
+            dlabels = {}
+            for i, si in enumerate(datainfo.sensors):
+                for j, sj in enumerate(datainfo.sensors):
+                    if i < j:
+                        dlabels[si + '-' + sj] = cmat[i, j]
+            ydata = [dlabels[x] for x in ylabels]
 
-        # Correlation matrices for all the experiment
-        lcormat = []
-        for ei in range(len(datainfo.datafiles)):
-            d = datainfo.get_raw_data(f, datainfo.datafiles[ei])
-            corrmat1 = np.corrcoef(d, rowvar=0)
-            lcormat.append(corrmat1)
+            data = pd.DataFrame({'corr':ydata, 'sens':ylabels})
 
+            plt.title(dfile)
+            ax = sns.barplot(x="corr", y="sens", data=data, orient='h', palette="Blues_d")
+            plt.savefig(datainfo.dpath + datainfo.name + '/' + '/Results/corrbarplot-' + dfile
+                        + '.pdf', orientation='landscape', format='pdf')
+            plt.close()
+
+
+    if corrplot:
         # Scatterplot for each pair of correlation matrices
         for ei in range(len(datainfo.datafiles)):
             for ej in range(len(datainfo.datafiles)):
@@ -93,4 +108,27 @@ if __name__ == '__main__':
                                 + datainfo.datafiles[ej] + '.pdf', orientation='landscape', format='pdf')
                     plt.close()
 
-        datainfo.close_experiment_data(f)
+    datainfo.close_experiment_data(f)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--batch', help="Ejecucion no interactiva", action='store_true', default=False)
+    parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
+    parser.add_argument('--corrplot', help="Crosscorrelation plots", action='store_true', default=False)
+    parser.add_argument('--barplot', help="Correlation bar plots", action='store_true', default=False)
+
+
+    args = parser.parse_args()
+    lexperiments = args.exp
+
+    if not args.batch:
+        # 'e120503''e110616''e150707''e151126''e120511''e150514''e110906o'
+        lexperiments = ['e150514']
+        args.corrplot = False
+        args.barplot = True
+
+    peakdata = {}
+    for expname in lexperiments:
+        datainfo = experiments[expname]
+        correlation_scatter_plot(datainfo, corrplot=args.corrplot, barplot=args.barplot)

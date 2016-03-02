@@ -318,6 +318,23 @@ class Experiment:
 
         f.flush()
 
+    def get_clustering(selfself, f, dfile, sensor):
+        """
+        Return the clustering of the peaks of
+        :param f:
+        :param dfile:
+        :param sensor:
+        :return:
+        """
+
+        if f[dfile + '/' + sensor + '/Clustering/' + 'Centers']:
+            d = f[dfile + '/' + sensor + '/Clustering/' + 'Centers']
+            centers = d[()]
+        else:
+            centers = None
+
+        return centers
+
 # ---------------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
     pass

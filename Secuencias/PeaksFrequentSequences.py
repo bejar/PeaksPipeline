@@ -852,6 +852,24 @@ def compute_intersection_graphs(datainfo, exppartition, lfrstrings, ncl, sensor,
                                   nfile + '-' + ename + '-' + sensor + ext,
                                   partition=partition, lmatch=lmatch, mapping=mapping)
 
+        for i in range(len(lfreq)-1):
+            inter = frequent_strings_intersection([lfreq[i], lfreq[i+1]])
+            nfile = datainfo.name + '-inter-seq'
+            ename = part[i][0] + '-'  + part[i+1][0]
+            drawgraph_alternative(ncl, inter, nfile, sensor, dfile, ename,
+                                      nfile + '-' + part[i][0] + '-'  + part[i+1][0] + '-' + sensor + ext,
+                                      partition=partition, lmatch=lmatch, mapping=mapping)
+
+        for i in range(2, len(lfreq)+1):
+            inter = frequent_strings_intersection(lfreq[:i])
+            nfile = datainfo.name + '-inter-sub'
+
+            ename = '-'.join([v[0] for v in part[:i]])
+            drawgraph_alternative(ncl, inter, nfile, sensor, dfile, ename,
+                                      nfile + '-' + ename + '-' + sensor + ext,
+                                      partition=partition, lmatch=lmatch, mapping=mapping)
+
+
 # ----------------------------------------
 
 
@@ -958,16 +976,16 @@ if __name__ == '__main__':
 
     if not args.batch:
         args.graph = True
-        args.freqstr = True
-        args.contingency = True
-        args.sequence = True
-        args.matching = True
+        args.freqstr = False
+        args.contingency = False
+        args.sequence = False
+        args.matching = False
         args.rescale = False
         args.string = False
         args.galternative = True
         args.diffs = True
-        # 'e120503''e110616''e150707''e151126''e120511', 'e150707', 'e151126''e120511', 'e120503', 'e110906o', 'e160204'
-        lexperiments = ['e110906e']
+        # 'e120503''e110616''e150707''e151126''e120511',  'e151126''e120511', 'e120503', 'e110906o', 'e160204''e150514'
+        lexperiments = ['e150514']
 
     colors = ['red', 'blue', 'green']
     npart = 3

@@ -237,12 +237,11 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     lexperiments = args.exp
-    rescale = args.rescale
 
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511''e160204''e110906o'
-        lexperiments = ['e160204', 'e150707', 'e151126']
-        rescale = True
+        lexperiments = ['e110906e']
+        args.rescale = True
 
     for expname in lexperiments:
 
@@ -250,5 +249,5 @@ if __name__ == '__main__':
 
         lsensors = datainfo.sensors[isig:fsig]
         lclusters = datainfo.clusters[isig:fsig]
-        smatching = compute_signals_matching(expname, lsensors, rescale=rescale)
-        save_matching(smatching, lsensors, rescale=rescale)
+        smatching = compute_signals_matching(expname, lsensors, rescale=args.rescale)
+        save_matching(smatching, lsensors, rescale=args.rescale)
