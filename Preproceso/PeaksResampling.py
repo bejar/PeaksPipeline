@@ -22,14 +22,14 @@ PeaksResampling
 
 __author__ = 'bejar'
 
-from scipy.signal import resample
+from scipy.signal import resample, detrend
 import h5py
 
 from Config.experiments import experiments, lexperiments
 from joblib import Parallel, delayed
 import argparse
 
-def do_the_job(dfile, sensor, wtsel, resampfac, rawfilter=False):
+def do_the_job(dfile, sensor, wtsel, resampfac, rawfilter=False, dtrnd=False):
     """
     Applies a resampling of the data using Raw peaks
     The time window selected has to be larger than the length of the raw peaks
@@ -41,7 +41,6 @@ def do_the_job(dfile, sensor, wtsel, resampfac, rawfilter=False):
     :param expname:
     :return:
     """
-
     print(datainfo.dpath + datainfo.name, sensor)
     f = h5py.File(datainfo.dpath + datainfo.name + '/' + datainfo.name + '.hdf5', 'r')
 
@@ -57,11 +56,15 @@ def do_the_job(dfile, sensor, wtsel, resampfac, rawfilter=False):
         data = d[()]
         f.close()
 
+        if dtrnd:
+            data = detrend(data)
+
         # Number of samples in the peak
         wtlen = int(data.shape[1] / resampfac)
         wtlen_new = int(wtsel * resampling / 1000.0) # 1000 because the selection window is in miliseconds
         wtdisc = int((wtlen - wtlen_new)/2.0)
         presamp = resample(data, wtlen, axis=1, window=wtlen*2)
+
 
         # in case we have a odd number of points in the window
         if wtlen_new + (2*wtdisc) != wtlen:
@@ -77,6 +80,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--batch', help="Ejecucion no interactiva", action='store_true', default=False)
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
+    parser.add_argument('--detrend', help="Detrending of the signal after resampling", action='store_true', default=False)
 
     args = parser.parse_args()
     lexperiments = args.exp
@@ -84,6 +88,7 @@ if __name__ == '__main__':
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511'
         lexperiments = ['e150514']
+        args.detrend = False
 
     for expname in lexperiments:
 
@@ -94,7 +99,7 @@ if __name__ == '__main__':
         for dfile in datainfo.datafiles:
             print(dfile)
             # Paralelize PCA computation
-            res = Parallel(n_jobs=-1)(delayed(do_the_job)(dfile, s, wtsel, resampfactor, rawfilter=filtered) for s in datainfo.sensors)
+            res = Parallel(n_jobs=-1)(delayed(do_the_job)(dfile, s, wtsel, resampfactor, rawfilter=filtered, dtrnd=args.detrend) for s in datainfo.sensors)
             #print 'Parallelism ended'
 
             f = h5py.File(datainfo.dpath + datainfo.name + '/' + datainfo.name + '.hdf5', 'r+')

@@ -77,7 +77,7 @@ def do_the_job(dfile, sensor, recenter=True, wtsel=None, clean=False, basal='mea
 
             sexp = 0.0
             ncomp = 0
-            while sexp < 0.95:
+            while sexp < 0.98:
                 sexp += pca.explained_variance_ratio_[ncomp]
                 ncomp += 1
             components = ncomp

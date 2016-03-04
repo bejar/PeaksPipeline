@@ -24,6 +24,7 @@ __author__ = 'bejar'
 # from ConfigParser import SafeConfigParser
 import h5py
 import os
+import numpy as np
 
 class Experiment:
     """
@@ -318,7 +319,7 @@ class Experiment:
 
         f.flush()
 
-    def get_clustering(selfself, f, dfile, sensor):
+    def get_clustering(self, f, dfile, sensor):
         """
         Return the clustering of the peaks of
         :param f:
@@ -334,6 +335,69 @@ class Experiment:
             centers = None
 
         return centers
+
+    # TODO: resample the data
+    def get_IPF_time_windows(self, f, dfile, times, wlen):
+        """
+        Get data from the IPF sensors
+        :param f:
+        :param dfile:
+        :return:
+        """
+        if f[dfile + '/RawExtra']:
+            d = f[dfile + '/RawExtra']
+            IPF = d[()]
+
+            IPFs = np.zeros((times.shape[0], wlen))
+            IPFp = np.zeros((times.shape[0], wlen))
+
+            print IPFs.shape
+            if wlen % 2 != 0:
+                ilen = (wlen/2) - 1
+                flen = (wlen/2)
+            else:
+                ilen = flen = wlen/2
+
+            for i in range(times.shape[0]):
+                IPFs[i] = IPF[times[i]-ilen:times[i]+flen, 0]
+                IPFp[i] = IPF[times[i]-ilen:times[i]+flen, 1]
+
+            return IPFs, IPFp
+        else:
+            return None, None
+
+
+    # TODO: resample the data
+    def get_sensors_time_windows(self, f, dfile, times, wlen):
+        """
+        Get data from the IPF sensors
+        :param f:
+        :param dfile:
+        :return:
+        """
+
+        if f[dfile + '/Raw']:
+            d = f[dfile + '/Raw']
+            sensors = d[()]
+
+            swindows = []
+            for sensor in self.sensors:
+                swindows.append(np.zeros((times.shape[0], wlen)))
+
+            if wlen % 2 != 0:
+                ilen = (wlen/2) - 1
+                flen = (wlen/2)
+            else:
+                ilen = flen = wlen/2
+
+            for i in range(times.shape[0]):
+                for j in range(len(self.sensors)):
+                    swindows[j][i] = sensors[times[i]-ilen:times[i]+flen, j]
+
+            return swindows
+        else:
+            return None
+
 
 # ---------------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':

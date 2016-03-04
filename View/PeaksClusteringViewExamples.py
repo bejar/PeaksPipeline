@@ -31,6 +31,7 @@ from sklearn.cluster import KMeans
 from Config.experiments import experiments
 from sklearn.metrics import pairwise_distances_argmin_min
 import argparse
+from scipy.signal import detrend
 
 __author__ = 'bejar'
 
@@ -53,7 +54,7 @@ def compute_data_labels(dfilec, dfile, sensor):
     return labels
 
 
-def show_vsignals(signal, centroid, title=''):
+def show_vsignals(signal, centroid, mnvals, mxvals, stdvals, title=''):
     """
     Plots a list of signals
     :param signal:
@@ -79,11 +80,20 @@ def show_vsignals(signal, centroid, title=''):
     for i in range(signal.shape[0]):
         sp1 = fig.add_subplot(5, nrows, i+1)
         sp1.axis([0, num, minaxis, maxaxis])
-        sp1.plot(t, signal[i,:])
+        sp1.plot(t, signal[i,:], color='g', linewidth=2.0)
+
+        sp1.plot(t, detrend(signal[i,:]), color='b')
 
     sp1 = fig.add_subplot(5, nrows, npeaks+1)
+    minaxis = np.min(mnvals)
+    maxaxis = np.max(mxvals)
+
     sp1.axis([0, num, minaxis, maxaxis])
     sp1.plot(t, centroid, color='r', linewidth=8.0)
+    sp1.plot(t, centroid + stdvals, color='g', linewidth=3.0)
+    sp1.plot(t, centroid - stdvals, color='g', linewidth=3.0)
+    sp1.plot(t, mxvals, color='b', linewidth=3.0)
+    sp1.plot(t, mnvals, color='b', linewidth=3.0)
 
     plt.show()
 
@@ -117,8 +127,9 @@ if __name__ == '__main__':
 
                 clpeaks = compute_data_labels(datainfo.datafiles[0], dfile, sensor)
 
+                datafPCA = datainfo.get_peaks_resample_PCA(f, dfile, sensor)
                 if args.pca:
-                    dataf = datainfo.get_peaks_resample_PCA(f, dfile, sensor)
+                    dataf = datafPCA
                 else:
                     dataf = datainfo.get_peaks_resample(f, dfile, sensor)
 
@@ -127,7 +138,12 @@ if __name__ == '__main__':
                 for i in np.unique(clpeaks):
                     print len(dataf[clpeaks == i, :])
                     dpeaks = dataf[clpeaks == i, :]
-                    show_vsignals(dpeaks[0:npeaks, :], clustering[i], dfile+'-'+sensor)
+
+                    mnpeaks = datafPCA[clpeaks == i, :].min(0)
+                    mxpeaks = datafPCA[clpeaks == i, :].max(0)
+                    stdpeaks = datafPCA[clpeaks == i, :].std(0)
+
+                    show_vsignals(dpeaks[0:npeaks, :], clustering[i], mnpeaks, mxpeaks, stdpeaks, dfile+'-'+sensor)
 
         datainfo.close_experiment_data(f)
 

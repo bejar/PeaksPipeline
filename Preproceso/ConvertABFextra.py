@@ -59,9 +59,11 @@ def convert_from_ABF_to_HDF5(experiment):
 
         # Los guardamos en una carpeta del fichero HDF5 para el fichero dentro de /Raw
         print('Saving: ', dataf, '...')
-        dgroup = f [dataf]
+        dgroup = f[dataf]
 
 
+        if dataf + '/RawExtra' in f:
+            del f[dataf + '/RawExtra']
         dgroup.create_dataset('RawExtra', matrix.T.shape, dtype='f', data=matrix.T, compression='gzip')
         del matrix
         del bl
@@ -76,15 +78,16 @@ def convert_from_ABF_to_HDF5(experiment):
 # iterar sobre una lista de los experimentos existente
 # Estos experimentos estan definidos en Config.experiments
 if __name__ == '__main__':
-    # 'e150514''e120503''e110616''e150707''e151126''e120511'
-    lexperiments = ['e150514']
-
     parser = argparse.ArgumentParser()
+    parser.add_argument('--batch', help="Ejecucion no interactiva", action='store_true', default=False)
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
 
     args = parser.parse_args()
-    if args.exp:
-        lexperiments = args.exp
+    lexperiments = args.exp
+
+    if not args.batch:
+        # 'e120503''e110616''e150707''e151126''e120511''e150514''e110906o'
+        lexperiments = ['e110906o']
 
     for expname in lexperiments:
 
