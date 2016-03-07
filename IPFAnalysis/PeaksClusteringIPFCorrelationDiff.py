@@ -54,7 +54,7 @@ def compute_data_labels(dfilec, dfile, sensor):
     return labels
 
 
-def compute_reference(datainfo, dfile, rsensor):
+def compute_reference(datainfo, rfile, rsensor):
     """
     Computes the correlations for a file to use as reference
 
@@ -62,12 +62,13 @@ def compute_reference(datainfo, dfile, rsensor):
     """
     f = datainfo.open_experiment_data(mode='r')
 
-    datainfo.close_experiment_data(f)
-    clpeaks = compute_data_labels(datainfo.datafiles[0], dfile, rsensor)
-    pktimes = datainfo.get_peaks_time(f, dfile, rsensor)
+    clpeaks = compute_data_labels(datainfo.datafiles[0], rfile, rsensor)
+    pktimes = datainfo.get_peaks_time(f, rfile, rsensor)
 
-    IPFs, IPFp = datainfo.get_IPF_time_windows(f, dfile, pktimes, 1000)
-    swindows = datainfo.get_sensors_time_windows(f, dfile, pktimes, 1000)
+    IPFs, IPFp = datainfo.get_IPF_time_windows(f, rfile, pktimes, 1000)
+    swindows = datainfo.get_sensors_time_windows(f, rfile, pktimes, 1000)
+    lclcorrs = []
+    lclcorrp = []
     for i in np.unique(clpeaks):
         dIPFs = IPFs[clpeaks == i, :]
         dIPFp = IPFp[clpeaks == i, :]
@@ -83,7 +84,14 @@ def compute_reference(datainfo, dfile, rsensor):
                 lcorrp[k] += pearsonr(dIPFp[j], cl[j])[0]
         lcorrs /= dIPFs.shape[0]
         lcorrp /= dIPFs.shape[0]
-    return lcorrs, lcorrp
+
+        lclcorrs.append(lcorrs)
+        lclcorrp.append(lcorrp)
+
+
+    datainfo.close_experiment_data(f)
+
+    return lclcorrs, lclcorrp
 
 
 if __name__ == '__main__':
@@ -93,7 +101,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     lexperiments = args.exp
-    nsensor = 6
+    nsensor = 4
 
     if not args.batch:
         # 'e120503''e110616''e150707''e151126''e120511''e150514''e110906o'
@@ -105,7 +113,7 @@ if __name__ == '__main__':
         colors = datainfo.colors
         rsensor = datainfo.sensors[nsensor]
 
-        rlcorrs, rlcorrp = compute_reference(datainfo, datainfo.datafiles[0], rsensor)
+        rclcorrs, rclcorrp = compute_reference(datainfo, datainfo.datafiles[0], rsensor)
 
         f = datainfo.open_experiment_data(mode='r')
 
@@ -118,8 +126,6 @@ if __name__ == '__main__':
 
             IPFs, IPFp = datainfo.get_IPF_time_windows(f, dfile, pktimes, 1000)
             swindows = datainfo.get_sensors_time_windows(f, dfile, pktimes, 1000)
-
-            #lclcorr = []
 
             matplotlib.rcParams.update({'font.size': 10})
             fig = plt.figure()
@@ -143,33 +149,23 @@ if __name__ == '__main__':
                 lcorrs /= dIPFs.shape[0]
                 lcorrp /= dIPFs.shape[0]
 
-                dim = (len(datainfo.sensors) / 2) +1
+                dim = (len(datainfo.sensors) / 2) + 1
                 if (len(datainfo.sensors) % 2) != 0:
                     dim += 1
 
-                mpls = np.zeros((dim, 2))
-                mplp = np.zeros((dim, 2))
-
                 rmpls = np.zeros((dim, 2))
                 rmplp = np.zeros((dim, 2))
+                rlcorrs = rclcorrs[i]
+                rlcorrp = rclcorrp[i]
 
                 for j in range(len(datainfo.sensors)):
                     if (j % 2) == 0:
-                        mpls[j/2, 0] = lcorrs[j]
-                        mplp[j/2, 0] = lcorrp[j]
                         rmpls[j/2, 0] = lcorrs[j] - rlcorrs[j]
-                        rmplp[j/2, 0] = lcorrp[j] - lcorrp[j]
-
+                        rmplp[j/2, 0] = lcorrp[j] - rlcorrp[j]
                     else:
-                        mpls[j/2, 1] = lcorrs[j]
-                        mplp[j/2, 1] = lcorrp[j]
                         rmpls[j/2, 1] = lcorrs[j] - rlcorrs[j]
-                        rmplp[j/2, 1] = lcorrp[j] - lcorrp[j]
+                        rmplp[j/2, 1] = lcorrp[j] - rlcorrp[j]
 
-                mpls[dim-1, 0] = -1
-                mplp[dim-1, 0] = -1
-                mpls[dim-1, 1] = 1
-                mplp[dim-1, 1] = 1
                 rmpls[dim-1, 0] = -1
                 rmplp[dim-1, 0] = -1
                 rmpls[dim-1, 1] = 1
@@ -180,14 +176,14 @@ if __name__ == '__main__':
                 sp1.set_xticks([0, 1])
                 sp1.set_yticklabels(['L4c', 'L5r', 'L5c', 'L6r', 'L6c', 'L7r', 'R'])
                 sp1.set_xticklabels(['I', 'D'])
-                sp1.imshow(mpls, interpolation='none', cmap=plt.cm.seismic)
+                sp1.imshow(rmpls, interpolation='none', cmap=plt.cm.seismic)
 
                 sp1 = fig.add_subplot(3, nplots,  nplots + i + 1)
                 sp1.set_yticks(range(dim))
                 sp1.set_xticks([0, 1])
                 sp1.set_yticklabels(['L4c', 'L5r', 'L5c', 'L6r', 'L6c', 'L7r', 'R'])
                 sp1.set_xticklabels(['I', 'D'])
-                sp1.imshow(mplp, interpolation='none', cmap=plt.cm.seismic)#lanczos
+                sp1.imshow(rmplp, interpolation='none', cmap=plt.cm.seismic)#lanczos
 
                 sp1 = fig.add_subplot(3, nplots, (nplots*2) + i + 1)
                 t = arange(0.0, clustering.shape[1], 1)
@@ -200,7 +196,7 @@ if __name__ == '__main__':
             plt.subplots_adjust(hspace = 0.1, wspace=2, top=0.95, bottom=0.05, left=0.05, right=0.95)
             #plt.show()
 
-            fig.savefig(datainfo.dpath + datainfo.name + '/Results/IPFAll-' + datainfo.name  + '-' + dfile + '-' + ename
+            fig.savefig(datainfo.dpath + datainfo.name + '/Results/IPFAllDiff-' + datainfo.name  + '-' + dfile + '-' + ename
                         + '-' + rsensor + '.pdf',  format='pdf')
             plt.close()
         datainfo.close_experiment_data(f)

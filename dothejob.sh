@@ -2,11 +2,11 @@
 # /bin/sh
 
 
-python IPFAnalysis/PeaksClusteringIPFCorrelation.py --batch --exp e150514 e110906o
+python IPFAnalysis/PeaksClusteringIPFCorrelationDiff.py --batch --exp e151126 e160204
 
 #python Spectra/Spectra.py --batch --exp e150514
 #python Spectra/SpectraSTFT.py --batch --exp e150514
-#python Analisis/VarianceVariation.py --batch --exp e150514
+#python Analisis/VarianceVariation.py --batch --exp
 #python Analisis/CorrelationsScatterPlot.py --batch --exp e150514
 #python Analisis/PeaksStatistics.py --batch --hpeaks --exp  e150514
 
