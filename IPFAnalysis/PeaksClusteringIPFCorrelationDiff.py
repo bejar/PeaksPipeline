@@ -80,8 +80,8 @@ def compute_reference(datainfo, rfile, rsensor):
         lcorrp = np.zeros(len(datainfo.sensors))
         for k, cl in enumerate(clsensors):
             for j in range(dIPFs.shape[0]):
-                lcorrs[k] += pearsonr(dIPFs[j], cl[j])[0]
-                lcorrp[k] += pearsonr(dIPFp[j], cl[j])[0]
+                lcorrs[k] += pearsonr(-dIPFs[j], cl[j])[0]
+                lcorrp[k] += pearsonr(-dIPFp[j], cl[j])[0]
         lcorrs /= dIPFs.shape[0]
         lcorrp /= dIPFs.shape[0]
 
@@ -101,11 +101,11 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     lexperiments = args.exp
-    nsensor = 4
+    nsensor = 6
 
     if not args.batch:
-        # 'e120503''e110616''e150707''e151126''e120511''e150514''e110906o'
-        lexperiments = ['e110906o']
+        # 'e120503''e110616''e150707''e151126''e120511''e150514''e110906o' 'e160204'
+        lexperiments = ['e160204']
         args.pca = False
 
     for expname in lexperiments:
@@ -133,6 +133,8 @@ if __name__ == '__main__':
             fig.set_figheight(10)
             fig.suptitle('%s-%s-%s' % (dfile, ename, rsensor), fontsize=20)
             nplots = len(np.unique(clpeaks))
+
+            print nplots
             for i in np.unique(clpeaks):
                 dIPFs = IPFs[clpeaks == i, :]
                 dIPFp = IPFp[clpeaks == i, :]
@@ -144,8 +146,8 @@ if __name__ == '__main__':
                 lcorrp = np.zeros(len(datainfo.sensors))
                 for k, cl in enumerate(clsensors):
                     for j in range(dIPFs.shape[0]):
-                        lcorrs[k] += pearsonr(dIPFs[j], cl[j])[0]
-                        lcorrp[k] += pearsonr(dIPFp[j], cl[j])[0]
+                        lcorrs[k] += pearsonr(-dIPFs[j], cl[j])[0]
+                        lcorrp[k] += pearsonr(-dIPFp[j], cl[j])[0]
                 lcorrs /= dIPFs.shape[0]
                 lcorrp /= dIPFs.shape[0]
 
