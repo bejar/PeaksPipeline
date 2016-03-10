@@ -36,24 +36,6 @@ from scipy.signal import detrend
 __author__ = 'bejar'
 
 
-def compute_data_labels(dfilec, dfile, sensor):
-    """
-    Computes the labels of the data using the centroids of the cluster in the file
-    :param dfile:
-    :param sensor:
-    :return:
-    """
-    f = h5py.File(datainfo.dpath + '/' + datainfo.name + '/' + datainfo.name  + '.hdf5', 'r')
-
-    d = f[dfilec + '/' + sensor + '/Clustering/' + 'Centers']
-    centers = d[()]
-    d = f[dfile + '/' + sensor + '/' + 'PeaksResamplePCA']
-    data = d[()]
-    labels, _ = pairwise_distances_argmin_min(data, centers)
-    f.close()
-    return labels
-
-
 def show_vsignals(signal, centroid, mnvals, mxvals, stdvals, title=''):
     """
     Plots a list of signals
@@ -125,7 +107,7 @@ if __name__ == '__main__':
             for sensor in datainfo.sensors:
                 print(sensor)
 
-                clpeaks = compute_data_labels(datainfo.datafiles[0], dfile, sensor)
+                clpeaks = datainfo.compute_peaks_labels(f, dfile, sensor)
 
                 datafPCA = datainfo.get_peaks_resample_PCA(f, dfile, sensor)
                 if args.pca:
@@ -134,7 +116,7 @@ if __name__ == '__main__':
                     dataf = datainfo.get_peaks_resample(f, dfile, sensor)
 
                 cnt = Counter(list(clpeaks))
-                clustering = datainfo.get_clustering(f, datainfo.datafiles[0], sensor)
+                clustering = datainfo.get_peaks_clustering_centroids(f, datainfo.datafiles[0], sensor, datainfo.clusters[0])
                 for i in np.unique(clpeaks):
                     print len(dataf[clpeaks == i, :])
                     dpeaks = dataf[clpeaks == i, :]

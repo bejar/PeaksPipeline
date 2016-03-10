@@ -29,7 +29,7 @@ import argparse
 __author__ = 'bejar'
 
 
-def compute_signals_matching(expname, lsensors, rescale=True):
+def compute_signals_matching(datainfo, lsensors, rescale=True):
     """
     Computes the matching among the cluster centroids of all the signals
     :return:
@@ -63,102 +63,97 @@ def compute_signals_matching(expname, lsensors, rescale=True):
             lmat.append(lrow)
         return lmat
 
-
-
     nsignals = len(lsensors)
 
+    f = datainfo.open_experiment_data(mode='r')
+    dfile = datainfo.datafiles[0]
+    ename = datainfo.expnames[0]
 
-    datainfo = experiments[expname]
+    lcenters = []
 
-    f = h5py.File(datainfo.dpath + datainfo.name + '/' + datainfo.name + '.hdf5', 'r')
+    for sensor in datainfo.sensors:
+        lcenters.append(datainfo.get_peaks_clustering_centroids(f, dfile, sensor, datainfo.clusters[0]))
 
-    for dfile, ename in zip([datainfo.datafiles[0]], [datainfo.expnames[0]]):
+    lscales = []
+    for cent in lcenters:
+        cmx = np.max(cent)
+        cmn = np.min(cent)
+        lscales.append(cmx - cmn)
 
-        lcenters = []
+    lassoc = []
+    for sensor1 in lsensors:
+        for sensor2 in lsensors:
+            s1 = datainfo.sensors.index(sensor1)
+            s2 = datainfo.sensors.index(sensor2)
 
-        for sensor in datainfo.sensors:
+            if s1 < s2:
+                if rescale:
+                    proportion = lscales[s1] / lscales[s2]
+                    centers1 = lcenters[s1]
+                    centers2 = lcenters[s2] * proportion
+                else:
+                    centers1 = lcenters[s1]
+                    centers2 = lcenters[s2]
 
-            d = f[dfile + '/' + sensor + '/Clustering/' + 'Centers']
-            lcenters.append(d[()])
+                dist = euclidean_distances(centers1, centers2)
+                dist = listify(dist)
 
-        lscales = []
-        for cent in lcenters:
-            cmx = np.max(cent)
-            cmn = np.min(cent)
-            lscales.append(cmx - cmn)
+                m = Munkres()
+                indexes = m.compute(dist)
 
-        lassoc = []
-        for sensor1 in lsensors:
-            for sensor2 in lsensors:
-                s1 = datainfo.sensors.index(sensor1)
-                s2 = datainfo.sensors.index(sensor2)
+                lhun = [(row,column,dist[row][column]) for row, column in indexes]
+                lassoc.append((sensor1, sensor2, lhun))
 
-                if s1 < s2:
-                    if rescale:
-                        proportion = lscales[s1] / lscales[s2]
-                        centers1 = lcenters[s1]
-                        centers2 = lcenters[s2] * proportion
-                    else:
-                        centers1 = lcenters[s1]
-                        centers2 = lcenters[s2]
+    ledges = []
+    signalGraph = nx.Graph()
+    for sensor1, sensor2, assoc in lassoc:
+        for s1, s2, dist in assoc:
+            signalGraph.add_weighted_edges_from([(sensor1+str(s1), sensor2+str(s2), dist)])
+            ledges.append([sensor1+str(s1), sensor2+str(s2), dist])
+    ledges = sorted(ledges, key=lambda edge: edge[2], reverse=True)
 
-                    dist = euclidean_distances(centers1, centers2)
-                    dist = listify(dist)
+    lgraphs = []
 
-                    m = Munkres()
-                    indexes = m.compute(dist)
+    # Remove connected components of size less or equal than the number of signals
+    # and have classes from different signals
+    if nx.number_connected_components(signalGraph) > 1:
+        ccomponents = [c for c in nx.connected_components(signalGraph)]
+        for cc in ccomponents:
+            if len(cc) <= nsignals and all_different(cc):
+                lgraphs.append(cc)
+                for node in cc:
+                    signalGraph.remove_node(node)
 
-                    lhun = [(row,column,dist[row][column]) for row, column in indexes]
-                    lassoc.append((sensor1, sensor2, lhun))
+    end = False
+    # Remove larger edge and compute connected components until graph is empty
+    while not end:
+        if signalGraph.has_edge(ledges[0][0], ledges[0][1]):
+            signalGraph.remove_edge(ledges[0][0], ledges[0][1])
+            if nx.number_connected_components(signalGraph) > 1:
+                ccomponents = [c for c in nx.connected_components(signalGraph)]
+                for cc in ccomponents:
+                    if len(cc) <= nsignals:
+                        lgraphs.append(cc)
+                        for node in cc:
+                            signalGraph.remove_node(node)
+            end = signalGraph.number_of_nodes() == 0
 
-        ledges = []
-        signalGraph = nx.Graph()
-        for sensor1, sensor2, assoc in lassoc:
-            for s1, s2, dist in assoc:
-                signalGraph.add_weighted_edges_from([(sensor1+str(s1), sensor2+str(s2), dist)])
-                ledges.append([sensor1+str(s1), sensor2+str(s2), dist])
-        ledges = sorted(ledges, key=lambda edge: edge[2], reverse=True)
+        ledges = ledges[1:]  # pop the edge
 
-        lgraphs = []
+    lgraphsrt = []
+    for i, gr in enumerate(lgraphs):
+        lmax = []
+        for pk in gr:
+            sensor1 = pk[0:4]
+            ncl = int(pk[4:])
+            s1 = datainfo.sensors.index(sensor1)
+            lmax.append(np.max(lcenters[s1][ncl]))
 
-        # Remove connected components of size less or equal than the number of signals
-        # and have classes from different signals
-        if nx.number_connected_components(signalGraph) > 1:
-            ccomponents = [c for c in nx.connected_components(signalGraph)]
-            for cc in ccomponents:
-                if len(cc) <= nsignals and all_different(cc):
-                    lgraphs.append(cc)
-                    for node in cc:
-                        signalGraph.remove_node(node)
+        lgraphsrt.append([gr, np.max(lmax)])
 
-        end = False
-        # Remove larger edge and compute connected components until graph is empty
-        while not end:
-            if signalGraph.has_edge(ledges[0][0], ledges[0][1]):
-                signalGraph.remove_edge(ledges[0][0], ledges[0][1])
-                if nx.number_connected_components(signalGraph) > 1:
-                    ccomponents = [c for c in nx.connected_components(signalGraph)]
-                    for cc in ccomponents:
-                        if len(cc) <= nsignals:
-                            lgraphs.append(cc)
-                            for node in cc:
-                                signalGraph.remove_node(node)
-                end = signalGraph.number_of_nodes() == 0
+    datainfo.close_experiment_data(f)
 
-            ledges = ledges[1:]  # pop the edge
-
-        lgraphsrt = []
-        for i, gr in enumerate(lgraphs):
-            lmax = []
-            for pk in gr:
-                sensor1 = pk[0:4]
-                ncl = int(pk[4:])
-                s1 = datainfo.sensors.index(sensor1)
-                lmax.append(np.max(lcenters[s1][ncl]))
-
-            lgraphsrt.append([gr, np.max(lmax)])
-
-        return [gr for gr, _ in sorted(lgraphsrt, key=lambda edge: edge[1])]
+    return [gr for gr, _ in sorted(lgraphsrt, key=lambda edge: edge[1])]
 
 
 def compute_matching_mapping(ncl, sensor, matching):
@@ -240,7 +235,7 @@ if __name__ == '__main__':
 
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511''e160204''e110906o'
-        lexperiments = ['e110906e']
+        lexperiments = ['e150514']
         args.rescale = True
 
     for expname in lexperiments:
@@ -249,5 +244,5 @@ if __name__ == '__main__':
 
         lsensors = datainfo.sensors[isig:fsig]
         lclusters = datainfo.clusters[isig:fsig]
-        smatching = compute_signals_matching(expname, lsensors, rescale=args.rescale)
+        smatching = compute_signals_matching(datainfo, lsensors, rescale=args.rescale)
         save_matching(smatching, lsensors, rescale=args.rescale)

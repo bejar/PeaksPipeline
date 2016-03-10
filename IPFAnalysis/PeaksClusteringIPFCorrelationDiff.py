@@ -36,24 +36,6 @@ from scipy.stats import pearsonr
 __author__ = 'bejar'
 
 
-def compute_data_labels(dfilec, dfile, sensor):
-    """
-    Computes the labels of the data using the centroids of the cluster in the file
-    :param dfile:
-    :param sensor:
-    :return:
-    """
-    f = h5py.File(datainfo.dpath + '/' + datainfo.name + '/' + datainfo.name  + '.hdf5', 'r')
-
-    d = f[dfilec + '/' + sensor + '/Clustering/' + 'Centers']
-    centers = d[()]
-    d = f[dfile + '/' + sensor + '/' + 'PeaksResamplePCA']
-    data = d[()]
-    labels, _ = pairwise_distances_argmin_min(data, centers)
-    f.close()
-    return labels
-
-
 def compute_reference(datainfo, rfile, rsensor):
     """
     Computes the correlations for a file to use as reference
@@ -62,7 +44,7 @@ def compute_reference(datainfo, rfile, rsensor):
     """
     f = datainfo.open_experiment_data(mode='r')
 
-    clpeaks = compute_data_labels(datainfo.datafiles[0], rfile, rsensor)
+    clpeaks = datainfo.compute_peaks_labels(f, rfile, rsensor)
     pktimes = datainfo.get_peaks_time(f, rfile, rsensor)
 
     IPFs, IPFp = datainfo.get_IPF_time_windows(f, rfile, pktimes, 1000)
@@ -120,9 +102,9 @@ if __name__ == '__main__':
         for dfile, ename in zip(datainfo.datafiles, datainfo.expnames):
             print(dfile)
 
-            clpeaks = compute_data_labels(datainfo.datafiles[0], dfile, rsensor)
+            clpeaks = datainfo.compute_peaks_labels(f, dfile, rsensor)
             pktimes = datainfo.get_peaks_time(f, dfile, rsensor)
-            clustering = datainfo.get_clustering(f, datainfo.datafiles[0], rsensor)
+            clustering = datainfo.get_peaks_clustering_centroids(f, datainfo.datafiles[0], rsensor, datainfo.clusters[0])
 
             IPFs, IPFp = datainfo.get_IPF_time_windows(f, dfile, pktimes, 1000)
             swindows = datainfo.get_sensors_time_windows(f, dfile, pktimes, 1000)

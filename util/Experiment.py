@@ -25,6 +25,7 @@ __author__ = 'bejar'
 import h5py
 import os
 import numpy as np
+from sklearn.metrics import pairwise_distances_argmin_min
 
 class Experiment:
     """
@@ -226,7 +227,7 @@ class Experiment:
         d = f.require_dataset(dfile + '/' + sensor + '/' + 'TimeClean', ntimes.shape, dtype='i',
                               data=ntimes, compression='gzip')
         d[()] = ntimes
-
+        f.flush()
 
     def get_peaks_time(self, f, dfile, sensor):
         """
@@ -236,7 +237,8 @@ class Experiment:
         :return:
         """
         if dfile + '/' + sensor + '/Time' in f:
-            return f[dfile + '/' + sensor + '/' + 'Time']
+            d = f[dfile + '/' + sensor + '/' + 'Time']
+            return d[()]
         else:
             return None
 
@@ -273,6 +275,24 @@ class Experiment:
             f[dfile + '/' + sensor + '/PeaksResamplePCA'].attrs['Components'] = 0
 
         f[dfile + '/' + sensor + '/PeaksResamplePCA'].attrs['baseline'] = self.peaks_smooth['wbaseline']
+        f.flush()
+
+    def get_peaks_clustering_centroids(self, f, dfile, sensor, ncl):
+        """
+        Return the clustering of the peaks of
+        :param f:
+        :param dfile:
+        :param sensor:
+        :return:
+        """
+
+        if f[dfile + '/' + sensor + '/Clustering/' + str(ncl) + '/Centers']:
+            d = f[dfile + '/' + sensor + '/Clustering/' + str(ncl) + '/Centers']
+            centers = d[()]
+        else:
+            centers = None
+
+        return centers
 
     def save_peaks_clustering_centroids(self, f, dfile, sensor, centers):
         """
@@ -285,11 +305,12 @@ class Experiment:
         :return:
         """
 
-        if dfile + '/' + sensor + '/Clustering/Centers' in f:
+        if dfile + '/' + sensor + '/Clustering/'+str(centers.shape[0])+'/Centers' in f:
             del f[dfile + '/' + sensor + '/Clustering/Centers']
-        d = f.require_dataset(dfile + '/' + sensor + '/Clustering/' + 'Centers', centers.shape, dtype='f',
+        d = f.require_dataset(dfile + '/' + sensor + '/Clustering/' + str(centers.shape[0])+ '/Centers', centers.shape, dtype='f',
                               data=centers, compression='gzip')
         d[()] = centers
+        f.flush()
 
     def get_raw_data(self, f, dfile):
         """
@@ -319,22 +340,7 @@ class Experiment:
 
         f.flush()
 
-    def get_clustering(self, f, dfile, sensor):
-        """
-        Return the clustering of the peaks of
-        :param f:
-        :param dfile:
-        :param sensor:
-        :return:
-        """
 
-        if f[dfile + '/' + sensor + '/Clustering/' + 'Centers']:
-            d = f[dfile + '/' + sensor + '/Clustering/' + 'Centers']
-            centers = d[()]
-        else:
-            centers = None
-
-        return centers
 
     # TODO: resample the data
     def get_IPF_time_windows(self, f, dfile, times, wlen):
@@ -399,6 +405,20 @@ class Experiment:
             return None
 
 
+    def compute_peaks_labels(self, f, dfile, sensor):
+        """
+        Computes the labels of the data using the centroids of the cluster in the first file
+        :param dfile:
+        :param sensor:
+        :return:
+        """
+        d = f[self.datafiles[0] + '/' + sensor + '/Clustering/' +str(self.clusters[0])+  '/Centers']
+        centers = d[()]
+        d = f[dfile + '/' + sensor + '/' + 'PeaksResamplePCA']
+        data = d[()]
+        labels, _ = pairwise_distances_argmin_min(data, centers)
+
+        return labels
 # ---------------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
     pass

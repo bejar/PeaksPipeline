@@ -2,7 +2,9 @@
 # /bin/sh
 
 
-python IPFAnalysis/PeaksClusteringIPFCorrelationDiff.py --batch --exp e151126 e160204
+#python IPFAnalysis/PeaksClusteringIPFCorrelationDiff.py --batch --exp e151126 e160204
+python Clustering/PeaksSaveClustering.py --batch --exp e110906o e151126 e160204 e150514 e150707
+python Secuencias/PeaksComputeGraphsIcons.py --batch --exp  e110906o e151126 e160204 e150514 e150707
 
 #python Spectra/Spectra.py --batch --exp e150514
 #python Spectra/SpectraSTFT.py --batch --exp e150514

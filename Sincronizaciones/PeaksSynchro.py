@@ -549,16 +549,6 @@ def compute_synchs_new(lpeaks, labels, window=15, minlen=1):
         fin = (nsyn == 2)
 
 
-
-
-
-
-
-
-
-
-
-
 def compute_data_labels(fname, dfilec, dfile, sensor):
     """
     Computes the labels of the data using the centroids of the cluster in the file
@@ -671,7 +661,7 @@ if __name__ == '__main__':
 
     if not args.batch:
        # 'e120503''e110616''e151126''e120511''e150514''e110906o'
-        lexperiments = ['e110906e']
+        lexperiments = ['e150514']
         args.matching = True
         args.histogram = True
         args.draw = False
@@ -690,7 +680,6 @@ if __name__ == '__main__':
 
         datainfo = experiments[expname]
 
-        # dfile = datainfo.datafiles[0]
         for dfile, ename in zip(datainfo.datafiles, datainfo.expnames):
             print dfile
 
@@ -698,26 +687,25 @@ if __name__ == '__main__':
             if args.matching:
                 lsensors = datainfo.sensors[isig:fsig]
                 lclusters = datainfo.clusters[isig:fsig]
-                smatching = compute_signals_matching(expname, lsensors, rescale=args.rescale)
+                smatching = compute_signals_matching(datainfo, lsensors, rescale=args.rescale)
             else:
                 lsensors = datainfo.sensors
                 lclusters = datainfo.clusters
                 smatching = []
 
             # compute the labels of the data
+            f = datainfo.open_experiment_data(mode='r')
             for sensor in lsensors:
-                lsens_labels.append(compute_data_labels(datainfo.name, datainfo.datafiles[0], dfile, sensor))
-
+                lsens_labels.append(datainfo.compute_peaks_labels(f, dfile, sensor))
             # Times of the peaks
             ltimes = []
             expcounts = []
-            f = h5py.File(datainfo.dpath + '/' + datainfo.name + '/' + datainfo.name + '.hdf5', 'r')
             for sensor in lsensors:
-                d = f[dfile + '/' + sensor + '/' + 'Time']
-                data = d[()]
+                data = datainfo.get_peaks_time(f, dfile, sensor)
                 expcounts.append(data.shape[0])
                 ltimes.append(data)
-            f.close()
+            datainfo.close_experiment_data(f)
+
 
             lsynchs = compute_synchs(ltimes, lsens_labels, window=window, minlen=1)
             #lsynchs = compute_synchs_new(ltimes, lsens_labels, window=window, minlen=1)

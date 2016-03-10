@@ -141,7 +141,7 @@ if __name__ == '__main__':
                 pktimes = datainfo.get_peaks_time(f, dfile, sensor)
 
                 IPFs, IPFp = datainfo.get_IPF_time_windows(f, dfile, pktimes, 1000)
-                clustering = datainfo.get_clustering(f, datainfo.datafiles[0], sensor)
+                clustering = datainfo.get_peaks_clustering_centroids(f, datainfo.datafiles[0], sensor, datainfo.clusters[0])
                 mncl = np.min(clustering)
                 mxcl = np.max(clustering)
 
