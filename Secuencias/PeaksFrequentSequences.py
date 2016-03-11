@@ -66,7 +66,7 @@ def drawgraph_alternative(nnodes, edges, nfile, sensor, dfile, ename, legend, pa
 
     ext = '' if lmatch==0 else '-match'
 
-    rfile = open(datainfo.dpath + '/' + datainfo.name + '/Results/maxseqAlt-' + nfile + '-' + dfile + '-' + sensor + '-' + ename  + ext + '.dot', 'w')
+    rfile = open(datainfo.dpath + '/' + datainfo.name + '/Results/maxseqAlt-' + nfile + '-' + dfile + '-' + sensor + '-' + ename + '-' + str(nnodes)  + ext + '.dot', 'w')
 
     rfile.write('digraph G {\nsize="20,20"\nlayout="neato"\n' +
                 'imagepath="' + datainfo.dpath + '/'+ datainfo.name + '/Results/icons/' + '"\n' +
@@ -110,9 +110,9 @@ def drawgraph_alternative(nnodes, edges, nfile, sensor, dfile, ename, legend, pa
     rfile.write('}\n')
 
     rfile.close()
-    os.system('dot -Tpdf '+datainfo.dpath + '/'+ datainfo.name+ '/Results/maxseqAlt-' + nfile + '-' + dfile + '-' + sensor + '-' + ename + ext + '.dot ' + '-o '
-              + datainfo.dpath + '/'+ datainfo.name+ '/Results/maxseqAlt-' + nfile + '-' + dfile + '-' + sensor + '-' + ename  + ext + '.pdf')
-    os.system(' rm -fr ' + datainfo.dpath + '/'+ datainfo.name+ '/Results/maxseqAlt-' + nfile + '-' + dfile + '-' + sensor + '-' + ename  + ext + '.dot')
+    os.system('dot -Tpdf '+datainfo.dpath + '/'+ datainfo.name+ '/Results/maxseqAlt-' + nfile + '-' + dfile + '-' + sensor + '-' + ename + '-' + str(nnodes) + ext + '.dot ' + '-o '
+              + datainfo.dpath + '/'+ datainfo.name+ '/Results/maxseqAlt-' + nfile + '-' + dfile + '-' + sensor + '-' + ename  + '-' + str(nnodes) + ext + '.pdf')
+    os.system(' rm -fr ' + datainfo.dpath + '/'+ datainfo.name+ '/Results/maxseqAlt-' + nfile + '-' + dfile + '-' + sensor + '-' + ename  + '-' + str(nnodes) + ext + '.dot')
 
 
 def drawgraph(nnodes, edges, nfile, sensor, dfile, legend, lmatch=0, mapping=None):
@@ -131,7 +131,7 @@ def drawgraph(nnodes, edges, nfile, sensor, dfile, legend, lmatch=0, mapping=Non
     """
 
     ext = '' if lmatch==0 else '-match'
-    rfile = open(datainfo.dpath + '/' + datainfo.name + '/Results/maxseq-' + nfile + '-' + dfile + '-' + sensor + ext + '.dot', 'w')
+    rfile = open(datainfo.dpath + '/' + datainfo.name + '/Results/maxseq-' + nfile + '-' + dfile + '-' + sensor + '-' + str(nnodes) + ext + '.dot', 'w')
 
     rfile.write('digraph G {\nsize="20,20"\nlayout="neato"\n' +
                 'imagepath="' + datainfo.dpath + '/'+ datainfo.name + '/Results/icons/' + '"\n' +
@@ -174,13 +174,13 @@ def drawgraph(nnodes, edges, nfile, sensor, dfile, legend, lmatch=0, mapping=Non
     rfile.close()
 
 
-    os.system('dot -Tpdf '+datainfo.dpath + '/'+ datainfo.name+ '/Results/maxseq-' + nfile + '-' + dfile + '-' + sensor + ext + '.dot ' + '-o '
-              + datainfo.dpath + '/'+ datainfo.name+ '/Results/maxseq-' + nfile + '-' + dfile + '-' + sensor + ext + '.pdf')
-    os.system(' rm -fr ' + datainfo.dpath + '/'+ datainfo.name+ '/Results/maxseq-' + nfile + '-' + dfile + '-' + sensor + ext + '.dot')
+    os.system('dot -Tpdf '+datainfo.dpath + '/'+ datainfo.name+ '/Results/maxseq-' + nfile + '-' + dfile + '-' + sensor + '-' + str(nnodes) + ext + '.dot ' + '-o '
+              + datainfo.dpath + '/'+ datainfo.name+ '/Results/maxseq-' + nfile + '-' + dfile + '-' + sensor + '-' + str(nnodes) + ext + '.pdf')
+    os.system(' rm -fr ' + datainfo.dpath + '/'+ datainfo.name+ '/Results/maxseq-' + nfile + '-' + dfile + '-' + sensor + '-' + str(nnodes) + ext + '.dot')
 
 
 def drawgraph_with_edges(nnodes, edges, nfile, sensor):
-    rfile = open(datainfo.dpath + '/'+ datainfo.name + '/Results/maxseq-' + nfile + '.dot', 'w')
+    rfile = open(datainfo.dpath + '/'+ datainfo.name + '/Results/maxseq-' + nfile + '-' + str(nnodes) + '.dot', 'w')
 
     # rfile.write('digraph G {\nsize="6,6"\nlayout="neato"\nfontsize="30"\nlabel="'+nfile+'"\n')
     rfile.write('digraph G {\nsize="20,20"\nlayout="neato"\n' +
@@ -446,7 +446,7 @@ def plot_sequences(nfile, lseq, nsym, sensor, lmatch=0, mapping=None):
 
     d = document.document(lpages)
 
-    d.writePDFfile(datainfo.dpath + '/' + datainfo.name + "/Results/peaksseq-%s-%s-%s-%s" % (datainfo.name, dfile, sensor, ename))
+    d.writePDFfile(datainfo.dpath + '/' + datainfo.name + "/Results/peaksseq-%s-%s-%s-%s-%d" % (datainfo.name, dfile, sensor, ename, nsym))
 
 
 def peaks_sequence_frequent_strings(timepeaks, gap=0, rand=False, sup=None):
@@ -592,7 +592,7 @@ def save_frequent_sequences(nfile, peakstr, peakfreq, lstrings, sensor, dfile,  
 
     # List with the frequent strings and their probability (computed and theoretical)
     if save[0]:
-        rfile = open(datainfo.dpath+ '/'+ datainfo.name + '/Results/maxseq-' + nfile + '-' + ename + '-' + sensor + ext
+        rfile = open(datainfo.dpath+ '/'+ datainfo.name + '/Results/maxseq-' + nfile + '-' + ename + '-' + sensor + '-' + str(nclust) + ext
                      + '-' + randname + '.txt', 'w')
         for line in fwstr:
             rfile.write(line + '\n')
@@ -608,7 +608,7 @@ def save_frequent_sequences(nfile, peakstr, peakfreq, lstrings, sensor, dfile,  
 
         plt.title(nfile + '-' + ename + '-' + sensor + ext + ' sup(%d)' % sup)
         plt.savefig(datainfo.dpath + '/' + datainfo.name + '/Results/maxseq-histo' + datainfo.name + '-' + dfile + '-'
-                    + sensor + ext + '-freq.pdf', orientation='landscape', format='pdf')
+                    + sensor + '-' + str(nclust) + ext + '-freq.pdf', orientation='landscape', format='pdf')
         plt.close()
 
     # Circular graph of the frequent sequences of length 2
@@ -619,18 +619,18 @@ def save_frequent_sequences(nfile, peakstr, peakfreq, lstrings, sensor, dfile,  
 
         if galt:
             drawgraph_alternative(nclust, lstringsg, nfile, sensor, dfile, ename,
-                                  nfile + '-' + ename + '-' + sensor + ext + ' sup(%d)' % sup,
+                                  nfile + '-' + ename + '-' + sensor + '-' + str(nclust) + ext + ' sup(%d)' % sup,
                                   partition=partition, lmatch=lmatch, mapping=mapping)
 
         else:
             drawgraph(nclust, lstringsg, nfile, sensor, dfile,
-                      nfile + '-' + ename + '-' + sensor + ext + ' sup(%d)' % sup,
+                      nfile + '-' + ename + '-' + sensor + '-' + str(nclust) + ext + ' sup(%d)' % sup,
                       lmatch=lmatch, mapping=mapping)
 
     return lstringsg
 
 
-def sequence_to_string(nfile, clpeaks, timepeaks, sensor, ename, gap=0, npart=1):
+def sequence_to_string(nfile, clpeaks, timepeaks, sensor, ename, gap=0, npart=1, ncl=0):
     """
     Writes npart files with a strings representing the sequence of peaks.
     Each partition has a number of peaks proportional to the time and the gap is included a
@@ -648,7 +648,7 @@ def sequence_to_string(nfile, clpeaks, timepeaks, sensor, ename, gap=0, npart=1)
     part = 1
     for i in range(timepeaks.shape[0]):
         if timepeaks[i] > part*mtime:
-            rfile = open(datainfo.dpath + '/' + datainfo.name + '/Results/stringseq-%s%d-%s-%s.txt'%(nfile, part, ename, sensor), 'w')
+            rfile = open(datainfo.dpath + '/' + datainfo.name + '/Results/stringseq-%s%d-%s-%s-%d.txt'%(nfile, part, ename, sensor, ncl), 'w')
             for k in range(0, len(peakstr), 250):
                 wstr = ''
                 for j in range(250):
@@ -664,7 +664,7 @@ def sequence_to_string(nfile, clpeaks, timepeaks, sensor, ename, gap=0, npart=1)
                 peakstr += '#' * ((timepeaks[i + 1] - timepeaks[i]) /gap)
 
     if part < npart+1:
-        rfile = open(datainfo.dpath+ '/'+ datainfo.name + '/Results/stringseq-%s%d-%s-%s.txt'%(nfile, part, ename, sensor), 'w')
+        rfile = open(datainfo.dpath+ '/'+ datainfo.name + '/Results/stringseq-%s%d-%s-%s-%d.txt'%(nfile, part, ename, sensor, ncl), 'w')
         for i in range(0, len(peakstr), 250):
             wstr = ''
             for j in range(250):
@@ -869,15 +869,15 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
     parser.add_argument('--batch', help="Ejecucion no interactiva", action='store_true', default=False)
-    parser.add_argument('--graph', help="circular graph of the sequences", action='store_true', default=True)
-    parser.add_argument('--freqstrs', help="List with the frequent strings and their probabilities", action='store_true', default=False)
-    parser.add_argument('--contigency', help="Contingency matrix of the frequent pairs", action='store_true', default=False)
-    parser.add_argument('--sequence', help="linear graph of the sequences", action='store_true', default=True)
-    parser.add_argument('--string', help="generate a string representation of the sequences", action='store_true', default=True)
-    parser.add_argument('--alternative', help="Alternative Coloring for the Graph", action='store_true', default=True)
+    parser.add_argument('--graph', help="circular graph of the sequences", action='store_true', default=False)
+    parser.add_argument('--freqstr', help="List with the frequent strings and their probabilities", action='store_true', default=False)
+    parser.add_argument('--contingency', help="Contingency matrix of the frequent pairs", action='store_true', default=False)
+    parser.add_argument('--sequence', help="linear graph of the sequences", action='store_true', default=False)
+    parser.add_argument('--string', help="generate a string representation of the sequences", action='store_true', default=False)
+    parser.add_argument('--galternative', help="Alternative Coloring for the Graph", action='store_true', default=True)
     parser.add_argument('--matching', help="Perform matching of the peaks", action='store_true', default=False)
     parser.add_argument('--rescale', help="Rescale the peaks for matching", action='store_true', default=False)
-    parser.add_argument('--diff', help="Computes the differences among circular graphs", action='store_true', default=False)
+    parser.add_argument('--diffs', help="Computes the differences among circular graphs", action='store_true', default=False)
 
     args = parser.parse_args()
     lexperiments = args.exp
@@ -892,8 +892,8 @@ if __name__ == '__main__':
         args.string = False
         args.galternative = True
         args.diffs = False
-        # 'e120503''e110616''e150707''e151126''e120511',  'e151126''e120511', 'e120503', 'e110906o', 'e160204''e150514'
-        lexperiments = ['e150514']
+        # 'e120503''e110616''e150707''e151126''e120511',  'e151126''e120511', 'e120503', 'e110906o', 'e160204''e150514''e150514', 'e151126', 'e150707', 'e110906o',
+        lexperiments = ['e150707']
 
     colors = ['red', 'blue', 'green']
     npart = 3
@@ -961,7 +961,7 @@ if __name__ == '__main__':
                         plot_sequences(dfile, lseq, ncl, sensor, lmatch=len(smatching), mapping=mapping)
 
                     if args.string:
-                        sqstr = sequence_to_string(dfile, clpeaks, timepeaks, sensor, ename, gap=gap, npart=1)
+                        sqstr = sequence_to_string(dfile, clpeaks, timepeaks, sensor, ename, gap=gap, npart=1, ncl=ncl)
                         if len(smatching) != 0:
                             lacounts.append(compute_pairs_distribution(sqstr, len(smatching)))
                         else:

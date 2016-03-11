@@ -6,10 +6,10 @@ PeaksClustering
 
 :Description: PeaksClustering
 
-    Clusters the Peaks from an experiment all the files together
 
-    Hace un clustering de los picos de cada sensor usando el numero de clusters indicado en la
-    definicion del experimento y el conjunto de colores para el histograma de la secuencia del experimento
+
+    Genera los histogramas que corresponden con la probabilidad de los picos para la secuencia del experiment
+    usando el clustering  global o el de control
 
 :Authors: bejar
     
@@ -46,6 +46,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--batch', help="Ejecucion no interactiva", action='store_true', default=False)
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
+    parser.add_argument('--globalclust', help="Show Hellinger distance", action='store_true', default=False)
     parser.add_argument('--hellinger', help="Show Hellinger distance", action='store_true', default=False)
 
     args = parser.parse_args()
@@ -55,7 +56,8 @@ if __name__ == '__main__':
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511''e150514'
         args.hellinger = False
-        lexperiments = ['e151126']
+        args.globalclust = False
+        lexperiments = ['e150514']
 
 
     for expname in lexperiments:
@@ -67,42 +69,26 @@ if __name__ == '__main__':
         for sensor, nclusters in zip(datainfo.sensors, datainfo.clusters):
             print(sensor)
 
-            # We only use the first file to compute the cluster
-            data = datainfo.get_peaks_resample_PCA(f, datainfo.datafiles[0], sensor)
-
-            km = KMeans(n_clusters=nclusters, n_jobs=-1)
-            km.fit_predict(data)
-            centroids = km.cluster_centers_
-            #centroids = compute_centroids(data, km.labels_)
+            if args.globalclust:
+                centroids = datainfo.get_peaks_global_clustering_centroids(f, sensor, nclusters)
+            else:
+                centroids = datainfo.get_peaks_clustering_centroids(f, datainfo.datafiles[0], sensor, nclusters)
 
             lsignals = []
-            cnt = Counter(list(km.labels_))
 
-            lmax = []
-            for i in range(km.n_clusters):
-                lmax.append((i, np.max(centroids[i])))
-            lmax = sorted(lmax, key=itemgetter(1))
-
-            print('LMAX ', lmax)
-            print('SHAPE ', data.shape)
 
             lhisto = []
-            for ndata in datainfo.datafiles:
+            for dfile in datainfo.datafiles:
 
-                dataf = datainfo.get_peaks_resample_PCA(f, ndata, sensor)
-                if dataf is not None:
-                    histo = np.zeros(nclusters)
-                    for i in range(dataf.shape[0]):
-                        histo[km.predict(dataf[i])] += 1.0
-                    histo /= dataf.shape[0]
-                    # print(datainfo.name, ndata)
-                    # print('HISTO ', histo)
-                    histosorted = np.zeros(nclusters)
-                    for i in range(histosorted.shape[0]):
-                        histosorted[i] = histo[lmax[i][0]]
-                else:
-                    histosorted = np.zeros(nclusters)
-                lhisto.append(histosorted)
+                labels = datainfo.compute_peaks_labels(f, dfile, sensor)
+
+                histo = np.zeros(nclusters)
+                for i in labels:
+                    histo[i] += 1.0
+                histo /= len(labels)
+
+
+                lhisto.append(histo)
 
             if args.hellinger:
                 for h in lhisto[1:]:
@@ -128,18 +114,19 @@ if __name__ == '__main__':
 
             for nc in range(nclusters):
                 ax2 = fig.add_subplot(2, nclusters, nc+nclusters+1)
-                signal = centroids[lmax[nc][0]]
-                plt.title(' ( '+str(cnt[lmax[nc][0]])+' )')
+                signal = centroids[nc]
+                plt.title(' ( '+str(nc)+' )')
                 t = arange(0.0, len(signal), 1)
                 ax2.axis([0, len(signal), minaxis, maxaxis])
                 ax2.plot(t,signal)
                 plt.axhline(linewidth=1, color='r', y=0)
-            fig.savefig(datainfo.dpath + '/' + datainfo.name + '/Results/' + datainfo.name + '-' + sensor + '-histo-sort.pdf', orientation='landscape', format='pdf')
+            fig.savefig(datainfo.dpath + '/' + datainfo.name + '/Results/' + datainfo.name + '-' + sensor + '-' +
+                        str(nclusters) + '-histo-sort.pdf', orientation='landscape', format='pdf')
         #    plt.show()
 
             print('*******************')
             for nc in range(nclusters):
-                lsignals.append((centroids[lmax[nc][0]], str(nc)+' ( '+str(cnt[lmax[nc][0]])+' )'))
+                lsignals.append((centroids[nc], str(nc)))
 
             if nclusters % 2 == 0:
                 part = nclusters /2

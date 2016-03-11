@@ -285,7 +285,6 @@ class Experiment:
         :param sensor:
         :return:
         """
-
         if f[dfile + '/' + sensor + '/Clustering/' + str(ncl) + '/Centers']:
             d = f[dfile + '/' + sensor + '/Clustering/' + str(ncl) + '/Centers']
             centers = d[()]
@@ -306,11 +305,44 @@ class Experiment:
         """
 
         if dfile + '/' + sensor + '/Clustering/'+str(centers.shape[0])+'/Centers' in f:
-            del f[dfile + '/' + sensor + '/Clustering/Centers']
+            del f[dfile + '/' + sensor + '/Clustering/' + str(centers.shape[0])+ '/Centers']
         d = f.require_dataset(dfile + '/' + sensor + '/Clustering/' + str(centers.shape[0])+ '/Centers', centers.shape, dtype='f',
                               data=centers, compression='gzip')
         d[()] = centers
         f.flush()
+
+    def get_peaks_global_clustering_centroids(self, f, sensor, ncl):
+        """
+        Return the clustering of the peaks of
+        :param f:
+        :param dfile:
+        :param sensor:
+        :return:
+        """
+        if f['All/' + sensor + '/Clustering/' + str(ncl) + '/Centers']:
+            d = f['All/' + sensor + '/Clustering/' + str(ncl) + '/Centers']
+            centers = d[()]
+        else:
+            centers = None
+
+        return centers
+
+    def save_peaks_global_clustering_centroids(self, f, sensor, centers):
+        """
+        Saves the centroids of the clusters obtained from clustering all the data of a sensor
+        :param f:
+        :param dfile:
+        :param sensor:
+        :param centers:
+        :return:
+        """
+        if 'All/' + sensor + '/Clustering/' + str(centers.shape[0])+ '/Centers' in f:
+            del f['All/' + sensor + '/Clustering/' + str(centers.shape[0])+ '/Centers']
+        d = f.require_dataset( 'All/' + sensor + '/Clustering/' + str(centers.shape[0]) + '/Centers', centers.shape, dtype='f',
+                              data=centers, compression='gzip')
+        d[()] = centers
+        f.flush()
+
 
     def get_raw_data(self, f, dfile):
         """
@@ -404,21 +436,25 @@ class Experiment:
         else:
             return None
 
-
-    def compute_peaks_labels(self, f, dfile, sensor):
+    def compute_peaks_labels(self, f, dfile, sensor, globalc=False):
         """
         Computes the labels of the data using the centroids of the cluster in the first file
         :param dfile:
         :param sensor:
         :return:
         """
-        d = f[self.datafiles[0] + '/' + sensor + '/Clustering/' +str(self.clusters[0])+  '/Centers']
+        if globalc:
+            d = f['All/' + sensor + '/Clustering/' +str(self.clusters[0]) + '/Centers']
+        else:
+            d = f[self.datafiles[0] + '/' + sensor + '/Clustering/' +str(self.clusters[0]) + '/Centers']
+
         centers = d[()]
         d = f[dfile + '/' + sensor + '/' + 'PeaksResamplePCA']
         data = d[()]
         labels, _ = pairwise_distances_argmin_min(data, centers)
 
         return labels
+
 # ---------------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
     pass

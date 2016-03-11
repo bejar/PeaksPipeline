@@ -202,9 +202,11 @@ def save_matching(matching, lsensors, rescale=True):
 
         for j in range(len(lsensors)):
             if peaks[j]:
-                fname = datainfo.dpath + '/' + datainfo.name + "/Results/icons/"+ datainfo.name+lsensors[j]+'.cl'+nclust[j]+'.jpg'
+                isens = datainfo.sensors.index(lsensors[j])
+                fname = datainfo.dpath + '/' + datainfo.name + "/Results/icons/" + datainfo.name + lsensors[j] \
+                        + '.nc' + str(datainfo.clusters[isens]) + '.cl' + nclust[j] + '.jpg'
                 bm = bitmap.jpegimage(fname)
-                bm.info={}
+                bm.info = {}
                 bm.info['dpi'] = (100, 100)
                 bm2 = bitmap.bitmap(j*5, i*5, bm, compressmode=None)
                 c.insert(bm2)
@@ -212,10 +214,11 @@ def save_matching(matching, lsensors, rescale=True):
     lpages.append(document.page(c))
 
     d = document.document(lpages)
+    res = ''
     if rescale:
         res = 'rescale'
 
-    d.writePDFfile(datainfo.dpath + '/' + datainfo.name + "/Results/peaksmatching-%s-%s" % (datainfo.name, rescale))
+    d.writePDFfile(datainfo.dpath + '/' + datainfo.name + "/Results/peaksmatching-%s-%s" % (datainfo.name, res))
 
 
 if __name__ == '__main__':

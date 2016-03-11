@@ -1,25 +1,24 @@
 """
-.. module:: PeaksClustering
+.. module:: PeaksClusteringSampling
 
-PeaksClustering
+PeaksClusteringSampling
 *************
 
-:Description: PeaksClustering
+:Description: PeaksClusteringSampling
 
-    Generates and saves a clustering of the peaks for all the files of the experiment
+    Cluster all the peaks of the experiment using a sample of the peaks for each file
 
 :Authors: bejar
     
 
 :Version: 
 
-:Created on: 26/03/2015 8:10
-
-* 4/2/2016 - Adapting to changes in Experiment class
+:Created on: 11/03/2016 8:41 
 
 """
 
 __author__ = 'bejar'
+
 
 import numpy as np
 from sklearn.cluster import KMeans
@@ -27,7 +26,9 @@ from sklearn.cluster import KMeans
 from Config.experiments import experiments
 from collections import Counter
 from operator import itemgetter
+from util.plots import show_vsignals
 import argparse
+
 
 if __name__ == '__main__':
 
@@ -38,6 +39,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     lexperiments = args.exp
+    nchoice = 10
 
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511'
@@ -50,28 +52,32 @@ if __name__ == '__main__':
 
         for sensor, nclusters in zip(datainfo.sensors, datainfo.clusters):
             print(sensor)
-            #ldata = []
+            ldata = []
             for dfile in datainfo.datafiles:
                 print(dfile)
                 data = datainfo.get_peaks_resample_PCA(f, dfile, sensor)
                 if data is not None:
-                    if data.shape[0] > nclusters:
-                        km = KMeans(n_clusters=nclusters, n_jobs=-1)
-                        km.fit(data)
-                        lsignals = []
-                        cnt = Counter(list(km.labels_))
+                    idata = np.random.choice(range(data.shape[0]), data.shape[0]/nchoice, replace=False)
+                    ldata.append(data[idata,:])
 
-                        lmax = []
-                        for i in range(km.n_clusters):
-                            lmax.append((i, np.max(km.cluster_centers_[i])))
-                        lmax = sorted(lmax, key=itemgetter(1))
+            data = np.vstack(ldata)
+            km = KMeans(n_clusters=nclusters, n_jobs=-1)
+            km.fit(data)
+            lsignals = []
+            cnt = Counter(list(km.labels_))
 
-                        centers = np.zeros(km.cluster_centers_.shape)
-                        for nc in range(nclusters):
-                            centers[nc] = km.cluster_centers_[lmax[nc][0]]
+            lmax = []
+            for i in range(km.n_clusters):
+                lmax.append((i, np.max(km.cluster_centers_[i])))
+            lmax = sorted(lmax, key=itemgetter(1))
 
-                        datainfo.save_peaks_clustering_centroids(f, dfile, sensor, centers)
+            centers = np.zeros(km.cluster_centers_.shape)
+            for nc in range(nclusters):
+                centers[nc] = km.cluster_centers_[lmax[nc][0]]
 
-                        lmax = []
+            #show_vsignals(centers)
+            datainfo.save_peaks_global_clustering_centroids(f, sensor, centers)
+
+
         datainfo.close_experiment_data(f)
 
