@@ -39,11 +39,11 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     lexperiments = args.exp
-    nchoice = 10
+    nchoice = 2
 
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511'
-        lexperiments = ['e150707']
+        lexperiments = ['e150514']
 
     for expname in lexperiments:
         datainfo = experiments[expname]
@@ -54,13 +54,13 @@ if __name__ == '__main__':
             print(sensor)
             ldata = []
             for dfile in datainfo.datafiles:
-                print(dfile)
                 data = datainfo.get_peaks_resample_PCA(f, dfile, sensor)
                 if data is not None:
                     idata = np.random.choice(range(data.shape[0]), data.shape[0]/nchoice, replace=False)
                     ldata.append(data[idata,:])
 
             data = np.vstack(ldata)
+            print(data.shape)
             km = KMeans(n_clusters=nclusters, n_jobs=-1)
             km.fit(data)
             lsignals = []
@@ -77,7 +77,6 @@ if __name__ == '__main__':
 
             #show_vsignals(centers)
             datainfo.save_peaks_global_clustering_centroids(f, sensor, centers)
-
 
         datainfo.close_experiment_data(f)
 

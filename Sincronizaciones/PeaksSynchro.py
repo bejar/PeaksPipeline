@@ -655,6 +655,7 @@ if __name__ == '__main__':
     parser.add_argument('--draw', help="Draws the syncronization matching", action='store_true', default=True)
     parser.add_argument('--rescale', help="Rescale the peaks for matching", action='store_true', default=False)
     parser.add_argument('--frequent', help="Computes frequent transactions algorithm for the synchonization", action='store_true', default=True)
+    parser.add_argument('--globalclust', help="Use a global computed clustering", action='store_true', default=False)
 
     args = parser.parse_args()
     lexperiments = args.exp
@@ -670,6 +671,7 @@ if __name__ == '__main__':
         args.frequent = False
         args.contingency = False
         args.coincidence = False
+        args.globalclust = False
 
     # Matching parameters
     isig = 2
@@ -687,7 +689,7 @@ if __name__ == '__main__':
             if args.matching:
                 lsensors = datainfo.sensors[isig:fsig]
                 lclusters = datainfo.clusters[isig:fsig]
-                smatching = compute_signals_matching(datainfo, lsensors, rescale=args.rescale)
+                smatching = compute_signals_matching(datainfo, lsensors, rescale=args.rescale, globalc=args.globalclust)
             else:
                 lsensors = datainfo.sensors
                 lclusters = datainfo.clusters
@@ -696,7 +698,7 @@ if __name__ == '__main__':
             # compute the labels of the data
             f = datainfo.open_experiment_data(mode='r')
             for sensor in lsensors:
-                lsens_labels.append(datainfo.compute_peaks_labels(f, dfile, sensor))
+                lsens_labels.append(datainfo.compute_peaks_labels(f, dfile, sensor, globalc=args.globalclust))
             # Times of the peaks
             ltimes = []
             expcounts = []

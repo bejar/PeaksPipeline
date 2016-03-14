@@ -878,6 +878,7 @@ if __name__ == '__main__':
     parser.add_argument('--matching', help="Perform matching of the peaks", action='store_true', default=False)
     parser.add_argument('--rescale', help="Rescale the peaks for matching", action='store_true', default=False)
     parser.add_argument('--diffs', help="Computes the differences among circular graphs", action='store_true', default=False)
+    parser.add_argument('--globalclust', help="Use a global computed clustering", action='store_true', default=False)
 
     args = parser.parse_args()
     lexperiments = args.exp
@@ -885,15 +886,16 @@ if __name__ == '__main__':
     if not args.batch:
         args.graph = True
         args.freqstr = False
-        args.contingency = False
+        args.contingency = True
         args.sequence = False
         args.matching = False
         args.rescale = False
         args.string = False
         args.galternative = True
         args.diffs = False
-        # 'e120503''e110616''e150707''e151126''e120511',  'e151126''e120511', 'e120503', 'e110906o', 'e160204''e150514''e150514', 'e151126', 'e150707', 'e110906o',
-        lexperiments = ['e150707']
+        args.globalclust = True
+        # 'e120503''e110616''e150707''e151126''e120511','e151126''e120511', 'e120503', 'e110906o', 'e160204''e150514''e150514', 'e151126', 'e150707', 'e110906o',
+        lexperiments = ['e150514']
 
     colors = ['red', 'blue', 'green']
     npart = 3
@@ -915,7 +917,7 @@ if __name__ == '__main__':
         if args.matching:
             lsensors = datainfo.sensors[isig:fsig]
             lclusters = datainfo.clusters[isig:fsig]
-            smatching = compute_signals_matching(datainfo, lsensors, rescale=args.rescale)
+            smatching = compute_signals_matching(datainfo, lsensors, rescale=args.rescale, globalc=args.globalclust)
             print len(smatching)
         else:
             lsensors = datainfo.sensors
@@ -936,7 +938,7 @@ if __name__ == '__main__':
 
                 d = datainfo.get_peaks_time(f, dfile, sensor)
                 if d is not None:
-                    clpeaks = datainfo.compute_peaks_labels(f, dfile, sensor)
+                    clpeaks = datainfo.compute_peaks_labels(f, dfile, sensor, globalc=args.globalclust)
                     timepeaks = d[()]
 
                     peakstr, peakfreq, lstrings = peaks_sequence_frequent_strings(timepeaks, gap=gap, rand=rand, sup=sup)

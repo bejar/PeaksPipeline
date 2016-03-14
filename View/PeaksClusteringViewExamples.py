@@ -84,6 +84,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch', help="Ejecucion no interactiva", action='store_true', default=False)
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
     parser.add_argument('--pca', help="Show PCA transformed peaks", action='store_true', default=False)
+    parser.add_argument('--globalclust', help="Use a global computed clustering", action='store_true', default=False)
 
     args = parser.parse_args()
     lexperiments = args.exp
@@ -93,6 +94,7 @@ if __name__ == '__main__':
         # 'e120503''e110616''e150707''e151126''e120511''e150514''e110906o'
         lexperiments = ['e150514']
         args.pca = False
+        args.globalclust = True
 
     for expname in lexperiments:
         datainfo = experiments[expname]
@@ -107,7 +109,7 @@ if __name__ == '__main__':
             for sensor in datainfo.sensors:
                 print(sensor)
 
-                clpeaks = datainfo.compute_peaks_labels(f, dfile, sensor)
+                clpeaks = datainfo.compute_peaks_labels(f, dfile, sensor, globalc=args.globalclust)
 
                 datafPCA = datainfo.get_peaks_resample_PCA(f, dfile, sensor)
                 if args.pca:

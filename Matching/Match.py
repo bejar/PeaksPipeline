@@ -29,7 +29,7 @@ import argparse
 __author__ = 'bejar'
 
 
-def compute_signals_matching(datainfo, lsensors, rescale=True):
+def compute_signals_matching(datainfo, lsensors, rescale=True, globalc=False):
     """
     Computes the matching among the cluster centroids of all the signals
     :return:
@@ -72,7 +72,10 @@ def compute_signals_matching(datainfo, lsensors, rescale=True):
     lcenters = []
 
     for sensor in datainfo.sensors:
-        lcenters.append(datainfo.get_peaks_clustering_centroids(f, dfile, sensor, datainfo.clusters[0]))
+        if globalc:
+            lcenters.append(datainfo.get_peaks_global_clustering_centroids(f, sensor, datainfo.clusters[0]))
+        else:
+            lcenters.append(datainfo.get_peaks_clustering_centroids(f, dfile, sensor, datainfo.clusters[0]))
 
     lscales = []
     for cent in lcenters:
@@ -231,6 +234,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch', help="Ejecucion no interactiva", action='store_true', default=False)
     parser.add_argument('--rescale', help="Reescala proporcionalmente el matching", action='store_true', default=False)
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
+    parser.add_argument('--globalclust', help="Use a global computed clustering", action='store_true', default=False)
 
     args = parser.parse_args()
 
@@ -240,6 +244,7 @@ if __name__ == '__main__':
         # 'e150514''e120503''e110616''e150707''e151126''e120511''e160204''e110906o'
         lexperiments = ['e150514']
         args.rescale = True
+        args.globalclust = True
 
     for expname in lexperiments:
 
@@ -247,5 +252,5 @@ if __name__ == '__main__':
 
         lsensors = datainfo.sensors[isig:fsig]
         lclusters = datainfo.clusters[isig:fsig]
-        smatching = compute_signals_matching(datainfo, lsensors, rescale=args.rescale)
+        smatching = compute_signals_matching(datainfo, lsensors, rescale=args.rescale, globalc=args.globalclust)
         save_matching(smatching, lsensors, rescale=args.rescale)

@@ -72,6 +72,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--batch', help="Ejecucion no interactiva", action='store_true', default=False)
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
+    parser.add_argument('--globalclust', help="Use a global computed clustering", action='store_true', default=False)
 
     args = parser.parse_args()
     lexperiments = args.exp
@@ -81,6 +82,7 @@ if __name__ == '__main__':
         # 'e120503''e110616''e150707''e151126''e120511''e150514''e110906o'
         lexperiments = ['e110906o']
         args.pca = False
+        args.globalclust = False
 
     for expname in lexperiments:
         datainfo = experiments[expname]
@@ -94,7 +96,7 @@ if __name__ == '__main__':
         for dfile, ename in zip(datainfo.datafiles, datainfo.expnames):
             print(dfile)
 
-            clpeaks = datainfo.compute_peaks_labels(f, dfile, rsensor)
+            clpeaks = datainfo.compute_peaks_labels(f, dfile, rsensor, globalc=args.globalclust)
             pktimes = datainfo.get_peaks_time(f, dfile, rsensor)
             clustering = datainfo.get_peaks_clustering_centroids(f, datainfo.datafiles[0], rsensor, datainfo.clusters[0])
 
