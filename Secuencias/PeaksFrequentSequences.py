@@ -47,7 +47,7 @@ def randomize_string(s):
     result = ''.join(l)
     return result
 
-def drawgraph_alternative(nnodes, edges, nfile, sensor, dfile, ename, legend, partition, lmatch=0, mapping=None):
+def drawgraph_alternative(nnodes, edges, nfile, sensor, dfile, ename, legend, partition, lmatch=0, mapping=None, proportional=False):
     """
     Draws a circular graph of the frequent pairs coloring the edges according to the peaks partition
 
@@ -93,17 +93,23 @@ def drawgraph_alternative(nnodes, edges, nfile, sensor, dfile, ename, legend, pa
         rfile.write(str(i) + '[label="' + str(i + 1) + '",labeljust=l, labelloc=b, fontsize="24",height="0.2"' +
                     ', image="' + datainfo.name + sensor + '.nc' + str(nnodes) + '.cl' + str(i+1) + '.png' + '"' +
                     ', pos="' + str(posx) + ',' + str(posy) + '!", shape = "square"];\n')
-
+    amp = nnodes * 15
     for e, nb, pe in edges:
         if len(e) == 2:
             rfile.write(str(e[0]) + '->' + str(e[1]))
+            if proportional:
+                width = int(pe*amp)
+                if width == 0:
+                    width = 1
+            else:
+                width = 1
             for lelem, color in partition:
                 if lmatch != 0:
                     if mapping[e[0]] in lelem:
-                        rfile.write('[color="'+color+'"]')
+                        rfile.write('[color="'+color+'" penwidth ="' + str(width) + '"]')
                 else:
                     if e[0] in lelem:
-                        rfile.write('[color="'+color+'"]')
+                        rfile.write('[color="'+color+'" penwidth ="' + str(width) +'"]')
 
             rfile.write('\n')
 
@@ -541,7 +547,7 @@ def compute_pairs_distribution(peakstr, ncl):
 
 
 def save_frequent_sequences(nfile, peakstr, peakfreq, lstrings, sensor, dfile,  ename, nclust, lmatch=0, sup=None,
-                            mapping=None, rand=False, galt=False, partition=None, save=(False, False, True)):
+                            mapping=None, rand=False, galt=False, partition=None, save=(False, False, True), proportional=False):
     """
     Saves a file with the frequent sequences for a file and sensor, a contingency table with the absolute frequency
     of the pairs and a circular graph with the pairs
@@ -620,7 +626,7 @@ def save_frequent_sequences(nfile, peakstr, peakfreq, lstrings, sensor, dfile,  
         if galt:
             drawgraph_alternative(nclust, lstringsg, nfile, sensor, dfile, ename,
                                   nfile + '-' + ename + '-' + sensor + '-' + str(nclust) + ext + ' sup(%d)' % sup,
-                                  partition=partition, lmatch=lmatch, mapping=mapping)
+                                  partition=partition, lmatch=lmatch, mapping=mapping, proportional=proportional)
 
         else:
             drawgraph(nclust, lstringsg, nfile, sensor, dfile,
@@ -870,6 +876,7 @@ if __name__ == '__main__':
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
     parser.add_argument('--batch', help="Ejecucion no interactiva", action='store_true', default=False)
     parser.add_argument('--graph', help="circular graph of the sequences", action='store_true', default=False)
+    parser.add_argument('--gpropor', help="Arrows of circular graph are proportional to the probabilities", action='store_true', default=False)
     parser.add_argument('--freqstr', help="List with the frequent strings and their probabilities", action='store_true', default=False)
     parser.add_argument('--contingency', help="Contingency matrix of the frequent pairs", action='store_true', default=False)
     parser.add_argument('--sequence', help="linear graph of the sequences", action='store_true', default=False)
@@ -894,6 +901,7 @@ if __name__ == '__main__':
         args.galternative = True
         args.diffs = False
         args.globalclust = True
+        args.gpropor = True
         # 'e120503''e110616''e150707''e151126''e120511','e151126''e120511', 'e120503', 'e110906o', 'e160204''e150514''e150514', 'e151126', 'e150707', 'e110906o',
         lexperiments = ['e150514']
 
@@ -951,7 +959,8 @@ if __name__ == '__main__':
 
                         fstrings = save_frequent_sequences(dfile, peakstr, peakfreq, lstrings, sensor, dfile, ename, ncl,
                                                 lmatch=len(smatching), mapping=mapping, rand=rand, galt=args.galternative,
-                                                partition=partition, sup=sup, save=(args.freqstr, args.contingency, args.graph))
+                                                partition=partition, sup=sup, save=(args.freqstr, args.contingency, args.graph),
+                                                proportional=args.gpropor)
                         lfrstrings.append(fstrings)
                         # generate_sequences(dfile, ename, timepeaks, clpeaks, sensor, ncl,
                         #                    lmatch=len(smatching), mapping=mapping,
