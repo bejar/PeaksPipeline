@@ -29,6 +29,7 @@ from sklearn.cluster import KMeans
 from Config.experiments import experiments
 from util.plots import show_signal, plotSignals
 from collections import Counter
+import numpy as np
 import logging
 import time
 import argparse
@@ -41,6 +42,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--batch', help="Ejecucion no interactiva", action='store_true', default=False)
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
+    parser.add_argument('--globalclust', help="Use a global computed clustering", action='store_true', default=False)
 
     args = parser.parse_args()
 
@@ -49,8 +51,10 @@ if __name__ == '__main__':
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511' 'e150707'
         lexperiments = ['e151126']
+        args.globalclust = True
 
     itime = int(time.time())
+    nchoice = 2
 
     niter = repl
     for expname in lexperiments:
@@ -69,13 +73,22 @@ if __name__ == '__main__':
         logging.getLogger('').addHandler(console)
 
 
-        dfile = datainfo.datafiles[0]
-
         logging.info('****************************')
         for sensor in datainfo.sensors:
 
             f = datainfo.open_experiment_data(mode='r')
-            data = datainfo.get_peaks_resample_PCA(f, dfile, sensor)
+            if args.globalclust:
+                ldata = []
+                for dfile in datainfo.datafiles:
+                    data = datainfo.get_peaks_resample_PCA(f, dfile, sensor)
+                    if data is not None:
+                        idata = np.random.choice(range(data.shape[0]), data.shape[0]/nchoice, replace=False)
+                        ldata.append(data[idata,:])
+
+                data = np.vstack(ldata)
+            else:
+                data = datainfo.get_peaks_resample_PCA(f, datainfo.datafiles[0], sensor)
+
             best = 0
             ncbest = 0
             logging.info('S= %s' % sensor)
