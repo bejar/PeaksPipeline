@@ -50,7 +50,7 @@ if __name__ == '__main__':
 
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511' 'e150707'
-        lexperiments = ['e151126']
+        lexperiments = ['e150514']
         args.globalclust = True
 
     itime = int(time.time())
@@ -88,6 +88,8 @@ if __name__ == '__main__':
                 data = np.vstack(ldata)
             else:
                 data = datainfo.get_peaks_resample_PCA(f, datainfo.datafiles[0], sensor)
+
+            datainfo.close_experiment_data(f)
 
             best = 0
             ncbest = 0
