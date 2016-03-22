@@ -348,7 +348,7 @@ if __name__ == '__main__':
 
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511'
-        lexperiments = ['e130716']
+        lexperiments = ['e150514']
 
     # Preparado para procesar un conjunto de experimentos a la vez
     for expname in lexperiments:
@@ -372,7 +372,7 @@ if __name__ == '__main__':
 
             raw = d[()]
             print('Peaks identification: ', time.ctime())
-            peaks = Parallel(n_jobs=4)(
+            peaks = Parallel(n_jobs=-1)(
                 delayed(cdp_identification)(raw, i, wtime, datainfo, s, ifreq=ifreq, ffreq=ffreq,
                                             threshold=threshold) for i, s in enumerate(datainfo.sensors))
             print('The end ', time.ctime())

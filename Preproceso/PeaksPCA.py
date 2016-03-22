@@ -36,7 +36,7 @@ from util.plots import show_two_signals
 __author__ = 'bejar'
 
 
-def do_the_job(dfile, sensor, recenter=True, wtsel=None, clean=False, basal='meanfirst'):
+def do_the_job(dfile, sensor, recenter=True, wtsel=None, clean=False, mbasal='meanfirst'):
     """
     Transforms the data reconstructing the peaks using some components of the PCA
     and uses the mean of the baseline points to move the peak
@@ -56,6 +56,7 @@ def do_the_job(dfile, sensor, recenter=True, wtsel=None, clean=False, basal='mea
 
     f = datainfo.open_experiment_data(mode='r')
     data = datainfo.get_peaks_resample(f, dfile, sensor)
+    datainfo.close_experiment_data(f)
     pcap = datainfo.get_peaks_smooth_parameters('pcasmooth')
     components = datainfo.get_peaks_smooth_parameters('components')
     baseline = datainfo.get_peaks_smooth_parameters('wbaseline')
@@ -113,19 +114,20 @@ def do_the_job(dfile, sensor, recenter=True, wtsel=None, clean=False, basal='mea
 
         # Substract the basal
 
-        if basal == 'meanfirst' and lbasal:
+        if (mbasal == 'meanfirst'):
             for row in range(trans.shape[0]):
                 vals = trans[row, lbasal]
                 basal = np.mean(vals)
                 trans[row] -= basal
-        elif basal == 'meanmin' and lbasal:
+                show_two_signals(trans[row]+basal, trans[row])
+        elif (mbasal == 'meanmin'):
              for row in range(trans.shape[0]):
                 vals = trans[row, 0:trans.shape[1]/2]
                 vals = np.array(sorted(list(vals)))
                 basal = np.mean(vals[lbasal])
                 trans[row] -= basal
                 #show_two_signals(trans[row]+basal, trans[row])
-        elif basal == 'meanlast' and lbasal:
+        elif (mbasal == 'meanlast'):
              for row in range(trans.shape[0]):
 
                 vals = trans[row, (trans.shape[1]/3)*2:trans.shape[1]]
@@ -135,7 +137,6 @@ def do_the_job(dfile, sensor, recenter=True, wtsel=None, clean=False, basal='mea
                 #show_two_signals(trans[row]+basal, trans[row])
 
 
-        datainfo.close_experiment_data(f)
         return trans
     else:
         return None
@@ -176,7 +177,7 @@ if __name__ == '__main__':
             print(dfile)
             # Paralelize PCA computation
             res = Parallel(n_jobs=-1)(
-                    delayed(do_the_job)(dfile, s, recenter=False, wtsel=None, clean=False, basal=mbasal) for s in datainfo.sensors)
+                    delayed(do_the_job)(dfile, s, recenter=False, wtsel=None, clean=False, mbasal=mbasal) for s in datainfo.sensors)
 
             # Save all the data
             f = datainfo.open_experiment_data(mode='r+')

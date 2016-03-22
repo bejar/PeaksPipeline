@@ -48,13 +48,38 @@ def square(x, cf0, cf1, cf2, cf3):
 # data - the data to use to fit the function
 # p0 - initial parameters
 def fitPeak(func, data, p0):
-    peakLength=data.shape[0]
+    peakLength = data.shape[0]
+    if peakLength % 2 == 0:
+        linf = -int(peakLength/2)
+        lsup = int(peakLength/2)-1
+    else:
+        linf = -int(peakLength/2)
+        lsup = int(peakLength/2)
+
     try:
-        coeff, var_matrix = curve_fit(func, np.linspace(0, peakLength-1, peakLength), data)
-        valf = func(np.linspace(0, peakLength-1, peakLength), *coeff)
+        coeff, var_matrix = curve_fit(func, np.linspace(linf, lsup, peakLength), data)
+        valf = func(np.linspace(linf, lsup, peakLength), *coeff)
+        err = np.sum((valf-data)*(valf-data))
     except RuntimeError:
         valf = np.zeros(peakLength)
-    return valf
+        err = np.inf
+    return valf, err
+
+def cuteness(data, prop):
+    """
+    Computes the
+    :param data:
+    :return:
+    """
+    mval = np.min(data)
+    data -= mval
+
+    sumall = np.sum(data)
+    part = int(data.shape[0]* prop)
+    mid = int(data.shape[0]/2)
+    sumpart = np.sum(data[mid - int(part/2): mid + int(part/2)])
+    return sumpart/sumall
+
 
 
 __author__ = 'bejar'
@@ -85,12 +110,27 @@ if __name__ == '__main__':
                 print(dfile)
                 f = datainfo.open_experiment_data(mode='r')
 
-                data = datainfo.get_peaks_resample(f, dfile, sensor)
+                data = datainfo.get_peaks_resample_PCA(f, dfile, sensor)
+                data2 = datainfo.get_peaks_resample(f, dfile, sensor)
                 half = int(data.shape[0]/2.0)
                 param = [1.0, data.shape[0], 1 , half]
-                for d in data:
-
-                    ffit = fitPeak(gauss, d, param)
-                    plotSignalValues([d, ffit])
+                npb = 0
+                for d, d2 in zip(data, data2):
+                    qt = cuteness(d, 0.3)
+                    if  qt >= 0.7:
+                        npb += 1
+                        #print(qt)
+                        plotSignalValues([d])
+                        #ffit, err = fitPeak(bigauss, d, param)
+                        #print err
+                        #plotSignalValues([d, d2,  ffit])
+                    # ffit1 = fitPeak(doublegauss, d, param)
+                    # ffit2 = fitPeak(doublebigauss, d, param)
+                    # ffit, err = fitPeak(bigauss, d, param)
+                    # if err < 0.01:
+                    #     npb += 1
+                    #     print err
+                    #     plotSignalValues([d, ffit])
                 datainfo.close_experiment_data(f)
+                print npb, data.shape[0]
 
