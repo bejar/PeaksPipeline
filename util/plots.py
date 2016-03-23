@@ -188,6 +188,28 @@ def plotSignalValues(fig, signal1, n, m, p, name, vmax, vmin, cstd=None):
         plt.axhline(linewidth=1, color='r', y=cstd)
     sp1.plot(t, signal1)
 
+# Plot a set of signals
+def plotListSignals(signals, orient='h', ncols=None):
+    fig = plt.figure()
+    minaxis = np.min([np.min(s) for s in signals])
+    maxaxis = np.max([np.max(s) for s in signals])
+    num = len(signals)
+    if ncols is not None:
+        if num % ncols == 0:
+            nrows = num/ncols
+        else:
+            nrows = (num/ncols)+1
+    for i in range(num):
+        if ncols is not None:
+            sp1 = fig.add_subplot(nrows,ncols,i+1)
+        elif orient == 'h':
+            sp1 = fig.add_subplot(1,num,i+1)
+        elif orient == 'v':
+            sp1 = fig.add_subplot(num,1,i+1)
+        sp1.axis([0, signals[0].shape[0],minaxis,maxaxis])
+        t = arange(0.0, signals[0].shape[0], 1)
+        sp1.plot(t,signals[i])
+    plt.show()
 
 
 #    plt.show()

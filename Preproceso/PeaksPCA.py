@@ -119,7 +119,7 @@ def do_the_job(dfile, sensor, recenter=True, wtsel=None, clean=False, mbasal='me
                 vals = trans[row, lbasal]
                 basal = np.mean(vals)
                 trans[row] -= basal
-                show_two_signals(trans[row]+basal, trans[row])
+                #show_two_signals(trans[row]+basal, trans[row])
         elif (mbasal == 'meanmin'):
              for row in range(trans.shape[0]):
                 vals = trans[row, 0:trans.shape[1]/2]

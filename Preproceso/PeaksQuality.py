@@ -25,20 +25,8 @@ import argparse
 from scipy.optimize import curve_fit
 from util.Quality import gauss, bigauss, lorentz, bilorentz, doublelorentz, doublegauss, doublebigauss, triplegauss
 import numpy as np
-
-# Plot a set of signals
-def plotSignalValues(signals):
-    fig = plt.figure()
-    minaxis=-0.1
-    maxaxis=0.4
-    num=len(signals)
-    for i in range(num):
-        sp1=fig.add_subplot(1,num,i+1)
-        sp1.axis([0, signals[0].shape[0],minaxis,maxaxis])
-        t = arange(0.0, signals[0].shape[0], 1)
-        sp1.plot(t,signals[i])
-    plt.show()
-
+import seaborn as sns
+from util.plots import plotListSignals
 
 def square(x, cf0, cf1, cf2, cf3):
     return ((cf2 * x) **5) + ((cf3 * x) **3) +  cf1 *x + cf0
@@ -115,12 +103,16 @@ if __name__ == '__main__':
                 half = int(data.shape[0]/2.0)
                 param = [1.0, data.shape[0], 1 , half]
                 npb = 0
+                lqtn = []
                 for d, d2 in zip(data, data2):
-                    qt = cuteness(d, 0.3)
-                    if  qt >= 0.7:
+                    qt = cuteness(d.copy(), 0.3)
+                    lqtn.append(qt)
+                    if  0.5 <qt :
                         npb += 1
+                        #plotListSignals([d, d2])
                         #print(qt)
-                        plotSignalValues([d])
+
+                        #print d[0:20]
                         #ffit, err = fitPeak(bigauss, d, param)
                         #print err
                         #plotSignalValues([d, d2,  ffit])
@@ -133,4 +125,6 @@ if __name__ == '__main__':
                     #     plotSignalValues([d, ffit])
                 datainfo.close_experiment_data(f)
                 print npb, data.shape[0]
+                sns.distplot(lqtn)
+                plt.show()
 
