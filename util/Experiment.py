@@ -27,6 +27,7 @@ import os
 import numpy as np
 from sklearn.metrics import pairwise_distances_argmin_min
 
+
 class Experiment:
     """
     Class for the experiments
@@ -35,8 +36,8 @@ class Experiment:
     sampling = None  # Sampling of the raw signal
     datafiles = None  # List with the names of the datafiles
     sensors = None  # List with the names of the sensors
-    abfsensors = None # List of indices of sensors  the abf file
-    extrasensors = None # List of extra sensors in the file
+    abfsensors = None  # List of indices of sensors  the abf file
+    extrasensors = None  # List of extra sensors in the file
     dpath = None  # Path of the datafiles
     clusters = None  # List with the number of clusters for each sensor
     colors = ''  # List of colors to use for histogram of the peaks (one color for each datafile)
@@ -103,7 +104,6 @@ class Experiment:
         else:
             self.extrasensors = extrasensors
 
-
     # def load_config(self, file):
     #     """
     #     Object read from configuration file
@@ -168,7 +168,6 @@ class Experiment:
         :return:
         """
         handle.close()
-
 
     def get_peaks_smooth_parameters(self, param):
         """
@@ -304,9 +303,10 @@ class Experiment:
         :return:
         """
 
-        if dfile + '/' + sensor + '/Clustering/'+str(centers.shape[0])+'/Centers' in f:
-            del f[dfile + '/' + sensor + '/Clustering/' + str(centers.shape[0])+ '/Centers']
-        d = f.require_dataset(dfile + '/' + sensor + '/Clustering/' + str(centers.shape[0])+ '/Centers', centers.shape, dtype='f',
+        if dfile + '/' + sensor + '/Clustering/' + str(centers.shape[0]) + '/Centers' in f:
+            del f[dfile + '/' + sensor + '/Clustering/' + str(centers.shape[0]) + '/Centers']
+        d = f.require_dataset(dfile + '/' + sensor + '/Clustering/' + str(centers.shape[0]) + '/Centers', centers.shape,
+                              dtype='f',
                               data=centers, compression='gzip')
         d[()] = centers
         f.flush()
@@ -336,13 +336,13 @@ class Experiment:
         :param centers:
         :return:
         """
-        if 'All/' + sensor + '/Clustering/' + str(centers.shape[0])+ '/Centers' in f:
-            del f['All/' + sensor + '/Clustering/' + str(centers.shape[0])+ '/Centers']
-        d = f.require_dataset( 'All/' + sensor + '/Clustering/' + str(centers.shape[0]) + '/Centers', centers.shape, dtype='f',
+        if 'All/' + sensor + '/Clustering/' + str(centers.shape[0]) + '/Centers' in f:
+            del f['All/' + sensor + '/Clustering/' + str(centers.shape[0]) + '/Centers']
+        d = f.require_dataset('All/' + sensor + '/Clustering/' + str(centers.shape[0]) + '/Centers', centers.shape,
+                              dtype='f',
                               data=centers, compression='gzip')
         d[()] = centers
         f.flush()
-
 
     def get_raw_data(self, f, dfile):
         """
@@ -372,8 +372,6 @@ class Experiment:
 
         f.flush()
 
-
-
     # TODO: resample the data
     def get_IPF_time_windows(self, f, dfile, times, wlen):
         """
@@ -391,19 +389,18 @@ class Experiment:
 
             print IPFs.shape
             if wlen % 2 != 0:
-                ilen = (wlen/2) - 1
-                flen = (wlen/2)
+                ilen = (wlen / 2) - 1
+                flen = (wlen / 2)
             else:
-                ilen = flen = wlen/2
+                ilen = flen = wlen / 2
 
             for i in range(times.shape[0]):
-                IPFs[i] = IPF[times[i]-ilen:times[i]+flen, 0]
-                IPFp[i] = IPF[times[i]-ilen:times[i]+flen, 1]
+                IPFs[i] = IPF[times[i] - ilen:times[i] + flen, 0]
+                IPFp[i] = IPF[times[i] - ilen:times[i] + flen, 1]
 
             return IPFs, IPFp
         else:
             return None, None
-
 
     # TODO: resample the data
     def get_sensors_time_windows(self, f, dfile, times, wlen):
@@ -423,14 +420,14 @@ class Experiment:
                 swindows.append(np.zeros((times.shape[0], wlen)))
 
             if wlen % 2 != 0:
-                ilen = (wlen/2) - 1
-                flen = (wlen/2)
+                ilen = (wlen / 2) - 1
+                flen = (wlen / 2)
             else:
-                ilen = flen = wlen/2
+                ilen = flen = wlen / 2
 
             for i in range(times.shape[0]):
                 for j in range(len(self.sensors)):
-                    swindows[j][i] = sensors[times[i]-ilen:times[i]+flen, j]
+                    swindows[j][i] = sensors[times[i] - ilen:times[i] + flen, j]
 
             return swindows
         else:
@@ -444,9 +441,9 @@ class Experiment:
         :return:
         """
         if globalc:
-            d = f['All/' + sensor + '/Clustering/' +str(self.clusters[0]) + '/Centers']
+            d = f['All/' + sensor + '/Clustering/' + str(self.clusters[0]) + '/Centers']
         else:
-            d = f[self.datafiles[0] + '/' + sensor + '/Clustering/' +str(self.clusters[0]) + '/Centers']
+            d = f[self.datafiles[0] + '/' + sensor + '/Clustering/' + str(self.clusters[0]) + '/Centers']
 
         centers = d[()]
         d = f[dfile + '/' + sensor + '/' + 'PeaksResamplePCA']
@@ -454,6 +451,7 @@ class Experiment:
         labels, _ = pairwise_distances_argmin_min(data, centers)
 
         return labels
+
 
 # ---------------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':

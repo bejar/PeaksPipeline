@@ -17,8 +17,6 @@ PeaksClusteringSampling
 
 """
 
-__author__ = 'bejar'
-
 
 import numpy as np
 from sklearn.cluster import KMeans
@@ -29,9 +27,10 @@ from operator import itemgetter
 from util.plots import show_vsignals
 import argparse
 
+__author__ = 'bejar'
+
 
 if __name__ == '__main__':
-
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--batch', help="Ejecucion no interactiva", action='store_true', default=False)
@@ -57,7 +56,7 @@ if __name__ == '__main__':
                 data = datainfo.get_peaks_resample_PCA(f, dfile, sensor)
                 if data is not None:
                     idata = np.random.choice(range(data.shape[0]), data.shape[0]/nchoice, replace=False)
-                    ldata.append(data[idata,:])
+                    ldata.append(data[idata, :])
 
             data = np.vstack(ldata)
             print(data.shape)
@@ -75,8 +74,7 @@ if __name__ == '__main__':
             for nc in range(nclusters):
                 centers[nc] = km.cluster_centers_[lmax[nc][0]]
 
-            #show_vsignals(centers)
+            # show_vsignals(centers)
             datainfo.save_peaks_global_clustering_centroids(f, sensor, centers)
 
         datainfo.close_experiment_data(f)
-

@@ -17,9 +17,9 @@ plots
 
 """
 
-__author__ = 'bejar'
-
 from pylab import *
+
+__author__ = 'bejar'
 
 
 def plotHungarianSignals(coinc, centers1, centers2, vmax, vmin, name, title, path):
@@ -78,7 +78,7 @@ def plotSignals(signals, n, m, vmax, vmin, name, title, path, cstd=None, orienta
     """
     matplotlib.rcParams.update({'font.size': 26})
     fig = plt.figure()
-    if orientation=='landscape':
+    if orientation == 'landscape':
         fig.set_figwidth(30)
         fig.set_figheight(40)
     else:
@@ -108,6 +108,7 @@ def plotSignals(signals, n, m, vmax, vmin, name, title, path, cstd=None, orienta
 def show_signal(signal, title=''):
     """
     Plots a signal
+    :param title:
     :param signal:
     :return:
     """
@@ -125,9 +126,11 @@ def show_signal(signal, title=''):
     sp1.plot(t, signal)
     plt.show()
 
+
 def show_vsignals(signal, title=''):
     """
     Plots a list of signals
+    :param title:
     :param signal:
     :return:
     """
@@ -143,7 +146,7 @@ def show_vsignals(signal, title=''):
     sp1.axis([0, num, minaxis, maxaxis])
     t = arange(0.0, num, 1)
     for i in range(signal.shape[0]):
-        sp1.plot(t, signal[i,:])
+        sp1.plot(t, signal[i, :])
     plt.show()
 
 
@@ -168,10 +171,12 @@ def show_two_signals(signal1, signal2):
     plt.show()
 
 
-# Plot a set of signals
 def plotSignalValues(fig, signal1, n, m, p, name, vmax, vmin, cstd=None):
-    minaxis = vmin  #min(signal1)
-    maxaxis = vmax  #max(signal1)
+    """
+    Plot a set of signals
+    """
+    minaxis = vmin  # min(signal1)
+    maxaxis = vmax  # max(signal1)
     num = len(signal1)
     sp1 = fig.add_subplot(n, m, p)
     plt.title(name)
@@ -188,31 +193,32 @@ def plotSignalValues(fig, signal1, n, m, p, name, vmax, vmin, cstd=None):
         plt.axhline(linewidth=1, color='r', y=cstd)
     sp1.plot(t, signal1)
 
-# Plot a set of signals
+
 def plotListSignals(signals, orient='h', ncols=None):
+    """
+    Plot a set of signals
+    """
     fig = plt.figure()
     minaxis = np.min([np.min(s) for s in signals])
     maxaxis = np.max([np.max(s) for s in signals])
     num = len(signals)
     if ncols is not None:
         if num % ncols == 0:
-            nrows = num/ncols
+            nrows = num / ncols
         else:
-            nrows = (num/ncols)+1
+            nrows = (num / ncols) + 1
     for i in range(num):
         if ncols is not None:
-            sp1 = fig.add_subplot(nrows,ncols,i+1)
+            sp1 = fig.add_subplot(nrows, ncols, i + 1)
         elif orient == 'h':
-            sp1 = fig.add_subplot(1,num,i+1)
+            sp1 = fig.add_subplot(1, num, i + 1)
         elif orient == 'v':
-            sp1 = fig.add_subplot(num,1,i+1)
-        sp1.axis([0, signals[0].shape[0],minaxis,maxaxis])
+            sp1 = fig.add_subplot(num, 1, i + 1)
+        sp1.axis([0, signals[0].shape[0], minaxis, maxaxis])
         t = arange(0.0, signals[0].shape[0], 1)
-        sp1.plot(t,signals[i])
+        sp1.plot(t, signals[i])
     plt.show()
 
-
-#    plt.show()
 
 def plotDummy(fig, num, n, m, p, name):
     minaxis = -1
@@ -259,15 +265,15 @@ def plotMatrices(matrices, n, m, name, title, path, ticks=[], lticks=[]):
 
 #    plt.show()
 
-
-# Plot a set of signals
-def plotMatrixValues(fig, matrix, n, m, p, name, ticks = [], lticks = []):
+def plotMatrixValues(fig, matrix, n, m, p, name, ticks=[], lticks=[]):
+    """
+    Plot a set of signals
+    """
     sp1 = fig.add_subplot(n, m, p)
     plt.title(name, fontsize=48)
     sp1.imshow(matrix, cmap=plt.cm.gray, interpolation='none')
     plt.xticks(ticks, lticks, fontsize=40)
     plt.yticks(ticks, lticks, fontsize=40)
-
 
 
 #    plt.show()
@@ -282,10 +288,12 @@ def plotMatrixDummy(fig, num, n, m, p, name):
     sp1.plot(t, t)
 
 
-#    plt.show()
+#   plt.show()
 
 
 def plotMatrix(matrix, name, title, ticks, lticks, path):
+    """
+    """
     matplotlib.rcParams.update({'font.size': 40})
     fig = plt.figure()
     fig.set_figwidth(50)

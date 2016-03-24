@@ -38,19 +38,19 @@ __author__ = 'bejar'
 if __name__ == '__main__':
 
 
-    learning_rate=0.99
-    training_epochs=10000
-    batch_size=100
+    learning_rate=0.5
+    training_epochs=20000
+    batch_size=300
 
     datainfo = experiments['e150514']
     dfile = datainfo.datafiles[0]
-    sensor = datainfo.sensors[0]
+    sensor = datainfo.sensors[2]
     f = datainfo.open_experiment_data(mode='r+')
-    data = datainfo.get_peaks_resample_PCA(f, dfile, sensor)
+    data = datainfo.get_peaks_resample(f, dfile, sensor)
     datainfo.close_experiment_data(f)
     cute_data = []
     for d in data:
-        if cuteness(d, 0.3) >0.45:
+        if cuteness(d, 0.3) >0.5:
             cute_data.append(d)
 
     lcd = len(cute_data)
@@ -58,19 +58,19 @@ if __name__ == '__main__':
 
 
 
-    train_set_x = theano.shared(numpy.asarray(numpy.vstack(cute_data[0:lcd//2]),
+    train_set_x = theano.shared(numpy.asarray(numpy.vstack(cute_data),
                                                dtype=theano.config.floatX),
                                  borrow=True)
-    train_set_y =theano.shared( numpy.asarray(numpy.vstack(cute_data[(lcd//2)+1:]),
-                                               dtype=theano.config.floatX),
-                                 borrow=True)
+    # train_set_y =theano.shared( numpy.asarray(numpy.vstack(cute_data[(lcd//2)+1:]),
+    #                                            dtype=theano.config.floatX),
+    #                              borrow=True)
 
     n_train_batches = train_set_x.get_value(borrow=True).shape[0] // batch_size
 
     # start-snippet-2
     # allocate symbolic variables for the data
     index = T.lscalar()    # index to a [mini]batch
-    x = T.matrix('x')  # the data is presented as rasterized images
+    x = T.matrix('x')
     # end-snippet-2
 
 
