@@ -32,7 +32,9 @@ from sklearn.decomposition import PCA
 from Config.experiments import experiments
 import argparse
 from util.plots import show_two_signals
-
+from itertools import product
+import multiprocessing
+from util.itertools import batchify
 __author__ = 'bejar'
 
 
@@ -137,9 +139,9 @@ def do_the_job(dfile, sensor, recenter=True, wtsel=None, clean=False, mbasal='me
                 #show_two_signals(trans[row]+basal, trans[row])
 
 
-        return trans
+        return trans, dfile, sensor
     else:
-        return None
+        return None, dfile, sensor
 
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -154,6 +156,7 @@ if __name__ == '__main__':
     lexperiments = args.exp
 
     mbasal = args.basal
+    njobs = multiprocessing.cpu_count()
 
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511'
@@ -162,26 +165,27 @@ if __name__ == '__main__':
 
 
     for expname in lexperiments:
-
         datainfo = experiments[expname]
 
-        # if 'recenter' in datainfo.peaks_smooth:
-        #     # If recenter is true a subwindow of the data has to be indicated to be able to re-crop the signal
-        #     recenter = datainfo.peaks_smooth['recenter']
-        #     wtsel = datainfo.peaks_smooth['wtsel']
-        # else:
-        #     recenter = False
-        #     wtsel = None
+        batches = batchify([i for i in product(datainfo.datafiles, datainfo.sensors)], njobs)
 
-        for dfile in datainfo.datafiles:
-            print(dfile)
+        if 'recenter' in datainfo.peaks_smooth:
+            # If recenter is true a subwindow of the data has to be indicated to be able to re-crop the signal
+            recenter = datainfo.peaks_smooth['recenter']
+            wtsel = datainfo.peaks_smooth['wtsel']
+        else:
+            recenter = False
+            wtsel = None
+
+
+        for batch in batches:
             # Paralelize PCA computation
             res = Parallel(n_jobs=-1)(
-                    delayed(do_the_job)(dfile, s, recenter=False, wtsel=None, clean=False, mbasal=mbasal) for s in datainfo.sensors)
+                    delayed(do_the_job)(dfile, sensor, recenter=False, wtsel=None, clean=False, mbasal=mbasal) for dfile, sensor in batch)
 
             # Save all the data
             f = datainfo.open_experiment_data(mode='r+')
-            for trans, sensor in zip(res, datainfo.sensors):
+            for trans, dfile, sensor in res:
                 if trans is not None:
                     print(dfile + '/' + sensor + '/' + 'PeaksResamplePCA')
                     datainfo.save_peaks_resample_PCA(f, dfile, sensor, trans)

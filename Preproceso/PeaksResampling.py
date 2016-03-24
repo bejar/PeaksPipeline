@@ -28,6 +28,9 @@ import h5py
 from Config.experiments import experiments, lexperiments
 from joblib import Parallel, delayed
 import argparse
+from itertools import product
+import multiprocessing
+from util.itertools import batchify
 
 def do_the_job(dfile, sensor, wtsel, resampfac, rawfilter=False, dtrnd=False):
     """
@@ -41,21 +44,19 @@ def do_the_job(dfile, sensor, wtsel, resampfac, rawfilter=False, dtrnd=False):
     :param expname:
     :return:
     """
-    print(datainfo.dpath + datainfo.name, sensor)
-    f = h5py.File(datainfo.dpath + datainfo.name + '/' + datainfo.name + '.hdf5', 'r')
+    print(dfile, sensor)
+    f = datainfo.open_experiment_data(mode='r')
 
     # Sampling of the dataset in Hz / resampling factor
     resampling = f[dfile + '/Raw'].attrs['Sampling'] / resampfac
 
-    if dfile + '/' + sensor + '/' + 'PeaksFilter' in f or dfile + '/' + sensor + '/' + 'Peaks' in f:
-        if rawfilter:
-            d = f[dfile + '/' + sensor + '/' + 'PeaksFilter']
-        else:
-            d = f[dfile + '/' + sensor + '/' + 'Peaks']
+    if rawfilter:
+        data = datainfo.get_peaks_filtered(f, dfile, sensor)
+    else:
+        data = datainfo.get_peaks(f, dfile, sensor)
+    datainfo.close_experiment_data(f)
 
-        data = d[()]
-        f.close()
-
+    if data is not None:
         if dtrnd:
             data = detrend(data)
 
@@ -71,8 +72,9 @@ def do_the_job(dfile, sensor, wtsel, resampfac, rawfilter=False, dtrnd=False):
             wtdisci = wtdisc + 1
         else:
             wtdisci = wtdisc
-        return presamp[:, wtdisci:wtlen-wtdisc]
-    return None
+        return presamp[:, wtdisci:wtlen-wtdisc], dfile, sensor
+    else:
+        return None, dfile, sensor
 
 # ---------------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
@@ -84,6 +86,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     lexperiments = args.exp
+    njobs = multiprocessing.cpu_count()
 
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511'
@@ -96,23 +99,17 @@ if __name__ == '__main__':
         wtsel = datainfo.peaks_resampling['wtsel']
         resampfactor = datainfo.peaks_resampling['rsfactor']
         filtered = datainfo.peaks_resampling['filtered']  # Use the filtered peaks or not
-        for dfile in datainfo.datafiles:
-            print(dfile)
+        batches = batchify([i for i in product(datainfo.datafiles, datainfo.sensors)], njobs)
+
+        for batch in batches:
             # Paralelize PCA computation
-            res = Parallel(n_jobs=-1)(delayed(do_the_job)(dfile, s, wtsel, resampfactor, rawfilter=filtered, dtrnd=args.detrend) for s in datainfo.sensors)
+            res =  Parallel(n_jobs=-1)(delayed(do_the_job)(dfile, sensor, wtsel, resampfactor, rawfilter=filtered, dtrnd=args.detrend) for dfile, sensor in batch)
             #print 'Parallelism ended'
 
-            f = h5py.File(datainfo.dpath + datainfo.name + '/' + datainfo.name + '.hdf5', 'r+')
-            for presamp, sensor in zip(res, datainfo.sensors):
+            f = datainfo.open_experiment_data(mode='r+')
+            for presamp, dfile, sensor in res:
                 if presamp is not None:
                     print(dfile + '/' + sensor)
-                    if dfile + '/' + sensor + '/' + 'PeaksResample' in f:
-                        del f[dfile + '/' + sensor + '/' + 'PeaksResample']
-                    d = f.require_dataset(dfile + '/' + sensor + '/' + 'PeaksResample', presamp.shape, dtype='f',
-                                          data=presamp, compression='gzip')
-                    d[()] = presamp
-                    f[dfile + '/' + sensor + '/PeaksResample'].attrs['rsfactor'] = resampfactor
-                    f[dfile + '/' + sensor + '/PeaksResample'].attrs['wtsel'] = wtsel
-                    f[dfile + '/' + sensor + '/PeaksResample'].attrs['filtered'] = filtered
+                    datainfo.save_peaks_resample(f, dfile, sensor, presamp)
 
-            f.close()
+            datainfo.close_experiment_data(f)

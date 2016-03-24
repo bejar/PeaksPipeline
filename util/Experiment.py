@@ -199,6 +199,26 @@ class Experiment:
         else:
             return None
 
+    def save_peaks_resample(self, f, dfile, sensor, trans):
+        """
+        saves the resampled and PCAded peaks in the dataset
+
+        :param dfile:
+        :param sensor:
+        :return:
+        """
+        if dfile + '/' + sensor + '/' + 'PeaksResample' in f:
+            del f[dfile + '/' + sensor + '/' + 'PeaksResample']
+        d = f.require_dataset(dfile + '/' + sensor + '/' + 'PeaksResample', trans.shape, dtype='f',
+                              data=trans, compression='gzip')
+        d[()] = trans
+
+        f[dfile + '/' + sensor + '/PeaksResample'].attrs['rsfactor'] = self.peaks_resampling['rsfactor']
+        f[dfile + '/' + sensor + '/PeaksResample'].attrs['wtsel'] = self.peaks_resampling['wtsel']
+        f[dfile + '/' + sensor + '/PeaksResample'].attrs['filtered'] = self.peaks_resampling['filtered']
+        f.flush()
+
+
     def get_clean_time(self, f, dfile, sensor):
         """
         returns the cleaned list of time peaks
@@ -240,6 +260,28 @@ class Experiment:
             return d[()]
         else:
             return None
+
+    def save_peaks_time(self, f, dfile, sensor, ntimes):
+        """
+        Saves the times of the peaks after cleaning the data
+
+        :param f:
+        :param dfile:
+        :param sensor:
+        :param times:
+        :return:
+        """
+        if dfile + '/' + sensor + '/' + 'Time' in f:
+            del f[dfile + '/' + sensor + '/' + 'TimeClean']
+        d = f.require_dataset(dfile + '/' + sensor + '/' + 'Time', ntimes.shape, dtype='i',
+                              data=ntimes, compression='gzip')
+        d[()] = ntimes
+        f[dfile + '/' + sensor + '/Time'].attrs['wtime'] = self.peaks_id_params['wtime']
+        f[dfile + '/' + sensor + '/Time'].attrs['low'] = self.datainfo.peaks_id_params['low']
+        f[dfile + '/' + sensor + '/Time'].attrs['high'] = self.datainfo.peaks_id_params['high']
+        f[dfile + '/' + sensor + '/Time'].attrs['threshold'] = self.peaks_id_params['threshold']
+        f.flush()
+
 
     def get_peaks_resample_PCA(self, f, dfile, sensor):
         """
@@ -452,6 +494,58 @@ class Experiment:
 
         return labels
 
+    def get_peaks(self, f, dfile, sensor):
+        """
+        Gets the raw peaks from the data
+
+        :param f:
+        :param dfile:
+        :param sensor:
+        :return:
+        """
+        if  dfile + '/' + sensor + '/' + 'Peaks' in f:
+            d = f[dfile + '/' + sensor + '/' + 'Peaks']
+            data = d[()]
+            return data
+        else:
+            return None
+
+    def save_peaks(self, f, dfile, sensor, rawpeaks):
+        """
+        Saves the raw peaks
+
+        :param f:
+        :param dfile:
+        :param sensor:
+        :param data:
+        :return:
+        """
+        if  dfile + '/' + sensor + '/' + 'Peaks' in f:
+            del f[dfile + '/' + sensor + '/' + 'Peaks']
+        dgroup = f.create_group(dfile + '/' + sensor)
+        dgroup.create_dataset('Peaks', rawpeaks.shape, dtype='f', data=rawpeaks,
+                              compression='gzip')
+        f[dfile + '/' + sensor + '/Peaks'].attrs['wtime'] = self.peaks_id_params['wtime']
+        f[dfile + '/' + sensor + '/Peaks'].attrs['low'] = self.datainfo.peaks_id_params['low']
+        f[dfile + '/' + sensor + '/Peaks'].attrs['high'] = self.datainfo.peaks_id_params['high']
+        f[dfile + '/' + sensor + '/Peaks'].attrs['threshold'] = self.peaks_id_params['threshold']
+        f.flush()
+
+    def get_peaks_filtered(self, f, dfile, sensor):
+        """
+        Gets the raw peaks from the data
+
+        :param f:
+        :param dfile:
+        :param sensor:
+        :return:
+        """
+        if  dfile + '/' + sensor + '/' + 'PeaksFiltered' in f:
+            d = f[dfile + '/' + sensor + '/' + 'PeaksFiltered']
+            data = d[()]
+            return data
+        else:
+            return None
 
 # ---------------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':

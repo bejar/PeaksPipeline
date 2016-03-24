@@ -31,6 +31,7 @@ from dA import dA
 from Config.experiments import experiments
 from util.Quality import cuteness
 from util.plots import plotListSignals
+from sklearn.preprocessing import MinMaxScaler
 
 __author__ = 'bejar'
 
@@ -38,13 +39,13 @@ __author__ = 'bejar'
 if __name__ == '__main__':
 
 
-    learning_rate=0.5
-    training_epochs=20000
-    batch_size=300
+    learning_rate=0.1
+    training_epochs=40000
+    batch_size=200
 
     datainfo = experiments['e150514']
     dfile = datainfo.datafiles[0]
-    sensor = datainfo.sensors[2]
+    sensor = datainfo.sensors[3]
     f = datainfo.open_experiment_data(mode='r+')
     data = datainfo.get_peaks_resample(f, dfile, sensor)
     datainfo.close_experiment_data(f)
@@ -55,6 +56,8 @@ if __name__ == '__main__':
 
     lcd = len(cute_data)
     print(lcd)
+    scal = MinMaxScaler()
+    cute_data = scal.fit_transform(numpy.vstack(cute_data))
 
 
 
@@ -86,7 +89,7 @@ if __name__ == '__main__':
     )
 
     cost, updates = da.get_cost_updates(
-        corruption_level=0.,
+        corruption_level=0.1,
         learning_rate=learning_rate
     )
 
