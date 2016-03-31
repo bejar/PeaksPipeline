@@ -20,7 +20,6 @@ PeaksOutliers
 
 __author__ = 'bejar'
 
-
 from pylab import *
 from sklearn.neighbors import NearestNeighbors
 from Config.experiments import experiments
@@ -37,14 +36,14 @@ def is_wavy_signal(signal, thresh):
     :return:
     """
 
-    middle = np.max(signal)*0.3
+    middle = np.max(signal) * 0.3
     tmp = signal.copy()
 
     tmp[signal < middle] = 0
 
     count = 0
     for i in range(1, signal.shape[0]):
-        if tmp[i-1] == 0 and tmp[i] != 0:
+        if tmp[i - 1] == 0 and tmp[i] != 0:
             count += 1
     return count > thresh
 
@@ -68,13 +67,13 @@ def do_the_job(dpath, dname, dfile, sensor, nn, nstd=6, wavy=5):
 
     vdist = np.zeros(data.shape[0])
     for i in range(data.shape[0]):
-        vdist[i] = np.sum(neigh.kneighbors(data[i].reshape(1, -1), return_distance=True)[0][0][1:])/(nn-1)
+        vdist[i] = np.sum(neigh.kneighbors(data[i].reshape(1, -1), return_distance=True)[0][0][1:]) / (nn - 1)
     dmean = np.mean(vdist)
     dstd = np.std(vdist)
     nout = 0
     lout = []
     for i in range(data.shape[0]):
-        if vdist[i] > dmean + (nstd*dstd):
+        if vdist[i] > dmean + (nstd * dstd):
             nout += 1
             lout.append(i)
             # print('outlier')
@@ -84,8 +83,8 @@ def do_the_job(dpath, dname, dfile, sensor, nn, nstd=6, wavy=5):
             lout.append(i)
             # print('wavy')
             # show_signal(data[i])
-        # else:
-        #     show_signal(data[i])
+            # else:
+            #     show_signal(data[i])
 
     datainfo.close_experiment_data(f)
     return dfile, lout
@@ -104,15 +103,15 @@ if __name__ == '__main__':
         # 'e150514''e120503''e110616''e150707''e151126''e120511'
         lexperiments = ['e120511']
 
-
-
     for expname in lexperiments:
         datainfo = experiments[expname]
 
         for sensor in datainfo.sensors:
             print(sensor)
 
-            lout = Parallel(n_jobs=-1)(delayed(do_the_job)(datainfo.dpath, datainfo.name, dfiles, sensor, 16, nstd=6, wavy=4) for dfiles in datainfo.datafiles)
+            lout = Parallel(n_jobs=-1)(
+                delayed(do_the_job)(datainfo.dpath, datainfo.name, dfiles, sensor, 16, nstd=6, wavy=4) for dfiles in
+                datainfo.datafiles)
 
             # lout = []
             #
@@ -125,7 +124,7 @@ if __name__ == '__main__':
 
                 times = datainfo.get_peaks_time(f, dfile, sensor)
                 if times is not None:
-                    ntimes = np.zeros(times.shape[0]-len(out))
+                    ntimes = np.zeros(times.shape[0] - len(out))
                     npeaks = 0
                     for i in range(times.shape[0]):
                         if i not in out:

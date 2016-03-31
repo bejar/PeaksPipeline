@@ -218,7 +218,6 @@ class Experiment:
         f[dfile + '/' + sensor + '/PeaksResample'].attrs['filtered'] = self.peaks_resampling['filtered']
         f.flush()
 
-
     def get_clean_time(self, f, dfile, sensor):
         """
         returns the cleaned list of time peaks
@@ -281,7 +280,6 @@ class Experiment:
         f[dfile + '/' + sensor + '/Time'].attrs['high'] = self.datainfo.peaks_id_params['high']
         f[dfile + '/' + sensor + '/Time'].attrs['threshold'] = self.peaks_id_params['threshold']
         f.flush()
-
 
     def get_peaks_resample_PCA(self, f, dfile, sensor):
         """
@@ -503,7 +501,7 @@ class Experiment:
         :param sensor:
         :return:
         """
-        if  dfile + '/' + sensor + '/' + 'Peaks' in f:
+        if dfile + '/' + sensor + '/' + 'Peaks' in f:
             d = f[dfile + '/' + sensor + '/' + 'Peaks']
             data = d[()]
             return data
@@ -520,7 +518,7 @@ class Experiment:
         :param data:
         :return:
         """
-        if  dfile + '/' + sensor + '/' + 'Peaks' in f:
+        if dfile + '/' + sensor + '/' + 'Peaks' in f:
             del f[dfile + '/' + sensor + '/' + 'Peaks']
         dgroup = f.create_group(dfile + '/' + sensor)
         dgroup.create_dataset('Peaks', rawpeaks.shape, dtype='f', data=rawpeaks,
@@ -540,12 +538,13 @@ class Experiment:
         :param sensor:
         :return:
         """
-        if  dfile + '/' + sensor + '/' + 'PeaksFiltered' in f:
+        if dfile + '/' + sensor + '/' + 'PeaksFiltered' in f:
             d = f[dfile + '/' + sensor + '/' + 'PeaksFiltered']
             data = d[()]
             return data
         else:
             return None
+
 
 # ---------------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':

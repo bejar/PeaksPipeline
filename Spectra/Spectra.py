@@ -18,9 +18,6 @@ Spectra
 """
 from __future__ import division
 
-__author__ = 'bejar'
-
-
 import h5py
 from util.plots import show_signal, plotSignals
 from util.distances import simetrized_kullback_leibler_divergence, square_frobenius_distance, renyi_half_divergence, \
@@ -36,25 +33,26 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import mean_squared_error
 from operator import itemgetter
 import argparse
+from scipy.signal import butter, lfilter, iirfilter
+
+__author__ = 'bejar'
+
 
 def filterSignal(data, iband, fband, freq):
     if iband == 1:
-        print fband/freq
-        b,a = butter(8, fband/freq, btype='low')
+        print fband / freq
+        b, a = butter(8, fband / freq, btype='low')
         flSignal = filtfilt(b, a, data)
     elif fband == 1:
-        b, a = butter(8, fband/freq, btype='high')
+        b, a = butter(8, fband / freq, btype='high')
         flSignal = filtfilt(b, a, data)
     else:
-        print iband/freq, fband/freq
-        b,a = butter(8, iband/freq, btype='high')
+        print iband / freq, fband / freq
+        b, a = butter(8, iband / freq, btype='high')
         temp = filtfilt(b, a, data)
-        b,a = butter(8, fband/freq, btype='low')
+        b, a = butter(8, fband / freq, btype='low')
         flSignal = filtfilt(b, a, temp)
     return flSignal
-
-from scipy.signal import butter, lfilter, iirfilter
-
 
 def butter_bandpass(lowcut, highcut, fs, order=5):
     nyq = 0.5 * fs
@@ -79,7 +77,7 @@ if __name__ == '__main__':
     lexperiments = args.exp
 
     if not args.batch:
-       # 'e120503''e110616''e150707''e151126''e120511''e150514''e110906o''e120511'
+        # 'e120503''e110616''e150707''e151126''e120511''e150514''e110906o''e120511'
         lexperiments = ['e150514']
 
     peakdata = {}
@@ -88,19 +86,18 @@ if __name__ == '__main__':
         datainfo = experiments[expname]
         f = h5py.File(datainfo.dpath + datainfo.name + '/' + datainfo.name + '.hdf5', 'r')
 
-
         for dfile in datainfo.datafiles:
             d = f[dfile + '/' + 'Raw']
-            print d.shape, datainfo.sampling/2
+            print d.shape, datainfo.sampling / 2
             for s, sensor in enumerate(datainfo.sensors):
                 print dfile, sensor
                 rate = datainfo.sampling
-                t = np.arange(0, 10, 1/rate)
+                t = np.arange(0, 10, 1 / rate)
                 freq = rate * 0.5
                 iband = 100.0
                 fband = 400.0
-                #b,a = butter(10, [iband/freq, fband/freq], btype='band')
-                #b, a = iirfilter(2, 0.5, 1, 60, analog=True, ftype='cheby1', btype='low')
+                # b,a = butter(10, [iband/freq, fband/freq], btype='band')
+                # b, a = iirfilter(2, 0.5, 1, 60, analog=True, ftype='cheby1', btype='low')
                 # w, h = freqs(b, a, 1000)
                 # print h[0:10]
                 # fig = plt.figure()
@@ -121,14 +118,15 @@ if __name__ == '__main__':
                 # plot(range(1000), data[0:1000])
                 # plt.show()
                 # print x.shape
-#                print x[0:100], d[0:100,s]
-                p = np.abs(np.fft.rfft(d[0:int(d.shape[0]/2), s])) ** 2
-                spec = np.linspace(0, (rate)/2, len(p))
-                #p = decimate(p,20)
+                #                print x[0:100], d[0:100,s]
+                p = np.abs(np.fft.rfft(d[0:int(d.shape[0] / 2), s])) ** 2
+                spec = np.linspace(0, rate / 2, len(p))
+                # p = decimate(p,20)
                 plt.subplots(figsize=(20, 10))
                 plot(spec[0:12000], p[0:12000])
                 plt.title(dfile + '-' + sensor, fontsize=48)
-                plt.savefig(datainfo.dpath + '/' + datainfo.name + '/Results/spectra-' + datainfo.name + dfile + '-' + sensor
-                            + '.pdf', orientation='landscape', format='pdf')
+                plt.savefig(
+                    datainfo.dpath + '/' + datainfo.name + '/Results/spectra-' + datainfo.name + dfile + '-' + sensor +
+                    '.pdf', orientation='landscape', format='pdf')
                 plt.close()
                 plt.show()

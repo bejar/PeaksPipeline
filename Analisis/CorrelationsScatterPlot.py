@@ -17,8 +17,6 @@ Correlations
 
 """
 
-__author__ = 'bejar'
-
 import h5py
 from pylab import *
 
@@ -29,6 +27,8 @@ from operator import itemgetter
 import seaborn as sns
 import argparse
 import pandas as pd
+
+__author__ = 'bejar'
 
 
 def correlation_scatter_plot(datainfo, corrplot=False, barplot=False):
@@ -61,7 +61,7 @@ def correlation_scatter_plot(datainfo, corrplot=False, barplot=False):
 
     matplotlib.rcParams.update({'font.size': 12})
     if barplot:
-       for ei, dfile in enumerate(datainfo.datafiles):
+        for ei, dfile in enumerate(datainfo.datafiles):
             cmat = lcormat[ei]
             dlabels = {}
             for i, si in enumerate(datainfo.sensors):
@@ -70,14 +70,13 @@ def correlation_scatter_plot(datainfo, corrplot=False, barplot=False):
                         dlabels[si + '-' + sj] = cmat[i, j]
             ydata = [dlabels[x] for x in ylabels]
 
-            data = pd.DataFrame({'corr':ydata, 'sens':ylabels})
+            data = pd.DataFrame({'corr': ydata, 'sens': ylabels})
 
             plt.title(dfile)
             ax = sns.barplot(x="corr", y="sens", data=data, orient='h', palette="Blues_d")
-            plt.savefig(datainfo.dpath + datainfo.name + '/' + '/Results/corrbarplot-' + dfile
-                        + '.pdf', orientation='landscape', format='pdf')
+            plt.savefig(datainfo.dpath + datainfo.name + '/' + '/Results/corrbarplot-' + dfile +
+                        '.pdf', orientation='landscape', format='pdf')
             plt.close()
-
 
     if corrplot:
         # Scatterplot for each pair of correlation matrices
@@ -104,8 +103,9 @@ def correlation_scatter_plot(datainfo, corrplot=False, barplot=False):
 
                     plt.scatter(ydata1, ydata2)
 
-                    plt.savefig(datainfo.dpath + datainfo.name + '/' + '/Results/crosscorr-' + datainfo.datafiles[ei] + '-'
-                                + datainfo.datafiles[ej] + '.pdf', orientation='landscape', format='pdf')
+                    plt.savefig(
+                        datainfo.dpath + datainfo.name + '/' + '/Results/crosscorr-' + datainfo.datafiles[ei] + '-' +
+                        datainfo.datafiles[ej] + '.pdf', orientation='landscape', format='pdf')
                     plt.close()
 
     datainfo.close_experiment_data(f)
@@ -117,7 +117,6 @@ if __name__ == '__main__':
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
     parser.add_argument('--corrplot', help="Crosscorrelation plots", action='store_true', default=False)
     parser.add_argument('--barplot', help="Correlation bar plots", action='store_true', default=False)
-
 
     args = parser.parse_args()
     lexperiments = args.exp

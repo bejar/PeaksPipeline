@@ -21,7 +21,6 @@ using AMI stability
 
 __author__ = 'bejar'
 
-
 from numpy import mean, std
 from sklearn import metrics
 from sklearn.cluster import KMeans
@@ -59,7 +58,7 @@ if __name__ == '__main__':
     niter = repl
     for expname in lexperiments:
         datainfo = experiments[expname]
-        fname = datainfo.dpath + '/'+ datainfo.name + '/Results/' + datainfo.name  + '-val-%d.txt'%itime
+        fname = datainfo.dpath + '/' + datainfo.name + '/Results/' + datainfo.name + '-val-%d.txt' % itime
         logging.basicConfig(filename=fname, filemode='w',
                             level=logging.INFO, format='%(message)s', datefmt='%m/%d/%Y %I:%M:%S')
 
@@ -72,7 +71,6 @@ if __name__ == '__main__':
         # add the handler to the root logger
         logging.getLogger('').addHandler(console)
 
-
         logging.info('****************************')
         for sensor in datainfo.sensors:
 
@@ -82,8 +80,8 @@ if __name__ == '__main__':
                 for dfile in datainfo.datafiles:
                     data = datainfo.get_peaks_resample_PCA(f, dfile, sensor)
                     if data is not None:
-                        idata = np.random.choice(range(data.shape[0]), data.shape[0]/nchoice, replace=False)
-                        ldata.append(data[idata,:])
+                        idata = np.random.choice(range(data.shape[0]), data.shape[0] / nchoice, replace=False)
+                        ldata.append(data[idata, :])
 
                 data = np.vstack(ldata)
             else:
@@ -101,17 +99,17 @@ if __name__ == '__main__':
                     k_means = KMeans(init='k-means++', n_clusters=nc, n_init=10, n_jobs=-1)
                     k_means.fit(data)
                     lclasif.append(k_means.labels_.copy())
-                    #print '.',
+                    # print '.',
                 vnmi = []
                 for i in range(niter):
-                    for j in range(i+1, niter):
-                        nmi=metrics.adjusted_mutual_info_score(lclasif[i], lclasif[j])
+                    for j in range(i + 1, niter):
+                        nmi = metrics.adjusted_mutual_info_score(lclasif[i], lclasif[j])
                         vnmi.append(nmi)
                 mn = mean(vnmi)
                 if best < mn:
                     best = mn
                     ncbest = nc
-                #print nc, mn
+                # print nc, mn
                 logging.info('%d  %f %f' % (nc, mn, std(vnmi)))
 
             logging.info('S= %s NC= %d' % (sensor, ncbest))
