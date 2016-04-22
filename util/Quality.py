@@ -95,8 +95,8 @@ def cuteness(data, percent):
     :param data:
     :return:
     """
-    mval = np.min(data)
-    data -= mval
+    #mval = np.min(data)
+    data = np.abs(data)
 
     sumall = np.sum(data)
     part = int(data.shape[0] * percent)

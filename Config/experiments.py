@@ -30,6 +30,33 @@ lexperiments = ['e150514']
 # Todos los experimentos estan en el directorio cinvesdata dentro de una carpeta que tenga el nombre del experimento
 experiments = \
     {
+        'e160317':
+            Experiment(
+                dpath=datapath,
+                name='e160317',
+                sampling=10204.08,
+                datafiles=['16317f13', '16317f14', '16317f15', '16317f16', '16317f17', '16317f18', '16317f19', '16317f20',
+                           '16317f21', '16317f22', '16317f23', '16317f24', '16317f25', '16317f26', '16317f27', '16317f28',
+                           '16317f29', '16317f30', '16317f31', '16317f32', '16317f33', '16317f34', '16317f35', '16317f36',
+                           '16317f38', '16317f39', '16317f40', '16317f41', '16317f42', '16317f43', '16317f44', '16317f45',
+                           '16317f46', '16317f47', '16318f00', '16318f01', '16318f03', '16318f04', '16318f05', '16318f06',
+                           '16318f07', '16318f08'],
+                sensors=['L4ci', 'L5ri', 'L5rd', 'L5cd', 'L5ci', 'L6ri', 'L6rd', 'L6ci', 'L6cd', 'L7ri',
+                         'L7rd'],
+                abfsensors=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+                extrasensors=[(12, 'IFPs'), (13, 'IFPp')],
+                clusters=[12] * 11,  # [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
+                colors='y' * 6 + 'r' * 18 + 'b' * 12 + 'k' * 6,
+                peaks_id_params={'wtime': 120e-3, 'low': 0, 'high': 70, 'threshold': 0.05},
+                peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
+                peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 20},
+                peaks_filter={'lowpass': 1.0, 'highpass': 200.0},
+                expnames=['crtl{:0>2}'.format(i) for i in range(1, 7)] + ['capsa{:0>2}'.format(i) for i in
+                                                                           range(1, 19)] +
+                         ['lido{:0>2}'.format(i) for i in range(1, 13)] + ['esp{:0>2}'.format(i) for i in
+                                                                            range(1, 7)]
+            ),
+
         'e160204':
             Experiment(
                 dpath=datapath,

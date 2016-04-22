@@ -28,11 +28,12 @@ import os
 from Config.experiments import experiments
 import argparse
 
-def plotSignalValues(signals, dfile, sensor, ncl, nc, globalclust):
+
+def plotSignalValues(signals, dfile, sensor, ncl, nc, globalclust=False):
 
     ext = ''
     if globalclust:
-        ext = '-g'
+        ext = '.g'
     fig = plt.figure()
     minaxis = -0.1
     maxaxis = 0.3
@@ -69,8 +70,8 @@ if __name__ == '__main__':
 
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511''e110906o'
-        lexperiments = ['e150514']
-        args.globalclust = True
+        lexperiments = ['e160317']
+        args.globalclust = False
 
     peakdata = {}
     for expname in lexperiments:
@@ -95,5 +96,5 @@ if __name__ == '__main__':
                     centers = datainfo.get_peaks_clustering_centroids(f, dfile, sensor, ncl)
                 peakLength = centers.shape[1]
                 for i in range(centers.shape[0]):
-                    plotSignalValues(centers[i], expname, sensor, ncl, i + 1, args.globalclust)
+                    plotSignalValues(centers[i], expname, sensor, ncl, i + 1, globalclust=args.globalclust)
         datainfo.close_experiment_data(f)

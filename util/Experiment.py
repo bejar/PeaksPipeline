@@ -271,13 +271,13 @@ class Experiment:
         :return:
         """
         if dfile + '/' + sensor + '/' + 'Time' in f:
-            del f[dfile + '/' + sensor + '/' + 'TimeClean']
+            del f[dfile + '/' + sensor + '/' + 'Time']
         d = f.require_dataset(dfile + '/' + sensor + '/' + 'Time', ntimes.shape, dtype='i',
                               data=ntimes, compression='gzip')
         d[()] = ntimes
         f[dfile + '/' + sensor + '/Time'].attrs['wtime'] = self.peaks_id_params['wtime']
-        f[dfile + '/' + sensor + '/Time'].attrs['low'] = self.datainfo.peaks_id_params['low']
-        f[dfile + '/' + sensor + '/Time'].attrs['high'] = self.datainfo.peaks_id_params['high']
+        f[dfile + '/' + sensor + '/Time'].attrs['low'] = self.peaks_id_params['low']
+        f[dfile + '/' + sensor + '/Time'].attrs['high'] = self.peaks_id_params['high']
         f[dfile + '/' + sensor + '/Time'].attrs['threshold'] = self.peaks_id_params['threshold']
         f.flush()
 
@@ -520,12 +520,11 @@ class Experiment:
         """
         if dfile + '/' + sensor + '/' + 'Peaks' in f:
             del f[dfile + '/' + sensor + '/' + 'Peaks']
-        dgroup = f.create_group(dfile + '/' + sensor)
-        dgroup.create_dataset('Peaks', rawpeaks.shape, dtype='f', data=rawpeaks,
+        f.require_dataset(dfile + '/' + sensor + '/Peaks', rawpeaks.shape, dtype='f', data=rawpeaks,
                               compression='gzip')
         f[dfile + '/' + sensor + '/Peaks'].attrs['wtime'] = self.peaks_id_params['wtime']
-        f[dfile + '/' + sensor + '/Peaks'].attrs['low'] = self.datainfo.peaks_id_params['low']
-        f[dfile + '/' + sensor + '/Peaks'].attrs['high'] = self.datainfo.peaks_id_params['high']
+        f[dfile + '/' + sensor + '/Peaks'].attrs['low'] = self.peaks_id_params['low']
+        f[dfile + '/' + sensor + '/Peaks'].attrs['high'] = self.peaks_id_params['high']
         f[dfile + '/' + sensor + '/Peaks'].attrs['threshold'] = self.peaks_id_params['threshold']
         f.flush()
 

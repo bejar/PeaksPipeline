@@ -65,7 +65,7 @@ def drawgraph_alternative(nnodes, edges, nfile, sensor, dfile, ename, legend, pa
     """
 
     ext = '' if lmatch == 0 else '-match'
-    gclust = '' if globalc else '-g'
+    gclust = '' if not globalc else '.g'
 
     rfile = open(datainfo.dpath + '/' + datainfo.name + '/Results/maxseqAlt-' + nfile + '-' + dfile + '-' + sensor + '-' + ename + '-' + str(nnodes)  + ext + '.dot', 'w')
 
@@ -137,7 +137,7 @@ def drawgraph(nnodes, edges, nfile, sensor, dfile, legend, lmatch=0, mapping=Non
     :return:
     """
 
-    ext = '' if lmatch==0 else '-match'
+    ext = '' if lmatch == 0 else '-match'
     rfile = open(datainfo.dpath + '/' + datainfo.name + '/Results/maxseq-' + nfile + '-' + dfile + '-' + sensor + '-' + str(nnodes) + ext + '.dot', 'w')
 
     rfile.write('digraph G {\nsize="20,20"\nlayout="neato"\n' +
@@ -221,6 +221,7 @@ def drawgraph_with_edges(nnodes, edges, nfile, sensor):
     rfile.write('}\n')
 
     rfile.close()
+
 
 def max_seq_long(nexp, clpeaks, timepeaks, sup, nfile, gap=0):
     """
@@ -557,7 +558,6 @@ def save_frequent_sequences(nfile, peakstr, peakfreq, lstrings, sensor, dfile,  
     returns a list with the frequent strings and their probabilities
     :return:
     """
-
     # Support computed heuristically
     if sup is None:
         sup = int(round(len(peakstr) * (1.0 / (len(peakfreq) * len(peakfreq)))) * 1.0)
@@ -895,18 +895,18 @@ if __name__ == '__main__':
 
     if not args.batch:
         args.graph = True
-        args.freqstr = False
+        args.freqstr = True
         args.contingency = True
-        args.sequence = False
+        args.sequence = True
         args.matching = False
         args.rescale = False
         args.string = True
         args.galternative = True
         args.diffs = False
-        args.globalclust = True
-        args.gpropor = True
+        args.globalclust = False
+        args.gpropor = False
         # 'e120503''e110616''e150707''e151126''e120511','e151126''e120511', 'e120503', 'e110906o', 'e160204''e150514'
-        lexperiments = ['e150514']
+        lexperiments = ['e160317']
 
     colors = ['red', 'blue', 'green']
     npart = 3

@@ -128,7 +128,7 @@ def fifft(Nfft, fmask, peak, dw, N):
     """
 
     xo = np.zeros(Nfft)
-    xo[dw:N + dw] = peak
+    xo[int(dw):int(N + dw)] = peak
 
     y = np.fft.rfft(xo) / N  # perform fft transform
 
@@ -136,7 +136,7 @@ def fifft(Nfft, fmask, peak, dw, N):
     y2 = ffft(fmask, y)
 
     X = np.fft.irfft(y2)
-    X = X[dw:N + dw - 1] * N
+    X = X[int(dw):int(N + dw - 1)] * N
     return X, y, y2
 
 def ffft(fmask, y):
@@ -256,11 +256,11 @@ def cdp_identification(Y, i, wtime, datainfo, sensor, ifreq=0.0, ffreq=200, thre
 
         # Peaks second level cuts we only consider time windows
         # with centered peaks and minimum peaks amplitude >threshold
-        Tm = np.argmax(xf[np.floor(Tw / npz) + 2:Tw]) + 1  # smart peaks search
+        Tm = np.argmax(xf[int(np.floor(Tw / npz) + 2):Tw]) + 1  # smart peaks search
         if qpeak:  # store the time window only if there is a peak
-            Pv = np.max(xf[np.floor(peakprecision / 4):Tw - np.floor(peakprecision / 4)])
-            indp = np.argmax(xf[np.floor(peakprecision / 4):Tw - np.floor(peakprecision / 4)])
-            Pkv = np.max(xf[np.floor(Tw / npz) - peakprecision:np.floor(Tw / npz) + peakprecision])
+            Pv = np.max(xf[int(np.floor(peakprecision / 4)):int(Tw - np.floor(peakprecision / 4))])
+            indp = np.argmax(xf[int(np.floor(peakprecision / 4)):int(Tw - np.floor(peakprecision / 4))])
+            Pkv = np.max(xf[int(np.floor(Tw / npz) - peakprecision):int(np.floor(Tw / npz) + peakprecision)])
 
             if (Pv == Pkv):
                 # evaluate quality of the peak
@@ -348,7 +348,7 @@ if __name__ == '__main__':
 
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511'
-        lexperiments = ['e150514']
+        lexperiments = ['e160317']
 
     # Preparado para procesar un conjunto de experimentos a la vez
     for expname in lexperiments:
@@ -368,7 +368,7 @@ if __name__ == '__main__':
         for dfile in datainfo.datafiles:
             f = datainfo.open_experiment_data(mode='r+')
             print(dfile)
-            raw = datainfo.get_raw_data(dfile)
+            raw = datainfo.get_raw_data(f, dfile)
             print('Peaks identification: ', time.ctime())
             peaks = Parallel(n_jobs=-1)(
                 delayed(cdp_identification)(raw, i, wtime, datainfo, sensor, ifreq=ifreq, ffreq=ffreq,
@@ -384,8 +384,8 @@ if __name__ == '__main__':
 
                     sindex = datainfo.sensors.index(dsensor)
                     for j in range(selpeaks.shape[0]):
-                        tstart = selpeaks[j] - np.floor(Tw / 2)
-                        tstop = tstart + Tw
+                        tstart = int(selpeaks[j] - np.floor(Tw / 2))
+                        tstop = int(tstart + Tw)
                         rawpeaks[j, :] = raw[tstart:tstop, sindex]
 
                     # Peak Data

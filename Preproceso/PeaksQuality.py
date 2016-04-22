@@ -103,7 +103,7 @@ if __name__ == '__main__':
                 npb = 0
                 lqtn = []
                 for d, d2 in zip(data, data2):
-                    qt = cuteness(d.copy(), 0.3)
+                    qt = cuteness(d.copy(), 0.4)
                     lqtn.append(qt)
                     if 0.5 < qt:
                         npb += 1
@@ -122,6 +122,6 @@ if __name__ == '__main__':
                         #     print err
                         #     plotSignalValues([d, ffit])
                 datainfo.close_experiment_data(f)
-                print npb, data.shape[0]
+                print (npb, data.shape[0])
                 sns.distplot(lqtn)
                 plt.show()
