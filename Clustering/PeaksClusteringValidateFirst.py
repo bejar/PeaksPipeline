@@ -33,24 +33,27 @@ import logging
 import time
 import argparse
 
-rclust = range(3, 16)
-repl = 30
-
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--batch', help="Ejecucion no interactiva", action='store_true', default=False)
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
+    parser.add_argument('--nrepl', type=int, default=30, help="Numero de replicaciones")
+    parser.add_argument('--rclust', nargs='+', type=int, default=[3, 20], help="Rango de numero de clusters")
     parser.add_argument('--globalclust', help="Use a global computed clustering", action='store_true', default=False)
 
     args = parser.parse_args()
 
     lexperiments = args.exp
+    repl = args.nrepl
+    rclust = range(args.rclust[0], args.rclust[1])
 
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511' 'e150707'
         lexperiments = ['e150514']
-        args.globalclust = True
+        args.globalclust = False
+        repl = 40
+        rclust = range(3, 22)
 
     itime = int(time.time())
     nchoice = 2

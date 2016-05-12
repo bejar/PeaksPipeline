@@ -70,7 +70,7 @@ if __name__ == '__main__':
 
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511''e110906o'
-        lexperiments = ['e160317']
+        lexperiments = ['e150514']
         args.globalclust = False
 
     peakdata = {}
@@ -83,18 +83,13 @@ if __name__ == '__main__':
             os.makedirs(datainfo.dpath + '/' + datainfo.name + '/Results/icons')
 
 
-        # dfile = datainfo.datafiles[0]
-        for dfile, ncl in zip([datainfo.datafiles[0]], [datainfo.clusters[0]]):
-            print(dfile)
-
-            lsens_labels = []
-            #compute the labels of the data
-            for sensor in datainfo.sensors:
-                if args.globalclust:
-                    centers = datainfo.get_peaks_global_clustering_centroids(f, sensor, ncl)
-                else:
-                    centers = datainfo.get_peaks_clustering_centroids(f, dfile, sensor, ncl)
-                peakLength = centers.shape[1]
-                for i in range(centers.shape[0]):
-                    plotSignalValues(centers[i], expname, sensor, ncl, i + 1, globalclust=args.globalclust)
+        dfile = datainfo.datafiles[0]
+        for sensor, ncl in zip(datainfo.sensors, datainfo.clusters):
+            if args.globalclust:
+                centers = datainfo.get_peaks_global_clustering_centroids(f, sensor, ncl)
+            else:
+                centers = datainfo.get_peaks_clustering_centroids(f, dfile, sensor, ncl)
+            peakLength = centers.shape[1]
+            for i in range(centers.shape[0]):
+                plotSignalValues(centers[i], expname, sensor, ncl, i + 1, globalclust=args.globalclust)
         datainfo.close_experiment_data(f)

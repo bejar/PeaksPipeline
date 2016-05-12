@@ -55,7 +55,7 @@ if __name__ == '__main__':
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511''e150514'
         args.hellinger = False
-        lexperiments = ['e160317']
+        lexperiments = ['e150514']
 
 
     for expname in lexperiments:
@@ -134,7 +134,8 @@ if __name__ == '__main__':
                 ax2.axis([0, len(signal), minaxis, maxaxis])
                 ax2.plot(t,signal)
                 plt.axhline(linewidth=1, color='r', y=0)
-            fig.savefig(datainfo.dpath + '/' + datainfo.name + '/Results/' + datainfo.name + '-' + sensor + '-histo-sort.pdf', orientation='landscape', format='pdf')
+            fig.savefig(datainfo.dpath + '/' + datainfo.name + '/Results/' + datainfo.name + '-' + sensor + '-' + str(nclusters)
+                        + '-histo-sort.pdf', orientation='landscape', format='pdf')
         #    plt.show()
 
             print('*******************')
