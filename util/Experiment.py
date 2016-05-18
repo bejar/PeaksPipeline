@@ -473,17 +473,19 @@ class Experiment:
         else:
             return None
 
-    def compute_peaks_labels(self, f, dfile, sensor, globalc=False):
+    def compute_peaks_labels(self, f, dfile, sensor, nclusters, globalc=False):
         """
         Computes the labels of the data using the centroids of the cluster in the first file
+        :param nclusters:
         :param dfile:
         :param sensor:
         :return:
         """
         if globalc:
-            d = f['All/' + sensor + '/Clustering/' + str(self.clusters[0]) + '/Centers']
+            d = f['All/' + sensor + '/Clustering/' + str(nclusters) + '/Centers']
         else:
-            d = f[self.datafiles[0] + '/' + sensor + '/Clustering/' + str(self.clusters[0]) + '/Centers']
+            d = f[self.datafiles[0] + '/' + sensor + '/Clustering/' + str(nclusters) + '/Centers']
+
 
         centers = d[()]
         d = f[dfile + '/' + sensor + '/' + 'PeaksResamplePCA']

@@ -935,10 +935,10 @@ if __name__ == '__main__':
             lclusters = datainfo.clusters
             smatching = []
 
-        for ncl, sensor in zip(lclusters, lsensors):
+        for nclusters, sensor in zip(lclusters, lsensors):
             print(sensor)
             if args.matching:
-                mapping = compute_matching_mapping(ncl, sensor, smatching)
+                mapping = compute_matching_mapping(nclusters, sensor, smatching)
             else:
                 mapping = None
 
@@ -949,7 +949,7 @@ if __name__ == '__main__':
 
                 d = datainfo.get_peaks_time(f, dfile, sensor)
                 if d is not None:
-                    clpeaks = datainfo.compute_peaks_labels(f, dfile, sensor, globalc=args.globalclust)
+                    clpeaks = datainfo.compute_peaks_labels(f, dfile, sensor, nclusters, globalc=args.globalclust)
                     timepeaks = d[()]
 
                     peakstr, peakfreq, lstrings = peaks_sequence_frequent_strings(timepeaks, gap=gap, rand=rand, sup=sup)
@@ -958,31 +958,31 @@ if __name__ == '__main__':
                         if len(smatching) != 0:
                             partition = generate_partition(len(smatching), npart, colors)
                         else:
-                            partition = generate_partition(ncl, npart, colors)
+                            partition = generate_partition(nclusters, npart, colors)
 
-                        fstrings = save_frequent_sequences(dfile, peakstr, peakfreq, lstrings, sensor, dfile, ename, ncl,
-                                                lmatch=len(smatching), mapping=mapping, rand=rand, galt=args.galternative,
-                                                partition=partition, sup=sup, save=(args.freqstr, args.contingency, args.graph),
-                                                proportional=args.gpropor, globalc=args.globalclust)
+                        fstrings = save_frequent_sequences(dfile, peakstr, peakfreq, lstrings, sensor, dfile, ename, nclusters,
+                                                           lmatch=len(smatching), mapping=mapping, rand=rand, galt=args.galternative,
+                                                           partition=partition, sup=sup, save=(args.freqstr, args.contingency, args.graph),
+                                                           proportional=args.gpropor, globalc=args.globalclust)
                         lfrstrings.append(fstrings)
                         # generate_sequences(dfile, ename, timepeaks, clpeaks, sensor, ncl,
                         #                    lmatch=len(smatching), mapping=mapping,
                         #                    gap=gap, sup=None, rand=False, galt=args.galternative, partition=partition)
 
                     if args.sequence:
-                        lseq = freq_seq_positions(datainfo.name, clpeaks, timepeaks, sensor, ename, ncl,
-                                                   gap=gap, sup=sup)
-                        plot_sequences(dfile, lseq, ncl, sensor, lmatch=len(smatching), mapping=mapping)
+                        lseq = freq_seq_positions(datainfo.name, clpeaks, timepeaks, sensor, ename, nclusters,
+                                                  gap=gap, sup=sup)
+                        plot_sequences(dfile, lseq, nclusters, sensor, lmatch=len(smatching), mapping=mapping)
 
                     if args.string:
-                        sqstr = sequence_to_string(dfile, clpeaks, timepeaks, sensor, ename, gap=gap, npart=1, ncl=ncl)
+                        sqstr = sequence_to_string(dfile, clpeaks, timepeaks, sensor, ename, gap=gap, npart=1, ncl=nclusters)
                         if len(smatching) != 0:
                             lacounts.append(compute_pairs_distribution(sqstr, len(smatching)))
                         else:
-                            lacounts.append(compute_pairs_distribution(sqstr, ncl))
+                            lacounts.append(compute_pairs_distribution(sqstr, nclusters))
 
             #plot_pairs_dist(datainfo, sensor, lacounts)
             if args.diffs:
-                compute_intersection_graphs(datainfo, exppartition, lfrstrings, ncl, sensor, lmatch=len(smatching), mapping=mapping,
+                compute_intersection_graphs(datainfo, exppartition, lfrstrings, nclusters, sensor, lmatch=len(smatching), mapping=mapping,
                                             galt=args.galternative, partition=partition)
         datainfo.close_experiment_data(f)

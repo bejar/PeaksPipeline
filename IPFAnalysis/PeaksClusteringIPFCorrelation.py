@@ -88,6 +88,7 @@ if __name__ == '__main__':
         datainfo = experiments[expname]
         colors = datainfo.colors
         rsensor = datainfo.sensors[nsensor]
+        nclusters = datainfo.clusters[datainfo.sensors.index(rsensor)]
 
         rlcorrs, rlcorrp = compute_reference(datainfo, datainfo.datafiles[0], rsensor)
 
@@ -96,9 +97,9 @@ if __name__ == '__main__':
         for dfile, ename in zip(datainfo.datafiles, datainfo.expnames):
             print(dfile)
 
-            clpeaks = datainfo.compute_peaks_labels(f, dfile, rsensor, globalc=args.globalclust)
+            clpeaks = datainfo.compute_peaks_labels(f, dfile, rsensor, nclusters, globalc=args.globalclust)
             pktimes = datainfo.get_peaks_time(f, dfile, rsensor)
-            clustering = datainfo.get_peaks_clustering_centroids(f, datainfo.datafiles[0], rsensor, datainfo.clusters[0])
+            clustering = datainfo.get_peaks_clustering_centroids(f, datainfo.datafiles[0], rsensor, nclusters)
 
             IPFs, IPFp = datainfo.get_IPF_time_windows(f, dfile, pktimes, 1000)
             swindows = datainfo.get_sensors_time_windows(f, dfile, pktimes, 1000)

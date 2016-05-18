@@ -698,7 +698,8 @@ if __name__ == '__main__':
             # compute the labels of the data
             f = datainfo.open_experiment_data(mode='r')
             for sensor in lsensors:
-                lsens_labels.append(datainfo.compute_peaks_labels(f, dfile, sensor, globalc=args.globalclust))
+                nclusters = datainfo.clusters[datainfo.sensors.index(sensor)]
+                lsens_labels.append(datainfo.compute_peaks_labels(f, dfile, sensor, nclusters, globalc=args.globalclust))
             # Times of the peaks
             ltimes = []
             expcounts = []

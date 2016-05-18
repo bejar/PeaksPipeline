@@ -106,10 +106,10 @@ if __name__ == '__main__':
             print(dfile)
 
             ldata = []
-            for sensor in datainfo.sensors:
+            for sensor, nclusters in zip(datainfo.sensors, datainfo.clusters):
                 print(sensor)
 
-                clpeaks = datainfo.compute_peaks_labels(f, dfile, sensor, globalc=args.globalclust)
+                clpeaks = datainfo.compute_peaks_labels(f, dfile, sensor, nclusters, globalc=args.globalclust)
 
                 datafPCA = datainfo.get_peaks_resample_PCA(f, dfile, sensor)
                 if args.pca:
@@ -118,7 +118,7 @@ if __name__ == '__main__':
                     dataf = datainfo.get_peaks_resample(f, dfile, sensor)
 
                 cnt = Counter(list(clpeaks))
-                clustering = datainfo.get_peaks_clustering_centroids(f, datainfo.datafiles[0], sensor, datainfo.clusters[0])
+                clustering = datainfo.get_peaks_clustering_centroids(f, datainfo.datafiles[0], sensor, nclusters)
                 for i in np.unique(clpeaks):
                     print len(dataf[clpeaks == i, :])
                     dpeaks = dataf[clpeaks == i, :]

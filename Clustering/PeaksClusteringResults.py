@@ -84,7 +84,7 @@ if __name__ == '__main__':
             lhisto = []
             for dfile in datainfo.datafiles:
 
-                labels = datainfo.compute_peaks_labels(f, dfile, sensor, globalc=args.globalclust)
+                labels = datainfo.compute_peaks_labels(f, dfile, sensor, nclusters, globalc=args.globalclust)
 
                 histo = np.zeros(nclusters)
                 for i in labels:
