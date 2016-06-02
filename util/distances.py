@@ -123,4 +123,4 @@ def hellinger_distance(m1, m2):
     sum = 0.0
     for a, b in zip(m1, m2):
         sum += np.sum((np.sqrt(a) - np.sqrt(b)) ** 2)
-    return (1/np.log(2)) * np.sqrt(sum)
+    return (1/np.sqrt(2)) * np.sqrt(sum)
