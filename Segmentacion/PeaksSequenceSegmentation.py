@@ -47,7 +47,24 @@ def add_gaps(peaks, times, gap=0):
     return sequence
 
 
-def estimate_multinomial_model(sequence, nclusters, laplace=0):
+def estimate_frequency_model(sequence, nclusters, laplace=0):
+    """
+    Estimation of a multinomial model as frequencies of pairs
+    it uses the estsize
+
+    Mind of the gap :-)
+    :return:
+    """
+
+    counts_model = np.zeros(nclusters+1)
+
+    for i in range(len(sequence)):
+        counts_model[sequence[i][0]+1] += 1
+
+    return counts_model+laplace
+
+
+def estimate_frequency_pairs_model(sequence, nclusters, laplace=0):
     """
     Estimation of a multinomial model as frequencies of pairs
     it uses the estsize
@@ -86,6 +103,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
     parser.add_argument('--batch', help="Ejecucion no interactiva", action='store_true', default=False)
+    parser.add_argument('--pairs', help="Estimate sequence pairs frequecy model", action='store_true', default=True)
     parser.add_argument('--globalclust', help="Use a global computed clustering", action='store_true', default=False)
 
 
@@ -93,14 +111,18 @@ if __name__ == '__main__':
     lexperiments = args.exp
 
     if not args.batch:
-        # 'e150514''e150707''e160204''e151126''e160317'
-        lexperiments = ['e150514','e150707','e160204','e151126','e160317','e110906o','e120511', 'e140225']
+        # 'e150514''e150707''e160204''e151126''e160317','e110906o','e120511', 'e140225'
+        lexperiments = ['e160204']
         args.globalclust = False
-    gap = 2000 # Assuming 10KHz frequency
-    laplace = 0.1 # Laplace smoothing of the probability estimation
+        args.pairs = False
+    gap = 2000  # Assuming 10KHz frequency
+    laplace = 0.001  # Laplace smoothing of the probability estimation
+    # Tolerance in the difference between two models
+    tolerance = 0.9
 
     for expname in lexperiments:
 
+        print(expname)
         datainfo = experiments[expname]
         lsensors = datainfo.sensors
         lclusters = datainfo.clusters
@@ -109,7 +131,7 @@ if __name__ == '__main__':
         fig = plt.figure()
         fig.set_figwidth(20)
         fig.set_figheight(30)
-        fig.suptitle(expname, fontsize=48)
+        fig.suptitle(expname + '-T'+str(tolerance), fontsize=48)
 
         nfig = 0
         nfil = len(lsensors)/2
@@ -138,11 +160,8 @@ if __name__ == '__main__':
             # Length of the initial sequence for model estimation
             estsize = nclusters * nclusters * 10
             # Step size to advance in the sequence
-            stepsize = nclusters * nclusters * 5
-            # Tolerance in the difference between two models
-            #tolerance = (nclusters * nclusters) * 0.5
-            tolerance = 1
-            print tolerance
+            stepsize = nclusters * nclusters * 1
+
 
             # Base model
             lldiff = []
@@ -150,20 +169,27 @@ if __name__ == '__main__':
             llend = []
             tkpos = []
             tk = 0
-            counts_model = estimate_multinomial_model(sequences[0:estsize], nclusters, laplace=laplace)
+
+            if args.pairs:
+                counts_model = estimate_frequency_pairs_model(sequences[0:estsize], nclusters, laplace=laplace)
+            else:
+                counts_model = estimate_frequency_model(sequences[0:estsize], nclusters, laplace=laplace)
+
 
             for i in range(0, len(sequences)-stepsize, stepsize):
                 tk += 1
-                counts_model_ahead = estimate_multinomial_model(sequences[i:i+estsize], nclusters, laplace=laplace)
+                if args.pairs:
+                    counts_model_ahead = estimate_frequency_pairs_model(sequences[i:i + estsize], nclusters, laplace=laplace)
+                else:
+                    counts_model_ahead = estimate_frequency_model(sequences[i:i + estsize], nclusters, laplace=laplace)
+
                 #diff = jensen_shannon_divergence(counts_model/sum(counts_model), counts_model_ahead/sum(counts_model_ahead))
                 diff = hellinger_distance(counts_model/sum(counts_model), counts_model_ahead/sum(counts_model_ahead))
 
                 lldiff.append(diff)
-                #lend.append(0)
                 if diff>tolerance:
                     counts_model = counts_model_ahead.copy()
-                    #print seq[i][1]/10000.0
-                    llmark.append(5)
+                    llmark.append(tolerance*1.2)
                 else:
                     llmark.append(0)
                 if i > seqend[0]:
@@ -172,7 +198,7 @@ if __name__ == '__main__':
             tkpos.insert(0, 0)
 
             sp1 = fig.add_subplot(nfil, ncol, nfig)
-            sp1.axis([0, len(lldiff), 0, tolerance])
+            sp1.axis([0, len(lldiff), 0, tolerance*1.2])
             plt.title(sensor)
             #fig.suptitle(sensor, fontsize=48)
             sp1.plot(range(len(lldiff)), lldiff, 'b')
@@ -181,8 +207,13 @@ if __name__ == '__main__':
 
         plt.tight_layout()
 
+        if args.pairs:
+            pairsp = '-Ppairs'
+        else:
+            pairsp = '-Psingle'
+
         fig.savefig(datainfo.dpath + '/' + datainfo.name + '/Results/' + datainfo.name +
-                   '-prob-dist.pdf', orientation='landscape', format='pdf')
+                   '-segment-S' + str(tolerance) + pairsp + '.pdf', orientation='landscape', format='pdf')
 
         #plt.show()
         #plt.close()
