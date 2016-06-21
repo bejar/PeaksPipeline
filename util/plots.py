@@ -105,7 +105,7 @@ def plotSignals(signals, n, m, vmax, vmin, name, title, path, cstd=None, orienta
 
 # plt.show()
 
-def show_signal(signal, title=''):
+def show_signal(signal, line=None, title=''):
     """
     Plots a signal
     :param title:
@@ -124,6 +124,8 @@ def show_signal(signal, title=''):
     sp1.axis([0, num, minaxis, maxaxis])
     t = arange(0.0, num, 1)
     sp1.plot(t, signal)
+    if line is not None:
+        plt.axhline(linewidth=4, color='r', y=line)
     plt.show()
 
 
@@ -168,6 +170,29 @@ def show_two_signals(signal1, signal2):
     t = arange(0.0, num, 1)
     sp1.plot(t, signal1, 'r')
     sp1.plot(t, signal2, 'b')
+    plt.show()
+
+def show_list_signals(signals, legend=[]):
+    """
+    Shows a list of signals in the same picture
+    :param signal1:
+    :param signal2:
+    :return:
+    """
+    cols = ['r', 'g', 'b', 'k', 'y', 'c']
+    fig = plt.figure()
+    fig.set_figwidth(30)
+    fig.set_figheight(40)
+
+    minaxis = np.min([np.min(s) for s in signals])
+    maxaxis = np.max([np.max(s) for s in signals])
+    num = len(signals[0])
+    sp1 = fig.add_subplot(111)
+    sp1.axis([0, num, minaxis, maxaxis])
+    t = arange(0.0, num, 1)
+    for i, s in enumerate(signals):
+        sp1.plot(t, s, cols[i])
+    plt.legend(legend)
     plt.show()
 
 

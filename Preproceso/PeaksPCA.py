@@ -35,10 +35,13 @@ from util.plots import show_two_signals
 from itertools import product
 import multiprocessing
 from util.itertools import batchify
+from util.Baseline import baseline_als, find_baseline
+import time
+
 __author__ = 'bejar'
 
 
-def do_the_job(dfile, sensor, recenter=True, wtsel=None, clean=False, mbasal='meanfirst'):
+def do_the_job(dfile, sensor, recenter=True, wtsel=None, clean=False, mbasal='meanfirst', alt_smooth=False):
     """
     Transforms the data reconstructing the peaks using some components of the PCA
     and uses the mean of the baseline points to move the peak
@@ -63,6 +66,9 @@ def do_the_job(dfile, sensor, recenter=True, wtsel=None, clean=False, mbasal='me
     components = datainfo.get_peaks_smooth_parameters('components')
     baseline = datainfo.get_peaks_smooth_parameters('wbaseline')
     lbasal = range(baseline)
+    if alt_smooth:
+        parl = datainfo.get_peaks_alt_smooth_parameters('lambda')
+        parp = datainfo.get_peaks_alt_smooth_parameters('p')
 
     if data is not None:
         # if there is a clean list of peaks then the PCA is computed only for the clean peaks
@@ -74,7 +80,11 @@ def do_the_job(dfile, sensor, recenter=True, wtsel=None, clean=False, mbasal='me
                 data = data[ltime]
                 print(data.shape)
 
-        if pcap:
+        if alt_smooth:
+            trans = np.zeros((data.shape[0], data.shape[1]))
+            for i in range(data.shape[0]):
+                trans[i] = baseline_als(data[i,:], parl, parp)
+        elif pcap:
             pca = PCA(n_components=data.shape[1])
             res = pca.fit_transform(data)
 
@@ -116,20 +126,20 @@ def do_the_job(dfile, sensor, recenter=True, wtsel=None, clean=False, mbasal='me
 
         # Substract the basal
 
-        if (mbasal == 'meanfirst'):
+        if mbasal == 'meanfirst':
             for row in range(trans.shape[0]):
                 vals = trans[row, lbasal]
                 basal = np.mean(vals)
                 trans[row] -= basal
                 #show_two_signals(trans[row]+basal, trans[row])
-        elif (mbasal == 'meanmin'):
+        elif mbasal == 'meanmin':
              for row in range(trans.shape[0]):
                 vals = trans[row, 0:trans.shape[1]/2]
                 vals = np.array(sorted(list(vals)))
                 basal = np.mean(vals[lbasal])
                 trans[row] -= basal
                 #show_two_signals(trans[row]+basal, trans[row])
-        elif (mbasal == 'meanlast'):
+        elif mbasal == 'meanlast':
              for row in range(trans.shape[0]):
 
                 vals = trans[row, (trans.shape[1]/3)*2:trans.shape[1]]
@@ -137,6 +147,11 @@ def do_the_job(dfile, sensor, recenter=True, wtsel=None, clean=False, mbasal='me
 
                 trans[row] -= basal
                 #show_two_signals(trans[row]+basal, trans[row])
+        elif mbasal == 'alternative':
+             for row in range(trans.shape[0]):
+                basal = find_baseline(trans[row, 0:trans.shape[1]/2], resolution=25)
+                trans[row] -= basal
+
 
 
         return trans, dfile, sensor
@@ -151,6 +166,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch', help="Ejecucion no interactiva", action='store_true', default=False)
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
     parser.add_argument('--basal', default='meanfirst', help="Nombre de los experimentos")
+    parser.add_argument('--altsmooth', help="Alternative smoothing", action='store_true', default=False)
 
     args = parser.parse_args()
     lexperiments = args.exp
@@ -160,10 +176,11 @@ if __name__ == '__main__':
 
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511'
-        lexperiments = ['e160317']
-        mbasal = 'meanfirst'
+        lexperiments = ['e150514alt']
+        mbasal = 'alternative'  # 'meanfirst'
+        altsmooth = True
 
-
+    print('Begin Smoothing: ', time.ctime())
     for expname in lexperiments:
         datainfo = experiments[expname]
 
@@ -181,16 +198,17 @@ if __name__ == '__main__':
         for batch in batches:
             # Paralelize PCA computation
             res = Parallel(n_jobs=-1)(
-                    delayed(do_the_job)(dfile, sensor, recenter=False, wtsel=None, clean=False, mbasal=mbasal) for dfile, sensor in batch)
+                    delayed(do_the_job)(dfile, sensor, recenter=False, wtsel=None, clean=False, mbasal=mbasal, alt_smooth=altsmooth) for dfile, sensor in batch)
 
             # Save all the data
             f = datainfo.open_experiment_data(mode='r+')
             for trans, dfile, sensor in res:
                 if trans is not None:
-                    print(dfile + '/' + sensor + '/' + 'PeaksResamplePCA')
+                    print(dfile + '/' + sensor + '/' + 'PeaksResamplePCA',  time.ctime())
                     datainfo.save_peaks_resample_PCA(f, dfile, sensor, trans)
                     # if recenter:
                     #     f[dfile + '/' + sensor + '/PeaksResamplePCA'].attrs['baseline'] = recenter
                     #     f[dfile + '/' + sensor + '/PeaksResamplePCA'].attrs['wtsel'] = wtsel
 
             datainfo.close_experiment_data(f)
+    print('End Smoothing: ', time.ctime())

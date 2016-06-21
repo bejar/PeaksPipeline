@@ -24,6 +24,8 @@ from operator import itemgetter
 import numpy as np
 from pyx.color import cmyk, rgb
 
+
+
 def peaks_sequence(clpeaks, timepeaks, nexp, peakini, peakend, gap):
     """
     Returns a sequence from the peaks as a list with the class of the peak and the moment of the peak.

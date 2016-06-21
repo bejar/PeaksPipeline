@@ -41,7 +41,7 @@ if __name__ == '__main__':
 
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511''e160204''e160317''e110906o''e120511''e140225'
-        lexperiments = ['e140225']
+        lexperiments = ['e150514alt']
 
     for expname in lexperiments:
         datainfo = experiments[expname]

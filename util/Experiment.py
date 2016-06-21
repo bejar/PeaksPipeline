@@ -61,13 +61,17 @@ class Experiment:
     # Parameters for the signal filtering
     # 'lowpass'
     # 'highpass'
+    peaks_alt_smooth = None
+    # Parameters for the signal filtering (alternative smoothing)
+    # 'lambda'
+    # 'p'
     peaks_filter = None
     # names for the experiment phases
     expnames = None
 
     def __init__(self, dpath='', name='', sampling=0, datafiles=None, sensors=None, abfsensors=None, clusters=None,
-                 colors='', peaks_id_params={}, peaks_resampling={}, peaks_smooth={}, peaks_filter={}, expnames=None,
-                 extrasensors=None):
+                 colors='', peaks_id_params={}, peaks_resampling={}, peaks_smooth={}, peaks_alt_smooth={},
+                 peaks_filter={}, expnames=None, extrasensors=None):
         """
         Class initialized from program
 
@@ -94,6 +98,7 @@ class Experiment:
         self.peaks_id_params = peaks_id_params
         self.peaks_resampling = peaks_resampling
         self.peaks_smooth = peaks_smooth
+        self.peaks_alt_smooth = peaks_alt_smooth
         self.peaks_filter = peaks_filter
         if expnames is None:
             self.expnames = datafiles
@@ -176,6 +181,14 @@ class Experiment:
         :return:
         """
         return self.peaks_smooth[param]
+
+    def get_peaks_alt_smooth_parameters(self, param):
+        """
+        Returns the parameters for the smoothing of the peaks
+
+        :return:
+        """
+        return self.peaks_alt_smooth[param]
 
     def get_peaks_resample_parameters(self, param):
         """
