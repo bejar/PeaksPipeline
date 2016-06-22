@@ -10,7 +10,7 @@ PeaksSynchro
 
     draw_synchs - Generates a file for each part of the experiment representing the synchronizations through time
     length_synch_frequency_histograms -
-                        - Genrates a file for each part of the experiment with the histogram of the lengths of the
+                        - Generates a file for each part of the experiment with the histogram of the lengths of the
                           syncrhonizations
 :Authors: bejar
     
@@ -38,6 +38,7 @@ import argparse
 from util.misc import choose_color
 from Matching.Match import compute_matching_mapping, compute_signals_matching
 from fim import fpgrowth
+from operator import itemgetter, attrgetter, methodcaller
 
 voc = ' ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
@@ -143,7 +144,7 @@ def coincidence_contingency(peaksynchs, dfile, sensors):
     sns.heatmap(cmatrix, annot=True, fmt="2.2f", cmap="afmhot_r", xticklabels=sensors, yticklabels=sensors, vmin=0,
                 vmax=0.6)
 
-    plt.title(dfile, fontsize=48)
+    # plt.title(dfile, fontsize=48)
     plt.savefig(datainfo.dpath + '/' + datainfo.name + '/' + '/Results/' + dfile + '-psync-corr.pdf',
                 orientation='landscape', format='pdf')
 
@@ -170,7 +171,7 @@ def synch_coincidence_matrix(peaksynchs, exp, sensors, expcounts, window):
                 corrmatrix[i, j] = cab / tot
     corrmatrix[0, 0] = 1.0
     plotMatrix(corrmatrix, exp + '-W' + str(int(window * 0.1)) + 'ms', exp + '-W' + str(int(window * 0.1)) + 'ms',
-               [x for x in range(len(sensors))], [x for x in sensors], datainfo.dpath + '/Results/')
+               [x for x in range(len(sensors))], [x for x in sensors], datainfo.dpath  + '/' + datainfo.name + '/Results/')
 
 
 def length_synch_frequency_histograms(dsynchs, dfile, ename, lsensors, window):
@@ -549,28 +550,28 @@ def compute_synchs_new(lpeaks, labels, window=15, minlen=1):
         fin = (nsyn == 2)
 
 
-def compute_data_labels(fname, dfilec, dfile, sensor):
-    """
-    Computes the labels of the data using the centroids of the cluster in the file
-    the labels are relabeled acording to the matching with the reference sensor
-
-    Disabled the association using the Hungarian algorithm so the cluster index are
-    the original ones
-
-    :param dfile:
-    :param sensor:
-    :return:
-    """
-    f = h5py.File(datainfo.dpath + '/' + fname + '/' + fname + '.hdf5', 'r')
-
-    d = f[dfilec + '/' + sensor + '/Clustering/' + 'Centers']
-    centers = d[()]
-    d = f[dfile + '/' + sensor + '/' + 'PeaksResamplePCA']
-    data = d[()]
-    f.close()
-
-    labels, _ = pairwise_distances_argmin_min(data, centers)
-    return labels
+# def compute_data_labels(fname, dfilec, dfile, sensor):
+#     """
+#     Computes the labels of the data using the centroids of the cluster in the file
+#     the labels are relabeled acording to the matching with the reference sensor
+#
+#     Disabled the association using the Hungarian algorithm so the cluster index are
+#     the original ones
+#
+#     :param dfile:
+#     :param sensor:
+#     :return:
+#     """
+#     f = h5py.File(datainfo.dpath + '/' + fname + '/' + fname + '.hdf5', 'r')
+#
+#     d = f[dfilec + '/' + sensor + '/Clustering/' + 'Centers']
+#     centers = d[()]
+#     d = f[dfile + '/' + sensor + '/' + 'PeaksResamplePCA']
+#     data = d[()]
+#     f.close()
+#
+#     labels, _ = pairwise_distances_argmin_min(data, centers)
+#     return labels
 
 
 def select_sensor(synchs, sensor, slength):
@@ -611,6 +612,53 @@ def save_sync_sequence(lsync, nfile, lengths=False):
             rfile.write('%s\n' % syn)
 
     rfile.close()
+
+def save_sequential_transactions(lsync, nfile, sensors, gap=2000):
+    """
+    Saves the synchronizations as sequences that have not a separation more than gap in the
+    format needed for prefixpan implementation on spmf package.
+
+    :param lsync:
+    :param nfile:
+    :param gap:
+    :return:
+    """
+    def build_transaction(trans):
+        """
+        Generates a string representing a syncronization as a transaction
+        :param trans:
+        :return:
+        """
+        strtrans = ""
+        for t in sorted(trans, key=itemgetter(0)):
+            strtrans =  strtrans  + "%sC%d " % (sensors[t[0]], t[2])
+        strtrans += "-1 "
+        return strtrans
+
+    ltrans = []
+    i = 1
+    currtrans = build_transaction(lsync[0])
+    prevtime = min([v for _, v, _ in lsync[0]])
+    while i < len(lsync):
+        currtime = min([v for _, v, _ in lsync[i]])
+        if currtime - prevtime < gap:
+            currtrans += build_transaction(lsync[i])
+        else:
+            currtrans += "-2"
+            ltrans.append(currtrans)
+            currtrans = build_transaction(lsync[i])
+        prevtime = currtime
+        i += 1
+
+
+    fl = open(datainfo.dpath + '/' + datainfo.name + '/Results/' + 'seqtrans-' + nfile + '.csv', 'w')
+    print len(ltrans)
+
+    for t in ltrans:
+        fl.write(t+'\n')
+
+    fl.close()
+
 
 def compute_frequent_transactions(lsynchs, sup, lsensors):
     """
@@ -655,6 +703,7 @@ if __name__ == '__main__':
     parser.add_argument('--draw', help="Draws the syncronization matching", action='store_true', default=True)
     parser.add_argument('--rescale', help="Rescale the peaks for matching", action='store_true', default=False)
     parser.add_argument('--frequent', help="Computes frequent transactions algorithm for the synchonization", action='store_true', default=True)
+    parser.add_argument('--sequential', help="Generates a file with the sequential transactions of the synchronizations", action='store_true', default=False)
     parser.add_argument('--globalclust', help="Use a global computed clustering", action='store_true', default=False)
 
     args = parser.parse_args()
@@ -662,20 +711,23 @@ if __name__ == '__main__':
 
     if not args.batch:
        # 'e120503''e110616''e151126''e120511''e150514''e110906o'
-        lexperiments = ['e150514']
-        args.matching = True
-        args.histogram = True
+        lexperiments = ['e110906o']
+        args.matching = False
+        args.histogram = False
         args.draw = False
-        args.boxes = True
+        args.boxes = False
         args.rescale = False
         args.frequent = False
         args.contingency = False
         args.coincidence = False
         args.globalclust = False
+        args.save = False
+        args.sequential = True
 
     # Matching parameters
     isig = 2
     fsig = 10
+    gap=1200
 
     peakdata = {}
     for expname in lexperiments:
@@ -716,6 +768,9 @@ if __name__ == '__main__':
             if args.save:
                 save_sync_sequence(lsynchs, dfile)
 
+            if args.sequential:
+                save_sequential_transactions(lsynchs, ename, lsensors, gap=gap)
+
             # print len(lsynchs)
             # for i, s in enumerate(datainfo.sensors):
             #     lsyn_fil = select_sensor(lsynchs, i, 1)
@@ -749,9 +804,9 @@ if __name__ == '__main__':
 
             if args.frequent:
                 lsynchs_pruned = [trans for trans in lsynchs if len(trans)>1]
-                support = len(lsynchs_pruned) /20
+                support = 50 # len(lsynchs_pruned) / 115
                 print support
                 lfreq, cntlen = compute_frequent_transactions(lsynchs, sup=support, lsensors=lsensors)
                 print ename, len(lfreq), cntlen
-                # for item in lfreq:
-                #     print item
+                for item in sorted(lfreq, key=len):
+                    print item

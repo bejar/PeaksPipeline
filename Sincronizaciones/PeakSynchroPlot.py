@@ -208,6 +208,7 @@ if __name__ == '__main__':
             # Times of the peaks
             ltimes = []
             expcounts = []
+
             f = h5py.File(datainfo.dpath + '/' + datainfo.name + '/' + datainfo.name+ '.hdf5', 'r')
             if filter:
                 ext = '-F400'
