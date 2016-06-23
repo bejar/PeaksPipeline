@@ -52,8 +52,8 @@ if __name__ == '__main__':
     lexperiments = args.exp
 
     if not args.batch:
-       # 'e120503''e110616''e151126''e120511''e150514''e110906o'
-        lexperiments = ['e110906o']
+       # 'e120503''e110616''e151126''e120511''e150514''e110906o''e150707'
+        lexperiments = ['e150707']
 
     for expname in lexperiments:
 
@@ -62,7 +62,7 @@ if __name__ == '__main__':
         for ename in datainfo.expnames:
             print ename,
             try:
-                f = open(datainfo.dpath + '/' + datainfo.name + '/Results/' + 'seqtrans-' + ename + '.rul', 'r')
+                f = open(datainfo.dpath + '/' + datainfo.name + '/Results/' + 'seqtrans-' + ename + '.csv.rul', 'r')
 
                 count = np.zeros(5)
                 double = np.zeros(5)
@@ -85,3 +85,5 @@ if __name__ == '__main__':
                     print r
             except IOError:
                 pass
+            print
+            print '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++'

@@ -631,7 +631,7 @@ def save_sequential_transactions(lsync, nfile, sensors, gap=2000):
         """
         strtrans = ""
         for t in sorted(trans, key=itemgetter(0)):
-            strtrans =  strtrans  + "%sC%d " % (sensors[t[0]], t[2])
+            strtrans +=  "%sC%d " % (sensors[t[0]], t[2] + 1)
         strtrans += "-1 "
         return strtrans
 
@@ -710,24 +710,24 @@ if __name__ == '__main__':
     lexperiments = args.exp
 
     if not args.batch:
-       # 'e120503''e110616''e151126''e120511''e150514''e110906o'
-        lexperiments = ['e110906o']
+       # 'e120503''e110616''e151126''e120511''e150514''e110906o''e150707'
+        lexperiments = ['e150707']
         args.matching = False
         args.histogram = False
         args.draw = False
         args.boxes = False
         args.rescale = False
-        args.frequent = False
+        args.frequent = True
         args.contingency = False
         args.coincidence = False
         args.globalclust = False
         args.save = False
-        args.sequential = True
+        args.sequential = False
 
     # Matching parameters
     isig = 2
     fsig = 10
-    gap=1200
+    gap = 1200
 
     peakdata = {}
     for expname in lexperiments:
@@ -735,7 +735,7 @@ if __name__ == '__main__':
         datainfo = experiments[expname]
 
         for dfile, ename in zip(datainfo.datafiles, datainfo.expnames):
-            print dfile
+            print dfile, ename
 
             lsens_labels = []
             if args.matching:
@@ -808,5 +808,5 @@ if __name__ == '__main__':
                 print support
                 lfreq, cntlen = compute_frequent_transactions(lsynchs, sup=support, lsensors=lsensors)
                 print ename, len(lfreq), cntlen
-                for item in sorted(lfreq, key=len):
-                    print item
+                # for item in sorted(lfreq, key=len):
+                #     print item
