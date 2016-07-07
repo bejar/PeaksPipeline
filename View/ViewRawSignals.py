@@ -31,15 +31,15 @@ from scipy.signal import butter, filtfilt
 
 #'e120503'
 
-lexperiments = ['e110616']
+lexperiments = ['e160317']
 expname = lexperiments[0]
 
 datainfo = experiments[expname]
 
 f = h5py.File(datainfo.dpath + datainfo.name + '/'+ datainfo.name + '.hdf5', 'r')
 
-nfile = 0
-nsensor = 8
+nfile = 23
+nsensor = 5
 tinit = 0
 tfin = 600000
 

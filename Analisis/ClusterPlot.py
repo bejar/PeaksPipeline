@@ -82,13 +82,15 @@ if __name__ == '__main__':
                     mhisto[nf, i] += 1.0
                 mhisto[nf] /= len(labels)
 
-            matplotlib.rcParams.update({'font.size': 30})
+            matplotlib.rcParams.update({'font.size': 25})
             fig = plt.figure()
-            fig.set_figwidth(12)
-            fig.set_figheight(14)
+            fig.set_figwidth(24)
+            fig.set_figheight(28)
             width = 1
             for i in range(nclusters):
-                ax = fig.add_subplot(nclusters, 2, (i*2)+2)
+
+                ax = fig.add_subplot(nclusters, 4, (i*2)+2)
+
                 ax.axis([0, mhisto.shape[0], 0, 0.5])
                 rects = ax.bar(range(mhisto.shape[0]), mhisto[: , i], width, color=colors)
                 ax.xaxis.set_major_locator(ticker.MultipleLocator(15))
@@ -99,7 +101,7 @@ if __name__ == '__main__':
             sepy = round((maxaxis - minaxis)/4, 2)
 
             for nc in range(nclusters):
-                ax2 = fig.add_subplot(nclusters, 2, (nc*2)+1)
+                ax2 = fig.add_subplot(nclusters, 4, (nc*2)+1)
                 signal = centroids[nc]
                 #plt.title(' ( '+str(nc+1)+' )')
                 t = arange(0.0, len(signal), 1)

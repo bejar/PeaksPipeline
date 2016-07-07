@@ -871,6 +871,24 @@ def plot_pairs_dist(datainfo, sensor, lacounts):
     plt.show()
 
 
+def save_string(peakstr, nfile, sensor, ename,  ncl=0):
+    """
+    Saves a string representing a sequence of peaks
+
+    :return:
+    """
+
+
+    rfile = open(
+        datainfo.dpath + '/' + datainfo.name + '/Results/stringseq-%s-%s-%s-%d.txt' % (nfile, ename, sensor, ncl), 'w')
+    for k in range(0, len(peakstr), 250):
+        wstr = ''
+        for j in range(250):
+            if k + j < len(peakstr):
+                wstr += peakstr[k + j]
+        rfile.write(wstr + '\n')
+    rfile.close()
+
 # --------------------------------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
@@ -889,22 +907,25 @@ if __name__ == '__main__':
     parser.add_argument('--rescale', help="Rescale the peaks for matching", action='store_true', default=False)
     parser.add_argument('--diffs', help="Computes the differences among circular graphs", action='store_true', default=False)
     parser.add_argument('--globalclust', help="Use a global computed clustering", action='store_true', default=False)
+    parser.add_argument('--pastestring', help="Joins the string representation of the sequence of peaks", type=int, nargs='+', default=0)
+
 
     args = parser.parse_args()
     lexperiments = args.exp
 
     if not args.batch:
-        args.graph = True
-        args.freqstr = True
-        args.contingency = True
-        args.sequence = True
+        args.graph = False
+        args.freqstr = False
+        args.contingency = False
+        args.sequence = False
         args.matching = False
         args.rescale = False
         args.string = True
-        args.galternative = True
+        args.galternative = False
         args.diffs = False
         args.globalclust = False
         args.gpropor = False
+        args.pastestring = 2
         # 'e120503''e110616''e150707''e151126''e120511','e151126''e120511', 'e120503', 'e110906o', 'e160204''e150514'
         lexperiments = ['e160317']
 
@@ -943,6 +964,7 @@ if __name__ == '__main__':
                 mapping = None
 
             lfrstrings = []
+            lseqstrings = []
             lacounts = []
             for dfile, ename in zip(datainfo.datafiles, datainfo.expnames):
                 print(dfile, ename)
@@ -976,12 +998,21 @@ if __name__ == '__main__':
 
                     if args.string:
                         sqstr = sequence_to_string(dfile, clpeaks, timepeaks, sensor, ename, gap=gap, npart=1, ncl=nclusters)
+                        lseqstrings.append(sqstr)
                         if len(smatching) != 0:
                             lacounts.append(compute_pairs_distribution(sqstr, len(smatching)))
                         else:
                             lacounts.append(compute_pairs_distribution(sqstr, nclusters))
+            if args.string and args.pastestring >1:
+                numfiles = len(datainfo.datafiles) if (len(datainfo.datafiles) %2) == 0 else len(datainfo.datafiles) - 1
+                for npk in range(0, numfiles, args.pastestring):
+                    save_string(lseqstrings[npk]+'#'+lseqstrings[npk+1], datainfo.datafiles[npk], sensor, datainfo.expnames[npk]+datainfo.expnames[npk+1], ncl=nclusters)
+                if  (len(datainfo.datafiles) %2) != 0:
+                    save_string(lseqstrings[-1], datainfo.datafiles[-1], sensor, datainfo.expnames[-1], ncl=nclusters)
 
-            #plot_pairs_dist(datainfo, sensor, lacounts)
+
+
+            # plot_pairs_dist(datainfo, sensor, lacounts)
             if args.diffs:
                 compute_intersection_graphs(datainfo, exppartition, lfrstrings, nclusters, sensor, lmatch=len(smatching), mapping=mapping,
                                             galt=args.galternative, partition=partition)

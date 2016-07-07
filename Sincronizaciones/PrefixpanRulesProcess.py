@@ -47,7 +47,6 @@ if __name__ == '__main__':
     parser.add_argument('--batch', help="Ejecucion no interactiva", action='store_true', default=False)
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
 
-
     args = parser.parse_args()
     lexperiments = args.exp
 

@@ -711,23 +711,23 @@ if __name__ == '__main__':
 
     if not args.batch:
        # 'e120503''e110616''e151126''e120511''e150514''e110906o''e150707'
-        lexperiments = ['e150707']
+        lexperiments = ['e150514']
         args.matching = False
         args.histogram = False
         args.draw = False
         args.boxes = False
         args.rescale = False
-        args.frequent = True
+        args.frequent = False
         args.contingency = False
         args.coincidence = False
         args.globalclust = False
         args.save = False
-        args.sequential = False
+        args.sequential = True
 
     # Matching parameters
     isig = 2
     fsig = 10
-    gap = 1200
+    gap = 800
 
     peakdata = {}
     for expname in lexperiments:
