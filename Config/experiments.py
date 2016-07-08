@@ -537,5 +537,5 @@ experiments = \
 
 if __name__ == '__main__':
     experiment = experiments['e160204']
-    print len(experiment.expnames)
+    print(len(experiment.expnames))
 

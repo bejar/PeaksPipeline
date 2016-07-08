@@ -6,8 +6,6 @@ PeaksClustering
 
 :Description: PeaksClustering
 
-
-
     Genera los histogramas que corresponden con la probabilidad de los picos para la secuencia del experiment
     usando el clustering  global o el de control
 

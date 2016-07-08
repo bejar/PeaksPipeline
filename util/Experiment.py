@@ -407,6 +407,7 @@ class Experiment:
         if dfile + '/Raw' in f:
             d = f[dfile + '/Raw']
             return d[()]
+
         else:
             return None
 
@@ -440,7 +441,6 @@ class Experiment:
             IPFs = np.zeros((times.shape[0], wlen))
             IPFp = np.zeros((times.shape[0], wlen))
 
-            print IPFs.shape
             if wlen % 2 != 0:
                 ilen = (wlen / 2) - 1
                 flen = (wlen / 2)
@@ -486,7 +486,7 @@ class Experiment:
         else:
             return None
 
-    def compute_peaks_labels(self, f, dfile, sensor, nclusters, globalc=False):
+    def compute_peaks_labels(self, f, dfile, sensor, nclusters, globalc=False, distances=False):
         """
         Computes the labels of the data using the centroids of the cluster in the first file
         :param nclusters:
@@ -503,9 +503,12 @@ class Experiment:
         centers = d[()]
         d = f[dfile + '/' + sensor + '/' + 'PeaksResamplePCA']
         data = d[()]
-        labels, _ = pairwise_distances_argmin_min(data, centers)
+        labels, dist = pairwise_distances_argmin_min(data, centers)
 
-        return labels
+        if distances:
+            return labels, distances
+        else:
+            return labels
 
     def get_peaks(self, f, dfile, sensor):
         """

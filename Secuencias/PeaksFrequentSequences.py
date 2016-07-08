@@ -950,7 +950,7 @@ if __name__ == '__main__':
             lsensors = datainfo.sensors[isig:fsig]
             lclusters = datainfo.clusters[isig:fsig]
             smatching = compute_signals_matching(datainfo, lsensors, rescale=args.rescale, globalc=args.globalclust)
-            print len(smatching)
+            print (len(smatching))
         else:
             lsensors = datainfo.sensors
             lclusters = datainfo.clusters
