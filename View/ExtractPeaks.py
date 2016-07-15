@@ -33,7 +33,7 @@ if __name__ == '__main__':
     datainfo = experiments[expname]
     sensor = 'L6ri'
     nsensor = 6
-    cluster = 4
+    cluster = 10
     width = 1000
     nclusters = datainfo.clusters[nsensor]
     f = datainfo.open_experiment_data(mode='r')
@@ -62,7 +62,7 @@ if __name__ == '__main__':
 
 
     wtlen = int(((2*width)+1)/datainfo.peaks_resampling['rsfactor'])
-    print wtlen
+    print(wtlen)
     vdata = np.zeros((sum(select), wtlen))
     npk = 0
     for idx, nc in enumerate(select):
@@ -109,6 +109,18 @@ if __name__ == '__main__':
             npk = 1
             pack += 1
             print(pack)
+
+    # For the last batch of peaks
+    if npk % npack != 0:
+        fig.savefig(datainfo.dpath + '/' + datainfo.name + '/Results/' + datainfo.name + '-' + sensor + '-' +
+                    str(nclusters) + '-' + str(cluster+1) + '-' + str(pack)+ '-cluster-peaks.svg', orientation='landscape', format='svg')
+        plt.close()
+        fig = plt.figure()
+
+        ax = fig.add_subplot(1, 1, 1)
+        ax.axis([0, wtlen, minaxis, maxaxis])
+        fig.set_figwidth(1)
+        fig.set_figheight(npack + 2)
 
 
 
