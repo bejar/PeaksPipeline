@@ -29,22 +29,24 @@ __author__ = 'bejar'
 if __name__ == '__main__':
 
     expname = 'e150514'
+    filesel = 3
     npack = 100
     datainfo = experiments[expname]
     sensor = 'L6ri'
     nsensor = 6
-    cluster = 10
+    cluster = 11
     width = 1000
     nclusters = datainfo.clusters[nsensor]
     f = datainfo.open_experiment_data(mode='r')
 
 
-    centroids = datainfo.get_peaks_clustering_centroids(f, datainfo.datafiles[0], sensor, nclusters)
+    centroids = datainfo.get_peaks_clustering_centroids(f, datainfo.datafiles[filesel], sensor, nclusters)
 
     lsignals = []
 
 
-    dfile = datainfo.datafiles[0]
+    dfile = datainfo.datafiles[filesel]
+    ename = datainfo.expnames[filesel]
 
     labels = datainfo.compute_peaks_labels(f, dfile, sensor, nclusters)
     times = datainfo.get_peaks_time(f, dfile, sensor)
@@ -96,7 +98,7 @@ if __name__ == '__main__':
         plt.axhline(linewidth=1, color='r', y=npk-1)
         npk += 1
         if npk % npack == 0:
-            fig.savefig(datainfo.dpath + '/' + datainfo.name + '/Results/' + datainfo.name + '-' + sensor + '-' +
+            fig.savefig(datainfo.dpath + '/' + datainfo.name + '/Results/' + datainfo.name + '-' +  ename + '-' + sensor + '-' +
                         str(nclusters) + '-' + str(cluster+1) + '-' + str(pack)+ '-cluster-peaks.svg', orientation='landscape', format='svg')
             plt.close()
             fig = plt.figure()
@@ -112,7 +114,7 @@ if __name__ == '__main__':
 
     # For the last batch of peaks
     if npk % npack != 0:
-        fig.savefig(datainfo.dpath + '/' + datainfo.name + '/Results/' + datainfo.name + '-' + sensor + '-' +
+        fig.savefig(datainfo.dpath + '/' + datainfo.name + '/Results/' + datainfo.name + '-' +  ename + '-' + sensor + '-' +
                     str(nclusters) + '-' + str(cluster+1) + '-' + str(pack)+ '-cluster-peaks.svg', orientation='landscape', format='svg')
         plt.close()
         fig = plt.figure()

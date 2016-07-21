@@ -26,7 +26,6 @@ import seaborn as sns
 import argparse
 import pandas as pd
 
-
 __author__ = 'bejar'
 
 
@@ -63,8 +62,8 @@ def peaks_histogram(experiment):
         fig = plt.figure()
 
         ax = fig.add_subplot(1, 1, 1)
-        fig.set_figwidth(60)
-        fig.set_figheight(40)
+        fig.set_figwidth(6)
+        fig.set_figheight(4)
         ind = np.arange(len(dhisto[s]))
         fig.suptitle(experiment.name + '-' + s, fontsize=48)
 
@@ -87,15 +86,15 @@ def signal_distribution(experiment):
     f = experiment.open_experiment_data('r')
     print(experiment.dpath + experiment.name)
 
-    for dfile in experiment.datafiles:
+    for dfile, ename in zip(experiment.datafiles, experiment.expnames):
         print(dfile)
         data = experiment.get_raw_data(f, dfile)
         print data.shape
         data = pd.DataFrame(data, columns=experiment.sensors)
         plt.title(experiment.name + ' - ' + dfile)
-        sns.boxplot(data, whis=6)
+        sns.boxplot(data=data, whis=6)
         #plt.show()
-        plt.savefig(experiment.dpath + '/' + experiment.name + '/Results/signal-dist-' + experiment.name + '-' + dfile + '.pdf', orientation='landscape', format='pdf')
+        plt.savefig(experiment.dpath + '/' + experiment.name + '/Results/signal-dist-' + experiment.name + '-' + dfile + '-' + ename + '.pdf', orientation='landscape', format='pdf')
         del data
         plt.close()
 

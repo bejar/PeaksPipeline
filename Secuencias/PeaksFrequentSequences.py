@@ -657,7 +657,7 @@ def sequence_to_string(nfile, clpeaks, timepeaks, sensor, ename, gap=0, npart=1,
     part = 1
     for i in range(timepeaks.shape[0]):
         if timepeaks[i] > part*mtime:
-            rfile = open(datainfo.dpath + '/' + datainfo.name + '/Results/stringseq-%s%d-%s-%s-%d.txt'%(nfile, part, ename, sensor, ncl), 'w')
+            rfile = open(datainfo.dpath + '/' + datainfo.name + '/Results/stringseq-%s%d-%s-%s.txt'%(nfile, part, ename, sensor), 'w')
             for k in range(0, len(peakstr), 250):
                 wstr = ''
                 for j in range(250):
@@ -673,7 +673,7 @@ def sequence_to_string(nfile, clpeaks, timepeaks, sensor, ename, gap=0, npart=1,
                 peakstr += '#' * ((timepeaks[i + 1] - timepeaks[i]) /gap)
 
     if part < npart+1:
-        rfile = open(datainfo.dpath+ '/'+ datainfo.name + '/Results/stringseq-%s%d-%s-%s-%d.txt'%(nfile, part, ename, sensor, ncl), 'w')
+        rfile = open(datainfo.dpath+ '/'+ datainfo.name + '/Results/stringseq-%s%d-%s-%s.txt'%(nfile, part, ename, sensor,), 'w')
         for i in range(0, len(peakstr), 250):
             wstr = ''
             for j in range(250):
@@ -925,9 +925,9 @@ if __name__ == '__main__':
         args.diffs = False
         args.globalclust = False
         args.gpropor = False
-        args.pastestring = 2
+        args.pastestring = 1
         # 'e120503''e110616''e150707''e151126''e120511','e151126''e120511', 'e120503', 'e110906o', 'e160204''e150514'
-        lexperiments = ['e160317']
+        lexperiments = ['e110616']
 
     colors = ['red', 'blue', 'green']
     npart = 3

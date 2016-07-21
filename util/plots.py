@@ -127,6 +127,7 @@ def show_signal(signal, line=None, title=''):
     if line is not None:
         plt.axhline(linewidth=4, color='r', y=line)
     plt.show()
+    plt.close()
 
 
 def show_vsignals(signal, title=''):

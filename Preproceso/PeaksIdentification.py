@@ -32,18 +32,15 @@ __author__ = 'bejar'
 
 import time
 
-import h5py
 import numpy as np
 from joblib import Parallel, delayed
-
-from Config.experiments import experiments
-from Config.experiments import lexperiments
 from util.plots import show_signal
+from Config.experiments import experiments
 import argparse
 
 def uniquetol(peaks, tol):
     """
-    returns the list of the indices of the peaks that are at a distance less than the tolerance to the
+    returns the list of the indices of the peaks that are at a distance more than the tolerance to the
     previous peaks
 
     The list of peaks is a triple, the time of the peak is the first element
@@ -186,10 +183,8 @@ def cdp_identification(Y, i, wtime, datainfo, sensor, ifreq=0.0, ffreq=200, thre
     fft_freq = None  # max number of freqs used in FFT
 
     upthreshold = 1  # Outliers threshold *** ADDED by Javier
-    downthreshold = -0.4  # Outliers threshold *** ADDED by Javier
 
     peakprecision = wtime / 12  # Peaks localization time resolution in points
-    RCoinc = wtime / 6  # Peak synchronization radius
     Tpk = wtime / 4  # Quality filter time window subdivision
     qualc = True  # apply quality cut, =0 do not apply quality cut
     factp = 1.5  # Quality cut on Peaks in windows
@@ -251,8 +246,7 @@ def cdp_identification(Y, i, wtime, datainfo, sensor, ifreq=0.0, ffreq=200, thre
         xf, y, y2 = fifft(Nfft, fmask, xs, dw, Tw)  # signal smooth in frequency interval
 
         xf -= np.min(xf)
-        qpeak = (np.max(xf) > threshold) and (np.max(xf) < upthreshold) and (
-        np.min(xf) > downthreshold)  # *** up/downthreshold ADDED by Javier
+        qpeak = threshold < np.max(xf) < upthreshold # *** upthreshold ADDED by Javier
 
         # Peaks second level cuts we only consider time windows
         # with centered peaks and minimum peaks amplitude >threshold
@@ -290,6 +284,7 @@ def cdp_identification(Y, i, wtime, datainfo, sensor, ifreq=0.0, ffreq=200, thre
                     # noquality=Tcentr and not Tqpeak
                     # if noquality:
                     #     ipeakMnoQj.append(tstart+np.floor(peakprecision/4)+indp)
+
         if forceTm != 0:
             Tm = forceTm  # force exhaustive peaks search
         tstart += Tm
@@ -348,7 +343,7 @@ if __name__ == '__main__':
 
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511'
-        lexperiments = ['e160317']
+        lexperiments = ['e120511e']
 
     # Preparado para procesar un conjunto de experimentos a la vez
     for expname in lexperiments:

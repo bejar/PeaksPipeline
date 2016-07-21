@@ -439,6 +439,24 @@ experiments = \
                 expnames=['ctrl1', 'ctrl2', 'capsa1', 'capsa2', 'capsa3', 'capsa4',
                           'sec1', 'lido1', 'lido2', 'lido3', 'lido4']
             ),
+        'e120511c':
+            Experiment(
+                dpath=datapath,
+                name='e120511',
+                sampling=10204.0,
+                datafiles=['12511000', '12511001', '12511005', '12511006', '12511010', '12511015', '12511019',
+                           '12511020', '12511024', '12511025'],
+                sensors=['L4ci', 'L4cd', 'L5ri', 'L5rd', 'L5ci', 'L5cd', 'L6ri', 'L6rd', 'L6ci', 'L6cd', 'L7ri'],
+                abfsensors=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+                clusters=[12] * 11,
+                colors='rryyyykbbbb',
+                peaks_id_params={'wtime': 120e-3, 'low': 0, 'high': 70, 'threshold': 0.05},
+                peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
+                peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 10},
+                peaks_filter={'lowpass': 1.0, 'highpass': 200.0},
+                expnames=['ctrl1', 'ctrl2', 'capsa1', 'capsa2', 'capsa3', 'capsa4',
+                          'sec1']
+            ),
         'e120511e':
             Experiment(
                 dpath=datapath,
