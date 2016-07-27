@@ -54,7 +54,7 @@ if __name__ == '__main__':
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511''e150514'
         args.hellinger = False
-        lexperiments = ['e150514']
+        lexperiments = ['e120511c']
 
     for expname in lexperiments:
         datainfo = experiments[expname]
@@ -85,11 +85,11 @@ if __name__ == '__main__':
             matplotlib.rcParams.update({'font.size': 25})
             fig = plt.figure()
             fig.set_figwidth(24)
-            fig.set_figheight(28)
+            fig.set_figheight(12)
             width = 1
             for i in range(nclusters):
 
-                ax = fig.add_subplot(nclusters, 4, (i*2)+2)
+                ax = fig.add_subplot(nclusters/2, 4, (i*2)+2)
 
                 ax.axis([0, mhisto.shape[0], 0, 0.5])
                 rects = ax.bar(range(mhisto.shape[0]), mhisto[: , i], width, color=colors)
@@ -101,7 +101,7 @@ if __name__ == '__main__':
             sepy = round((maxaxis - minaxis)/4, 2)
 
             for nc in range(nclusters):
-                ax2 = fig.add_subplot(nclusters, 4, (nc*2)+1)
+                ax2 = fig.add_subplot(nclusters/2, 4, (nc*2)+1)
                 signal = centroids[nc]
                 #plt.title(' ( '+str(nc+1)+' )')
                 t = arange(0.0, len(signal), 1)

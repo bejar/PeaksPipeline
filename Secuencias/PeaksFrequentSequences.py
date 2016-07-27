@@ -880,7 +880,7 @@ def save_string(peakstr, nfile, sensor, ename,  ncl=0):
 
 
     rfile = open(
-        datainfo.dpath + '/' + datainfo.name + '/Results/stringseq-%s-%s-%s-%d.txt' % (nfile, ename, sensor, ncl), 'w')
+        datainfo.dpath + '/' + datainfo.name + '/Results/stringseq-%s-%s-%s.txt' % (nfile, ename, sensor), 'w')
     for k in range(0, len(peakstr), 250):
         wstr = ''
         for j in range(250):
@@ -915,19 +915,19 @@ if __name__ == '__main__':
 
     if not args.batch:
         args.graph = False
-        args.freqstr = False
+        args.freqstr = True
         args.contingency = False
         args.sequence = False
         args.matching = False
         args.rescale = False
-        args.string = True
+        args.string = False
         args.galternative = False
         args.diffs = False
         args.globalclust = False
         args.gpropor = False
         args.pastestring = 1
         # 'e120503''e110616''e150707''e151126''e120511','e151126''e120511', 'e120503', 'e110906o', 'e160204''e150514'
-        lexperiments = ['e110616']
+        lexperiments = ['e110906o']
 
     colors = ['red', 'blue', 'green']
     npart = 3
