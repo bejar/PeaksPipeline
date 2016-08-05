@@ -1,15 +1,12 @@
 """
-.. module:: PeaksClustering
+.. module:: PeaksClusteringViewExamples
 
 PeaksClustering
 *************
 
-:Description: PeaksClustering
+:Description: PeaksClusteringViewExamples
 
-    Clusters the Peaks from an experiment all the files together
-
-    Hace un clustering de los picos de cada sensor usando el numero de clusters indicado en la
-    definicion del experimento y el conjunto de colores para el histograma de la secuencia del experimento
+ Visualiza picos de los clusters
 
 :Authors: bejar
     
@@ -93,8 +90,8 @@ if __name__ == '__main__':
     if not args.batch:
         # 'e120503''e110616''e150707''e151126''e120511''e150514''e110906o'
         lexperiments = ['e150514']
-        args.pca = False
-        args.globalclust = True
+        args.pca = True
+        args.globalclust = False
 
     for expname in lexperiments:
         datainfo = experiments[expname]
