@@ -22,10 +22,12 @@ Experiment
 __author__ = 'bejar'
 
 # from ConfigParser import SafeConfigParser
+
 import h5py
 import os
 import numpy as np
 from sklearn.metrics import pairwise_distances_argmin_min
+
 
 
 class Experiment:
@@ -329,6 +331,7 @@ class Experiment:
         f[dfile + '/' + sensor + '/PeaksResamplePCA'].attrs['baseline'] = self.peaks_smooth['wbaseline']
         f.flush()
 
+
     def get_peaks_clustering_centroids(self, f, dfile, sensor, ncl):
         """
         Return the clustering of the peaks of
@@ -563,8 +566,13 @@ class Experiment:
             return None
 
 
+
+
 # ---------------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
+
+
+
     pass
     # a = Experiment('../Manual/config_example.cfg')
     # 
@@ -579,3 +587,4 @@ if __name__ == '__main__':
     # print(a.peaks_resampling)
     # print(a.peaks_smooth)
     # print(a.peaks_filter)
+

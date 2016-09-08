@@ -51,7 +51,7 @@ experiments = \
                 peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
                 peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 20},
                 peaks_filter={'lowpass': 1.0, 'highpass': 200.0},
-                expnames=['crtl{:0>2}'.format(i) for i in range(1, 7)] + ['capsa{:0>2}'.format(i) for i in
+                expnames=['ctrl{:0>2}'.format(i) for i in range(1, 7)] + ['capsa{:0>2}'.format(i) for i in
                                                                            range(1, 19)] +
                          ['lido{:0>2}'.format(i) for i in range(1, 13)] + ['esp{:0>2}'.format(i) for i in
                                                                             range(1, 7)]
@@ -81,7 +81,7 @@ experiments = \
                 peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
                 peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 20},
                 peaks_filter={'lowpass': 1.0, 'highpass': 200.0},
-                expnames= ['crtl{:0>2}'.format(i) for i in range(1,12)] + ['capsa{:0>2}'.format(i) for i in range(1,20)]+
+                expnames= ['ctrl{:0>2}'.format(i) for i in range(1,12)] + ['capsa{:0>2}'.format(i) for i in range(1,20)]+
                           ['lido1{:0>2}'.format(i) for i in range(1,21)] + ['esp{:0>2}'.format(i) for i in range(1,7)]+
                           ['lido2{:0>2}'.format(i) for i in range(1,19)]
             ),
@@ -349,6 +349,24 @@ experiments = \
                           'capsa3','capsa4','capsa5','capsa6','capsa7','capsa8', 'lido1', 'lido2', 'lido3', 'lido4',
                           'lido5', 'lido6','lido7','lido8','lido9','lido10','lido11']
             ),
+        'e130221c':
+            Experiment(
+                dpath=datapath,
+                name='e130221',
+                sampling=10416.66,
+                datafiles=['13221f30', '13221f31', '13221f32', '13221f33', '13221f35', '13221f36', '13221f37', '13221f38',
+                           '13221f46', '13221f47', '13221f48', '13221f49', '13221f57', '13221f58', '13221f59', '13221f60'],
+                sensors=['L4cd', 'L4ci', 'L5rd', 'L5ri', 'L5cd', 'L5ci', 'L6rd', 'L6ri', 'L6cd', 'L6ci', 'L7ri'],
+                abfsensors=[0,1,2,3,4,5,6,7,8,9,10],
+                clusters=[12]*11,
+                colors='ggggkkkkrrrrrrrrbbbbbbbbbbb',
+                peaks_id_params={'wtime': 120e-3, 'low':0, 'high':70, 'threshold': 0.05},
+                peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
+                peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 10},
+                peaks_filter={'lowpass': 1.0, 'highpass':200.0},
+                expnames=['crtl1', 'crtl2', 'crtl3', 'crtl4', 'esp1', 'esp2', 'esp3', 'esp4', 'capsa1', 'capsa2',
+                          'capsa3','capsa4','capsa5','capsa6','capsa7','capsa8']
+            ),
          'e130716':
             Experiment(
                 dpath=datapath,
@@ -429,7 +447,7 @@ experiments = \
                 sensors=['L4ci', 'L4cd', 'L5ri', 'L5rd', 'L5ci', 'L5cd', 'L6ri', 'L6rd', 'L6ci', 'L6cd', 'L7ri'],
                 abfsensors=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
                 clusters=[12] * 11,
-                colors='rryyyykbbbb',
+                colors='ggrrrrkbbbb',
                 peaks_id_params={'wtime': 120e-3, 'low': 0, 'high': 70, 'threshold': 0.05},
                 peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
                 peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 10},

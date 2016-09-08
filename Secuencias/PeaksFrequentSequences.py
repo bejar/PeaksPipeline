@@ -914,20 +914,20 @@ if __name__ == '__main__':
     lexperiments = args.exp
 
     if not args.batch:
-        args.graph = False
-        args.freqstr = True
+        args.graph = True
+        args.freqstr = False
         args.contingency = False
         args.sequence = False
         args.matching = False
         args.rescale = False
         args.string = False
-        args.galternative = False
+        args.galternative = True
         args.diffs = False
         args.globalclust = False
         args.gpropor = False
         args.pastestring = 1
         # 'e120503''e110616''e150707''e151126''e120511','e151126''e120511', 'e120503', 'e110906o', 'e160204''e150514'
-        lexperiments = ['e110616']
+        lexperiments = ['e120511']
 
     colors = ['red', 'blue', 'green']
     npart = 3

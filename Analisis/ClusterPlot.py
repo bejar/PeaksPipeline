@@ -6,6 +6,7 @@ ClusterPlot
 
 :Description: ClusterPlot
 
+ Histogramas de los clusters para las figuras de los articulos
     
 
 :Authors: bejar
@@ -91,10 +92,10 @@ if __name__ == '__main__':
 
                 ax = fig.add_subplot(nclusters/2, 4, (i*2)+2)
 
-                ax.axis([0, mhisto.shape[0], 0, 0.5])
+                ax.axis([0, mhisto.shape[0], 0, 0.201])
                 rects = ax.bar(range(mhisto.shape[0]), mhisto[: , i], width, color=colors)
                 ax.xaxis.set_major_locator(ticker.MultipleLocator(15))
-                ax.yaxis.set_major_locator(ticker.MultipleLocator(0.25))
+                ax.yaxis.set_major_locator(ticker.MultipleLocator(0.1))
 
             minaxis = np.min(centroids)
             maxaxis = np.max(centroids)
