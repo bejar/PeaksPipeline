@@ -244,7 +244,39 @@ def plotListSignals(signals, orient='h', ncols=None):
         t = arange(0.0, signals[0].shape[0], 1)
         sp1.plot(t, signals[i])
     plt.show()
+    plt.close()
 
+
+def plotParallelSignals(signals1, signals2):
+    """
+    Plot a set of signals
+    """
+    fig = plt.figure()
+    minaxis1 = np.min([np.min(s) for s in signals1])
+    maxaxis1 = np.max([np.max(s) for s in signals1])
+    minaxis2 = np.min([np.min(s) for s in signals2])
+    maxaxis2 = np.max([np.max(s) for s in signals2])
+
+
+    minaxis = min(minaxis1, minaxis2)
+    maxaxis = max(maxaxis1, maxaxis2)
+
+    num = len(signals1)
+
+    for i in range(num):
+        sp1 = fig.add_subplot(num, 2, (2*i) + 1)
+        sp1.axis([0, signals1[0].shape[0], minaxis, maxaxis])
+        t = arange(0.0, signals1[0].shape[0], 1)
+        sp1.plot(t, signals1[i])
+
+    for i in range(num):
+        sp1 = fig.add_subplot(num, 2, (2*i) + 2)
+        sp1.axis([0, signals1[0].shape[0], minaxis, maxaxis])
+        t = arange(0.0, signals1[0].shape[0], 1)
+        sp1.plot(t, signals2[i])
+
+    plt.show()
+    plt.close()
 
 def plotDummy(fig, num, n, m, p, name):
     minaxis = -1

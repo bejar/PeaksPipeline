@@ -27,6 +27,7 @@ from sklearn.cluster import KMeans
 from Config.experiments import experiments
 from collections import Counter
 from operator import itemgetter
+from Preproceso.Outliers import outliers_knn
 import argparse
 
 if __name__ == '__main__':
@@ -34,6 +35,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--batch', help="Ejecucion no interactiva", action='store_true', default=False)
+    parser.add_argument('--outliers', help="Elimina outliers de los datos", action='store_true', default=False)
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
 
     args = parser.parse_args()
@@ -42,6 +44,7 @@ if __name__ == '__main__':
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511''e160204''e160317''e110906o''e120511''e140225'
         lexperiments = ['e110906o']
+        args.outliers = False
 
     for expname in lexperiments:
         datainfo = experiments[expname]
@@ -57,9 +60,11 @@ if __name__ == '__main__':
                 if data is not None:
                     if data.shape[0] > nclusters:
                         km = KMeans(n_clusters=nclusters, n_jobs=-1)
+                        if args.outliers:
+                            data = data[outliers_knn(data, 7, nstd=5)]
                         km.fit(data)
                         lsignals = []
-                        cnt = Counter(list(km.labels_))
+                        # cnt = Counter(list(km.labels_))
 
                         lmax = []
                         for i in range(km.n_clusters):

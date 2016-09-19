@@ -58,7 +58,7 @@ def do_the_job(dpath, dname, dfile, sensor, nn, nstd=6, wavy=5):
     """
 
     # Detect outliers based on the distribution of the distances of the signals to the knn
-    # Any signal that is farther from its neighbors that a number of standar deviations of the mean knn-distance is out
+    # Any signal that is farther from its neighbors that a number of standard deviations of the mean knn-distance is out
     print('Processing ', sensor, dfile)
     f = datainfo.open_experiment_data(mode='r')
     data = datainfo.get_peaks_resample(f, dfile, sensor)
@@ -101,7 +101,7 @@ if __name__ == '__main__':
 
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511'
-        lexperiments = ['e120511']
+        lexperiments = ['e150514alt']
 
     for expname in lexperiments:
         datainfo = experiments[expname]
