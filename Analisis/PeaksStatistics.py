@@ -90,7 +90,7 @@ def signal_distribution(experiment):
         print(dfile)
         data = experiment.get_raw_data(f, dfile)
         print data.shape
-        data = pd.DataFrame(data, columns=experiment.sensors)
+        data = pd.DataFrame(data[:,:len(experiment.sensors)], columns=experiment.sensors)
         plt.title(experiment.name + ' - ' + dfile)
         sns.boxplot(data=data, whis=6)
         #plt.show()
@@ -114,8 +114,8 @@ if __name__ == '__main__':
     hsignal = args.hsignal
 
     if not args.batch:
-        # 'e150514''e120503''e110616''e150707''e151126''e120511''e160204'
-        lexperiments =['e150514']
+        # 'e150514''e120503''e110616''e150707''e151126''e120511''e160204''e150514'
+        lexperiments =['e130221c']
         hpeaks = True
         hsignal = True
 

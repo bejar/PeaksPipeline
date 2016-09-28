@@ -36,6 +36,7 @@ from util.distances import hellinger_distance
 from util.misc import compute_centroids
 import argparse
 import matplotlib.ticker as ticker
+from util.itertools import batchify
 
 warnings.filterwarnings("ignore")
 
@@ -45,21 +46,23 @@ __author__ = 'bejar'
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--batch', help="Ejecucion no interactiva", action='store_true', default=False)
+    parser.add_argument('--join', help="Joins the files in groups", type=int, nargs='+', default=1)
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
     parser.add_argument('--globalclust', help="Use a global computed clustering", action='store_true', default=False)
     args = parser.parse_args()
 
     lexperiments = args.exp
-
+    batches = args.join
 
     if not args.batch:
-        # 'e150514''e120503''e110616''e150707''e151126''e120511''e150514'
+        # 'e150514''e120503''e110616''e150707''e151126''e120511''e150514''e150514alt', 'e150514'
         args.hellinger = False
         lexperiments = ['e130221c']
+        batches = 2
 
     for expname in lexperiments:
         datainfo = experiments[expname]
-        colors = datainfo.colors
+        colors = [datainfo.colors[i] for i in range(0, len(datainfo.colors), batches)]
 
         f = datainfo.open_experiment_data(mode='r')
 
@@ -73,15 +76,19 @@ if __name__ == '__main__':
 
             lsignals = []
 
-            mhisto = np.zeros((len(datainfo.datafiles), nclusters))
-            for nf, dfile in enumerate(datainfo.datafiles):
-
-                labels = datainfo.compute_peaks_labels(f, dfile, sensor, nclusters, globalc=args.globalclust)
-
+            mhisto = np.zeros((len(datainfo.datafiles)//batches, nclusters))
+            cbatch = [c for c in enumerate(datainfo.datafiles)]
+            lbatch = batchify(cbatch, batches)
+            for nf, btch in enumerate(lbatch):
+                npeaks = 0
                 histo = np.zeros(nclusters)
-                for i in labels:
-                    mhisto[nf, i] += 1.0
-                mhisto[nf] /= len(labels)
+                for _, dfile in btch:
+
+                    labels = datainfo.compute_peaks_labels(f, dfile, sensor, nclusters, globalc=args.globalclust)
+                    npeaks += len(labels)
+                    for i in labels:
+                        mhisto[nf, i] += 1.0
+                mhisto[nf] /= npeaks
 
             matplotlib.rcParams.update({'font.size': 25})
             fig = plt.figure()

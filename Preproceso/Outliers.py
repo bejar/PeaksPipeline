@@ -72,8 +72,6 @@ def outliers_wavy(data, wavy=5):
                 count += 1
         return count > thresh
 
-    nout = 0
-    lout = []
     vsel = np.ones(data.shape[0],dtype=bool)
     for i in range(data.shape[0]):
         vsel[i] = not is_wavy_signal(data[i], wavy)

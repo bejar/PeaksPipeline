@@ -21,22 +21,19 @@ ComputeSubsequences
 """
 
 
-import h5py
-
-from Config.experiments import experiments
-from pylab import *
-import seaborn as sns
-from Secuencias.rstr_max import *
-from sklearn.metrics import pairwise_distances_argmin_min
+import argparse
+import operator
 import random
 import string
 import os
-import argparse
-from pyx import *
-import operator
-
-from util.misc import choose_color
+import seaborn as sns
+from Config.experiments import experiments
 from Matching.Match import compute_matching_mapping, compute_signals_matching
+from Secuencias.rstr_max import *
+from pylab import *
+from pyx import *
+from util.misc import choose_color
+
 
 
 __author__ = 'bejar'
