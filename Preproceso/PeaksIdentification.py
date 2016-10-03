@@ -343,13 +343,14 @@ if __name__ == '__main__':
 
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511'
-        lexperiments = ['e120511e']
+        lexperiments = ['e130221rl']
 
     # Preparado para procesar un conjunto de experimentos a la vez
     for expname in lexperiments:
         datainfo = experiments[expname]
 
-        wtime = datainfo.peaks_id_params['wtime']  # Window length in miliseconds
+        wtime = datainfo.peaks_id_params['wtime']  # Window identification length in miliseconds
+        wext = datainfo.peaks_id_params['wext']  # Window extraction length in miliseconds
         ifreq = datainfo.peaks_id_params['low']  # Frequency cutoff low
         ffreq = datainfo.peaks_id_params['high']  # Frequency cutoff high
         threshold = datainfo.peaks_id_params['threshold']  # Peaks Max-Min in window above threshold in amplitude
@@ -357,7 +358,7 @@ if __name__ == '__main__':
         print(wtime, ifreq, ffreq, threshold)
 
         sampling = datainfo.sampling  # / 6.0
-        Tw = int(2 * np.round(wtime * sampling / 2))
+        Tw = int(2 * np.round(wext * sampling / 2))
         print(datainfo.dpath + datainfo.name + '/' + datainfo.name)
 
         for dfile in datainfo.datafiles:

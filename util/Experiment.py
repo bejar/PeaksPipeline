@@ -291,6 +291,7 @@ class Experiment:
                               data=ntimes, compression='gzip')
         d[()] = ntimes
         f[dfile + '/' + sensor + '/Time'].attrs['wtime'] = self.peaks_id_params['wtime']
+        f[dfile + '/' + sensor + '/Time'].attrs['wext'] = self.peaks_id_params['wext']
         f[dfile + '/' + sensor + '/Time'].attrs['low'] = self.peaks_id_params['low']
         f[dfile + '/' + sensor + '/Time'].attrs['high'] = self.peaks_id_params['high']
         f[dfile + '/' + sensor + '/Time'].attrs['threshold'] = self.peaks_id_params['threshold']
@@ -544,6 +545,7 @@ class Experiment:
         f.require_dataset(dfile + '/' + sensor + '/Peaks', rawpeaks.shape, dtype='f', data=rawpeaks,
                               compression='gzip')
         f[dfile + '/' + sensor + '/Peaks'].attrs['wtime'] = self.peaks_id_params['wtime']
+        f[dfile + '/' + sensor + '/Peaks'].attrs['wext'] = self.peaks_id_params['wext']
         f[dfile + '/' + sensor + '/Peaks'].attrs['low'] = self.peaks_id_params['low']
         f[dfile + '/' + sensor + '/Peaks'].attrs['high'] = self.peaks_id_params['high']
         f[dfile + '/' + sensor + '/Peaks'].attrs['threshold'] = self.peaks_id_params['threshold']
