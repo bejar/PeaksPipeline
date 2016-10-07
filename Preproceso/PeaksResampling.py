@@ -89,8 +89,8 @@ if __name__ == '__main__':
     njobs = multiprocessing.cpu_count()
 
     if not args.batch:
-        # 'e150514''e120503''e110616''e150707''e151126''e120511'
-        lexperiments = ['e160317']
+        # 'e150514''e120503''e110616''e150707''e151126''e120511'e160317
+        lexperiments = ['e130221rl']
         args.detrend = False
 
     for expname in lexperiments:

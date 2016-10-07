@@ -56,7 +56,7 @@ if __name__ == '__main__':
         # 'e150514''e120503''e110616''e150707''e151126''e120511''e150514''e110906o'
         args.hellinger = True
         args.globalclust = False
-        lexperiments = ['e150514alt']
+        lexperiments = ['e130221rl']
 
     if args.globalclust:
         ext='global'
@@ -104,7 +104,7 @@ if __name__ == '__main__':
                 df['RMS'] = lrms
 
             rfile = open(datainfo.dpath + '/' + datainfo.name + '/Results/cluster-histo-' + dfile + '-' + sensor + '-' +
-                        str(nclusters) + '-' + ext +'.txt', 'w')
+                        str(nclusters) + '-' + ext + '.txt', 'w')
             rfile.write(df.to_string(line_width=200))
 
             rfile.close()
