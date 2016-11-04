@@ -1,15 +1,12 @@
 """
-.. module:: PeaksClustering
+.. module:: PeaksClusteringIPFCorrelation
 
 PeaksClustering
 *************
 
 :Description: PeaksClustering
 
-    Clusters the Peaks from an experiment all the files together
-
-    Hace un clustering de los picos de cada sensor usando el numero de clusters indicado en la
-    definicion del experimento y el conjunto de colores para el histograma de la secuencia del experimento
+  Dada un sensor de referencia se calcula la correlacion media de los picos de ese sensor con los IPF separadas por clases
 
 :Authors: bejar
     
@@ -36,36 +33,37 @@ from scipy.stats import pearsonr
 __author__ = 'bejar'
 
 
-def compute_reference(datainfo, dfile, rsensor):
-    """
-    Computes the correlations for a file to use as reference
-
-    :return:
-    """
-    f = datainfo.open_experiment_data(mode='r')
-
-    datainfo.close_experiment_data(f)
-    clpeaks = datainfo.compute_peaks_labels(f, dfile, rsensor)
-    pktimes = datainfo.get_peaks_time(f, dfile, rsensor)
-
-    IPFs, IPFp = datainfo.get_IPF_time_windows(f, dfile, pktimes, 1000)
-    swindows = datainfo.get_sensors_time_windows(f, dfile, pktimes, 1000)
-    for i in np.unique(clpeaks):
-        dIPFs = IPFs[clpeaks == i, :]
-        dIPFp = IPFp[clpeaks == i, :]
-        clsensors = []
-        for j, sensor in enumerate(datainfo.sensors):
-            clsensors.append(swindows[j][clpeaks == i, :])
-
-        lcorrs = np.zeros(len(datainfo.sensors))
-        lcorrp = np.zeros(len(datainfo.sensors))
-        for k, cl in enumerate(clsensors):
-            for j in range(dIPFs.shape[0]):
-                lcorrs[k] += pearsonr(dIPFs[j], cl[j])[0]
-                lcorrp[k] += pearsonr(dIPFp[j], cl[j])[0]
-        lcorrs /= dIPFs.shape[0]
-        lcorrp /= dIPFs.shape[0]
-    return lcorrs, lcorrp
+# def compute_reference(datainfo, dfile, rsensor, nclusters):
+#     """
+#     Computes the correlations for a file to use as reference
+#
+#     :return:
+#     """
+#     f = datainfo.open_experiment_data(mode='r')
+#
+#
+#     clpeaks = datainfo.compute_peaks_labels(f, dfile, rsensor, nclusters)
+#     pktimes = datainfo.get_peaks_time(f, dfile, rsensor)
+#
+#     IPFs, IPFp = datainfo.get_IPF_time_windows(f, dfile, pktimes, 1000)
+#     swindows = datainfo.get_sensors_time_windows(f, dfile, pktimes, 1000)
+#     for i in np.unique(clpeaks):
+#         dIPFs = IPFs[clpeaks == i, :]
+#         dIPFp = IPFp[clpeaks == i, :]
+#         clsensors = []
+#         for j, sensor in enumerate(datainfo.sensors):
+#             clsensors.append(swindows[j][clpeaks == i, :])
+#
+#         lcorrs = np.zeros(len(datainfo.sensors))
+#         lcorrp = np.zeros(len(datainfo.sensors))
+#         for k, cl in enumerate(clsensors):
+#             for j in range(dIPFs.shape[0]):
+#                 lcorrs[k] += pearsonr(dIPFs[j], cl[j])[0]
+#                 lcorrp[k] += pearsonr(dIPFp[j], cl[j])[0]
+#         lcorrs /= dIPFs.shape[0]
+#         lcorrp /= dIPFs.shape[0]
+#     datainfo.close_experiment_data(f)
+#     return lcorrs, lcorrp
 
 
 if __name__ == '__main__':
@@ -80,7 +78,7 @@ if __name__ == '__main__':
 
     if not args.batch:
         # 'e120503''e110616''e150707''e151126''e120511''e150514''e110906o'
-        lexperiments = ['e110906o']
+        lexperiments = ['e150514']
         args.pca = False
         args.globalclust = False
 
@@ -90,7 +88,7 @@ if __name__ == '__main__':
         rsensor = datainfo.sensors[nsensor]
         nclusters = datainfo.clusters[datainfo.sensors.index(rsensor)]
 
-        rlcorrs, rlcorrp = compute_reference(datainfo, datainfo.datafiles[0], rsensor)
+        # rlcorrs, rlcorrp = compute_reference(datainfo, datainfo.datafiles[0], rsensor, nclusters)
 
         f = datainfo.open_experiment_data(mode='r')
 
@@ -142,14 +140,13 @@ if __name__ == '__main__':
                     if (j % 2) == 0:
                         mpls[j/2, 0] = lcorrs[j]
                         mplp[j/2, 0] = lcorrp[j]
-                        rmpls[j/2, 0] = lcorrs[j] - rlcorrs[j]
-                        rmplp[j/2, 0] = lcorrp[j] - lcorrp[j]
-
+                        # rmpls[j/2, 0] = lcorrs[j] - rlcorrs[j]
+                        # rmplp[j/2, 0] = lcorrp[j] - lcorrp[j]
                     else:
                         mpls[j/2, 1] = lcorrs[j]
                         mplp[j/2, 1] = lcorrp[j]
-                        rmpls[j/2, 1] = lcorrs[j] - rlcorrs[j]
-                        rmplp[j/2, 1] = lcorrp[j] - lcorrp[j]
+                        # rmpls[j/2, 1] = lcorrs[j] - rlcorrs[j]
+                        # rmplp[j/2, 1] = lcorrp[j] - lcorrp[j]
 
                 mpls[dim-1, 0] = -1
                 mplp[dim-1, 0] = -1

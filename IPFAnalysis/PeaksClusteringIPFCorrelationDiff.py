@@ -1,15 +1,18 @@
 """
-.. module:: PeaksClustering
+.. module:: PeaksClusteringIPFCorrelationDiff
 
 PeaksClustering
 *************
 
-:Description: PeaksClustering
+:Description: PeaksClusteringIPFCorrelationDiff
 
-    Clusters the Peaks from an experiment all the files together
+  Dado un sensor de referencia y un tramo del experimento se calculan las correlaciones medias de las senyales en los tiempos de los picos
+  de ese sensor con los IPF separadas por clases y para el resto de tramos se calcula lo mismo y se representa la diferencia entre la
+  referencia y cada tramo
 
-    Hace un clustering de los picos de cada sensor usando el numero de clusters indicado en la
-    definicion del experimento y el conjunto de colores para el histograma de la secuencia del experimento
+
+  Diferencia de la correlacion de la senyales de los sensores con las pipetas respecto a control tomando un sensor como
+referencia
 
 :Authors: bejar
     
@@ -36,7 +39,7 @@ from scipy.stats import pearsonr
 __author__ = 'bejar'
 
 
-def compute_reference(datainfo, rfile, rsensor):
+def compute_reference(datainfo, rfile, rsensor, nclusters):
     """
     Computes the correlations for a file to use as reference
 
@@ -44,7 +47,7 @@ def compute_reference(datainfo, rfile, rsensor):
     """
     f = datainfo.open_experiment_data(mode='r')
 
-    clpeaks = datainfo.compute_peaks_labels(f, rfile, rsensor)
+    clpeaks = datainfo.compute_peaks_labels(f, rfile, rsensor, nclusters)
     pktimes = datainfo.get_peaks_time(f, rfile, rsensor)
 
     IPFs, IPFp = datainfo.get_IPF_time_windows(f, rfile, pktimes, 1000)
@@ -88,7 +91,7 @@ if __name__ == '__main__':
 
     if not args.batch:
         # 'e120503''e110616''e150707''e151126''e120511''e150514''e110906o' 'e160204'
-        lexperiments = ['e160204']
+        lexperiments = ['e150514']
         args.pca = False
         args.globalclust = False
 
@@ -98,7 +101,7 @@ if __name__ == '__main__':
         rsensor = datainfo.sensors[nsensor]
         nclusters = datainfo.clusters[datainfo.sensors.index(rsensor)]
 
-        rclcorrs, rclcorrp = compute_reference(datainfo, datainfo.datafiles[0], rsensor)
+        rclcorrs, rclcorrp = compute_reference(datainfo, datainfo.datafiles[0], rsensor, nclusters)
 
         f = datainfo.open_experiment_data(mode='r')
 

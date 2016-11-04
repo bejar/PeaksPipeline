@@ -1,15 +1,12 @@
 """
-.. module:: PeaksClustering
+.. module:: PeaksClusteringViewIPF
 
 PeaksClustering
 *************
 
 :Description: PeaksClustering
 
-    Clusters the Peaks from an experiment all the files together
-
-    Hace un clustering de los picos de cada sensor usando el numero de clusters indicado en la
-    definicion del experimento y el conjunto de colores para el histograma de la secuencia del experimento
+  Suma de las senyales de IPF para cada sensor donde estan sus picos, separada por clases
 
 :Authors: bejar
     
@@ -43,6 +40,8 @@ def compute_data_labels(dfilec, dfile, sensor):
     :param sensor:
     :return:
     """
+
+
     f = h5py.File(datainfo.dpath + '/' + datainfo.name + '/' + datainfo.name  + '.hdf5', 'r')
 
     d = f[dfilec + '/' + sensor + '/Clustering/' + 'Centers']
@@ -121,7 +120,7 @@ if __name__ == '__main__':
 
     if not args.batch:
         # 'e120503''e110616''e150707''e151126''e120511''e150514''e110906o'
-        lexperiments = ['e110906o']
+        lexperiments = ['e150514']
         args.pca = False
 
     for expname in lexperiments:
@@ -137,7 +136,10 @@ if __name__ == '__main__':
             for sensor in datainfo.sensors:
                 print(sensor)
 
-                clpeaks = compute_data_labels(datainfo.datafiles[0], dfile, sensor)
+
+                nclusters = datainfo.clusters[datainfo.sensors.index(sensor)]
+
+                clpeaks = datainfo.compute_peaks_labels(f, dfile, sensor, nclusters)
                 pktimes = datainfo.get_peaks_time(f, dfile, sensor)
 
                 IPFs, IPFp = datainfo.get_IPF_time_windows(f, dfile, pktimes, 1000)

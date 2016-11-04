@@ -1,10 +1,10 @@
 """
-.. module:: LTSM
+.. module:: DT
 
-LTSM
+DT
 *************
 
-:Description: LTSM
+:Description: DT
 
     
 
@@ -13,9 +13,12 @@ LTSM
 
 :Version: 
 
-:Created on: 19/09/2016 13:01 
+:Created on: 10/10/2016 8:46 
 
 """
+
+__author__ = 'bejar'
+
 
 import matplotlib.pyplot as plt
 import pandas
@@ -32,18 +35,16 @@ from util.plots import show_signal
 import argparse
 import logging
 import time
-
-__author__ = 'bejar'
-
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import GradientBoostingClassifier
 
 def create_dataset(dataset, look_back=1, classes=13):
     dataX, dataY = [], []
     for i in range(len(dataset)-look_back-1):
         a = dataset[i:(i+look_back), 0]
         dataX.append(a)
-        clvector = np.zeros(classes)
-        clvector[dataset[i + look_back, 0]] = 1
-        dataY.append(clvector)
+        dataY.append(dataset[i + look_back, 0])
     return np.array(dataX), np.array(dataY)
 
 voc = '#ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789*+-%&/<>[]{}()!?#'
@@ -64,20 +65,22 @@ if __name__ == '__main__':
         # 'e150514''e120503''e110616''e150707''e151126''e120511'
         lexperiments = ['e150514alt']
 
+
     for expname in lexperiments:
         datainfo = experiments[expname]
         opt = 'adam'
         drop = 0.02
-        epoch = 300
+        epoch = 200
         nLSTM = 2
         nunits = 100
-        look_back = 20
-        nclasses = 12
+        look_back = 150
+        nclasses = 13
 
         # ---- Logging
         now = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
         logging.basicConfig(filename=datainfo.dpath + '/' + datainfo.name + '/Results/' + datainfo.name + '-LSTM-' + now + '.txt', filemode='w',
-                            level=logging.INFO, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S')
+                            level=logging.DEBUG, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S')
+
 
         console = logging.StreamHandler()
         console.setLevel(logging.INFO)
@@ -97,83 +100,62 @@ if __name__ == '__main__':
                 for line in rfile:
                     seq += line.strip()
                 rfile.close()
-                lval = [voc.index(v)-1 for v in seq if v != '#']
+                lval = []
+                prev = None
+                for v in seq:
+                    if v == '#' and prev == '#':
+                        pass
+                    else:
+                        lval.append(voc.index(v))
+                    prev = v
                 # scaler = MinMaxScaler(feature_range=(0, 1))
                 # dataset = scaler.fit_transform(np.array(lval, dtype=np.float64).reshape(-1, 1))
 
 
-                logging.info('OPT= %s LSTM DROP W= %f EPOCH= %d LOOKBACK= %d LSTMs= %d NUnits= %d nclasses=%d', opt, drop, epoch, look_back, nLSTM, nunits, nclasses)
+                logging.info('OPT= %s LSTM DROP W= %f EPOCH= %d LOOKBACK= %d LSTMs= %d NUnits= %d nclasses= %d', opt, drop, epoch, look_back, nLSTM, nunits, nclasses)
 
                 logging.info('%s %s', dfile, sensor)
 
                 dataset = np.array(lval).reshape(-1, 1)
-                train_size = len(dataset) - 100 - look_back  # int(len(dataset) * 0.9)
+                train_size = len(dataset) - 500 - look_back  # int(len(dataset) * 0.9)
                 # test_size = 100 # len(dataset) - train_size
                 train, test = dataset[0:train_size,:], dataset[train_size + look_back:len(dataset),:]
                 trainX, trainY = create_dataset(train, look_back, classes=nclasses)
                 testX, testY = create_dataset(test, look_back, classes=nclasses)
-                trainX = np.reshape(trainX, (trainX.shape[0], 1, trainX.shape[1]))
-                testX = np.reshape(testX, (testX.shape[0], 1, testX.shape[1]))
-                model = Sequential()
-                #model.add(LSTM(100, input_dim=look_back, return_sequences=True, dropout_W=drop, activation='tanh'))
-                for i in range(1, nLSTM):
-                    model.add(LSTM(nunits, input_dim=look_back, return_sequences=True, dropout_W=drop, activation='tanh'))
-                model.add(LSTM(nunits, input_dim=look_back, dropout_W=drop, activation='tanh'))
-                #model.add(Dense(50, activation='relu'))
-                model.add(Dense(nclasses, activation='softmax'))
-                model.compile(loss='categorical_crossentropy', optimizer=opt)
-                model.fit(trainX, trainY, nb_epoch=epoch, batch_size=1, verbose=2)
 
-                # trainScore = model.evaluate(trainX, trainY, verbose=0)
-                # trainScore = math.sqrt(trainScore)
-                # #trainScore = scaler.inverse_transform(np.array([[trainScore]]))
-                # print('Train Score: %.2f RMSE' % (trainScore))
-                # testScore = model.evaluate(testX, testY, verbose=0)
-                # testScore = math.sqrt(testScore)
-                # #testScore = scaler.inverse_transform(np.array([[testScore]]))
-                # print('Test Score: %.2f RMSE' % (testScore))
+                # model = KNeighborsClassifier(n_neighbors=11, weights='distance')
+                # model = DecisionTreeClassifier(max_leaf_nodes=100)
+                model = GradientBoostingClassifier(n_estimators=1000, max_depth=5)
+                model.fit(trainX, trainY)
 
                 trainPredict = model.predict(trainX)
                 testPredict = model.predict(testX)
                 acc = 0.0
                 for i in range(trainPredict.shape[0]):
-                    if np.argmax(trainPredict[i]) == np.argmax(trainY[i]):
+                    if trainPredict[i]==trainY[i]:
                         acc += 1.0
                 logging.info('Train= %f', acc/trainPredict.shape[0])
                 acc = 0.0
                 lpred = ""
                 ltrain = ""
+
                 confmat = np.zeros((nclasses, nclasses))
                 for i in range(testPredict.shape[0]):
-                    if np.argmax(testPredict[i]) == np.argmax(testY[i]):
+                    if testPredict[i]==testY[i]:
                         acc += 1.0
-                    confmat[np.argmax(testPredict[i]), np.argmax(testY[i])] += 1
-                    lpred += voc[np.argmax(testPredict[i])]
-                    ltrain += voc[np.argmax(testY[i])]
+                    confmat[testPredict[i], testY[i]] += 1
+                    lpred += voc[testPredict[i]]
+                    ltrain += voc[testY[i]]
+
 
                 logging.info('Test= %f', acc/testPredict.shape[0])
                 logging.info('T= %s', ltrain)
                 logging.info('P= %s', lpred)
 
-                for i in range(nclasses):
-                    print voc[i],
-                    for j in range(nclasses):
-                        print int(confmat[i, j]),
-                    print
 
-                # # shift train predictions for plotting
-                # trainPredictPlot = np.zeros((len(dataset), 12))
-                # trainPredictPlot[:, :] = np.nan
-                # trainPredictPlot[look_back:len(trainPredict)+look_back, :] = trainPredict
-                #
-                # # shift test predictions for plotting
-                # testPredictPlot = np.empty_like(dataset)
-                # testPredictPlot[:, :] = np.nan
-                # testPredictPlot[len(trainPredict)+(look_back*2)+1:len(dataset)-1, :] = testPredict
-                #
-                # # plot baseline and predictions
-                # plt.plot(dataset)
-                # plt.plot(trainPredictPlot)
-                # plt.plot(testPredictPlot)
-                # plt.show()
-                # plt.close()
+                # for i in range(nclasses):
+                #     print voc[i],
+                #     for j in range(nclasses):
+                #         print int(confmat[i, j]),
+                #     print
+

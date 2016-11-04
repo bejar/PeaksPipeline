@@ -57,7 +57,7 @@ if __name__ == '__main__':
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511''e150514''e150514alt', 'e150514'
         args.hellinger = False
-        lexperiments = ['e130221rl']
+        lexperiments = ['e130221c']
         batches = 2
 
     for expname in lexperiments:
@@ -112,8 +112,9 @@ if __name__ == '__main__':
                 ax2 = fig.add_subplot(nclusters/2, 4, (nc*2)+1)
                 signal = centroids[nc]
                 #plt.title(' ( '+str(nc+1)+' )')
-                t = arange(0.0, len(signal), 1)
-                ax2.axis([0, len(signal), minaxis, maxaxis])
+                lenplot = datainfo.peaks_resampling['wtsel']
+                t = arange(0.0, len(signal), 1)/len(signal) * 100
+                ax2.axis([0, lenplot, minaxis, maxaxis])
                 ax2.plot(t,signal)
                 ax2.xaxis.set_major_locator(ticker.MultipleLocator(50))
                 ax2.yaxis.set_major_locator(ticker.MultipleLocator(sepy))

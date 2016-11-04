@@ -912,19 +912,19 @@ if __name__ == '__main__':
 
     if not args.batch:
         args.graph = True
-        args.freqstr = True
-        args.contingency = True
-        args.sequence = True
+        args.freqstr = False
+        args.contingency = False
+        args.sequence = False
         args.matching = False
         args.rescale = False
-        args.string = True
+        args.string = False
         args.galternative = True
         args.diffs = False
         args.globalclust = False
         args.gpropor = False
         args.pastestring = 2
         # 'e120503''e110616''e150707''e151126''e120511','e151126''e120511', 'e120503', 'e110906o', 'e160204''e150514'
-        lexperiments = ['e130221rl']
+        lexperiments = ['e160204']
 
     colors = ['red', 'blue', 'green']
     npart = 3
