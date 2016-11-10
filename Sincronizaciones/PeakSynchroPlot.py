@@ -1,10 +1,10 @@
 """
 .. module:: PeakSyncroPloy
 
-PeakSyncroPloy
+PeakSyncroPlot
 *************
 
-:Description: PeakSyncroPloy
+:Description: PeakSyncroPlot
 
     
 

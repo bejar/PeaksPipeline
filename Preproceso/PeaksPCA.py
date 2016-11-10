@@ -171,6 +171,7 @@ if __name__ == '__main__':
     parser.add_argument('--basal', default='meanfirst', help="Nombre de los experimentos")
     parser.add_argument('--altsmooth', help="Alternative smoothing", action='store_true', default=False)
     parser.add_argument('--wavy', help="Cuts too wavy signals", action='store_true', default=False)
+    parser.add_argument('--extra', help="Procesa sensores extra del experimento", action='store_true', default=False)
 
     args = parser.parse_args()
     lexperiments = args.exp
@@ -180,16 +181,22 @@ if __name__ == '__main__':
 
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511'
-        lexperiments = ['e130221rl']
+        lexperiments = ['e150514']
         mbasal =  'meanfirst' # 'alternative'
         altsmooth = False
         args.wavy = True
+        args.extra = True
 
     print('Begin Smoothing: ', time.ctime())
     for expname in lexperiments:
         datainfo = experiments[expname]
 
-        batches = batchify([i for i in product(datainfo.datafiles, datainfo.sensors)], njobs)
+        if not args.extra:
+            lsensors = datainfo.sensors
+        else:
+            lsensors = datainfo.extrasensors
+
+        batches = batchify([i for i in product(datainfo.datafiles, lsensors)], njobs)
 
         if 'recenter' in datainfo.peaks_smooth:
             # If recenter is true a subwindow of the data has to be indicated to be able to re-crop the signal

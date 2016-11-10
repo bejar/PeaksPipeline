@@ -40,8 +40,10 @@ class Experiment:
     sensors = None  # List with the names of the sensors
     abfsensors = None  # List of indices of sensors  the abf file
     extrasensors = None  # List of extra sensors in the file
+    extrasensorspos = None
     dpath = None  # Path of the datafiles
     clusters = None  # List with the number of clusters for each sensor
+    extraclusters = None
     colors = ''  # List of colors to use for histogram of the peaks (one color for each datafile)
 
     # Parameters for the peaks identification, a dictionary with keys
@@ -73,7 +75,7 @@ class Experiment:
 
     def __init__(self, dpath='', name='', sampling=0, datafiles=None, sensors=None, abfsensors=None, clusters=None,
                  colors='', peaks_id_params={}, peaks_resampling={}, peaks_smooth={}, peaks_alt_smooth={},
-                 peaks_filter={}, expnames=None, extrasensors=None):
+                 peaks_filter={}, expnames=None, extrasensors=None, extrasensorspos=None, extraclusters=None):
         """
         Class initialized from program
 
@@ -110,6 +112,14 @@ class Experiment:
             self.extrasensors = []
         else:
             self.extrasensors = extrasensors
+        if extrasensorspos is None:
+            self.extrasensorspos = []
+        else:
+            self.extrasensorspos = extrasensorspos
+        if extraclusters is None:
+            self.extraclusters = []
+        else:
+            self.extraclusters = extraclusters
 
     # def load_config(self, file):
     #     """
@@ -414,6 +424,20 @@ class Experiment:
 
         else:
             return None
+
+    def get_raw_extra_data(self, f, dfile):
+        """
+        Saves the raw data for an experiment file
+        :param f:
+        :return:
+        """
+
+        if dfile + '/RawExtra' in f:
+            d = f[dfile + '/RawExtra']
+            return d[()]
+        else:
+            return None
+
 
     def save_raw_data(self, f, dfile, matrix):
         """

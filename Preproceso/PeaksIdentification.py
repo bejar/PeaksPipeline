@@ -37,6 +37,9 @@ from joblib import Parallel, delayed
 from util.plots import show_signal
 from Config.experiments import experiments
 import argparse
+from util.itertools import batchify
+from itertools import product
+import multiprocessing
 
 def uniquetol(peaks, tol):
     """
@@ -164,7 +167,7 @@ def ffft(fmask, y):
     return y2
 
 
-def cdp_identification(Y, i, wtime, datainfo, sensor, ifreq=0.0, ffreq=200, threshold=0.05):
+def cdp_identification(Y, wtime, datainfo, dfile, sensor, ifreq=0.0, ffreq=200, threshold=0.05, extra=False):
     """
     Identification of peaks
 
@@ -173,9 +176,13 @@ def cdp_identification(Y, i, wtime, datainfo, sensor, ifreq=0.0, ffreq=200, thre
     :param Fs: Sampling
     :return:
     """
+    print('Sensor: ', sensor, 'file', dfile, time.ctime())
 
-    X = Y[:, i]
-    print('Sensor: ', sensor, time.ctime())
+    if not extra:
+        X = Y
+    else:
+        X = -Y
+
 
     Fs = datainfo.sampling
 
@@ -328,7 +335,7 @@ def cdp_identification(Y, i, wtime, datainfo, sensor, ifreq=0.0, ffreq=200, thre
         if SNpsel[j] > thdPP:
             ipeakMjnew.append(ipeakMsel[j])
 
-    return sensor, np.array(ipeakMjnew)
+    return dfile, sensor, np.array(ipeakMjnew)
 
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -337,13 +344,16 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--batch', help="Ejecucion no interactiva", action='store_true', default=False)
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
+    parser.add_argument('--extra', help="Procesa sensores extra del experimento", action='store_true', default=False)
 
     args = parser.parse_args()
     lexperiments = args.exp
+    njobs = multiprocessing.cpu_count()
 
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511'
-        lexperiments = ['e130221rl']
+        lexperiments = ['e150514']
+        args.extra = True
 
     # Preparado para procesar un conjunto de experimentos a la vez
     for expname in lexperiments:
@@ -353,7 +363,7 @@ if __name__ == '__main__':
         wext = datainfo.peaks_id_params['wext']  # Window extraction length in miliseconds
         ifreq = datainfo.peaks_id_params['low']  # Frequency cutoff low
         ffreq = datainfo.peaks_id_params['high']  # Frequency cutoff high
-        threshold = datainfo.peaks_id_params['threshold']  # Peaks Max-Min in window above threshold in amplitude
+        threshold = 0.15 #datainfo.peaks_id_params['threshold']  # Peaks Min in window above threshold in amplitude
 
         print(wtime, ifreq, ffreq, threshold)
 
@@ -361,24 +371,48 @@ if __name__ == '__main__':
         Tw = int(2 * np.round(wext * sampling / 2))
         print(datainfo.dpath + datainfo.name + '/' + datainfo.name)
 
-        for dfile in datainfo.datafiles:
-            f = datainfo.open_experiment_data(mode='r+')
-            print(dfile)
-            raw = datainfo.get_raw_data(f, dfile)
+        if not args.extra:
+            lsensors = datainfo.sensors
+        else:
+            lsensors = datainfo.extrasensors
+
+        # Generate batches for all datafiles and sensors
+        batches = batchify([i for i in product(datainfo.datafiles, lsensors)], njobs)
+
+        f = datainfo.open_experiment_data(mode='r+')
+        for batch in batches:
+
             print('Peaks identification: ', time.ctime())
+            lraw = []
+            for dfile, dsensor in batch:
+                if not args.extra:
+                    raw = datainfo.get_raw_data(f, dfile)
+                    sindex = datainfo.sensors.index(dsensor)
+                else:
+                    raw = datainfo.get_raw_extra_data(f, dfile)
+                    sindex = datainfo.extrasensors.index(dsensor)
+                lraw.append(raw[:,sindex])
+
+            del raw # deallocate some memory
+
             peaks = Parallel(n_jobs=-1)(
-                delayed(cdp_identification)(raw, i, wtime, datainfo, sensor, ifreq=ifreq, ffreq=ffreq,
-                                            threshold=threshold) for i, sensor in enumerate(datainfo.sensors))
+                delayed(cdp_identification)(X, wtime, datainfo, dfile, sensor, ifreq=ifreq, ffreq=ffreq,
+                                            threshold=threshold, extra=args.extra) for X, (dfile, sensor) in zip(lraw, batch))
             print('The end ', time.ctime())
 
-            for dsensor, selpeaks in peaks:
-                print(dsensor, len(selpeaks))
+            for dfile, dsensor, selpeaks in peaks:
+                print(dfile, dsensor, len(selpeaks))
                 if len(selpeaks) != 0:
                     datainfo.save_peaks_time(f, dfile, dsensor, selpeaks)
                     rawpeaks = np.zeros((selpeaks.shape[0], Tw))
                     # Extraction of the window around the peak maximum
+                    if not args.extra:
+                        raw = datainfo.get_raw_data(f, dfile)
+                        sindex = datainfo.sensors.index(dsensor)
+                    else:
+                        raw = datainfo.get_raw_extra_data(f, dfile)
+                        sindex = datainfo.extrasensors.index(dsensor)
 
-                    sindex = datainfo.sensors.index(dsensor)
                     for j in range(selpeaks.shape[0]):
                         tstart = int(selpeaks[j] - np.floor(Tw / 2))
                         tstop = int(tstart + Tw)
@@ -386,5 +420,9 @@ if __name__ == '__main__':
 
                     # Peak Data
                     datainfo.save_peaks(f, dfile, dsensor, rawpeaks)
+            # deallocate some memory
+            del raw
+            del rawpeaks
+            del peaks
 
-            datainfo.close_experiment_data(f)
+        datainfo.close_experiment_data(f)

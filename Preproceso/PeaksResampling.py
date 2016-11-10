@@ -54,6 +54,8 @@ def do_the_job(dfile, sensor, wtsel, resampfac, rawfilter=False, dtrnd=False):
         data = datainfo.get_peaks_filtered(f, dfile, sensor)
     else:
         data = datainfo.get_peaks(f, dfile, sensor)
+
+
     datainfo.close_experiment_data(f)
 
     if data is not None:
@@ -83,6 +85,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch', help="Ejecucion no interactiva", action='store_true', default=False)
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
     parser.add_argument('--detrend', help="Detrending of the signal after resampling", action='store_true', default=False)
+    parser.add_argument('--extra', help="Procesa sensores extra del experimento", action='store_true', default=False)
 
     args = parser.parse_args()
     lexperiments = args.exp
@@ -90,8 +93,9 @@ if __name__ == '__main__':
 
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511'e160317
-        lexperiments = ['e130221rl']
+        lexperiments = ['e150514']
         args.detrend = False
+        args.extra = True
 
     for expname in lexperiments:
 
@@ -99,7 +103,14 @@ if __name__ == '__main__':
         wtsel = datainfo.peaks_resampling['wtsel']
         resampfactor = datainfo.peaks_resampling['rsfactor']
         filtered = datainfo.peaks_resampling['filtered']  # Use the filtered peaks or not
-        batches = batchify([i for i in product(datainfo.datafiles, datainfo.sensors)], njobs)
+
+        if not args.extra:
+            lsensors = datainfo.sensors
+        else:
+            lsensors = datainfo.extrasensors
+
+
+        batches = batchify([i for i in product(datainfo.datafiles, lsensors)], njobs)
 
         for batch in batches:
             # Paralelize PCA computation
@@ -110,6 +121,9 @@ if __name__ == '__main__':
             for presamp, dfile, sensor in res:
                 if presamp is not None:
                     print(dfile + '/' + sensor)
-                    datainfo.save_peaks_resample(f, dfile, sensor, presamp)
+                    if not args.extra:
+                        datainfo.save_peaks_resample(f, dfile, sensor, presamp)
+                    else:
+                        datainfo.save_peaks_resample(f, dfile, sensor, -presamp)
 
             datainfo.close_experiment_data(f)

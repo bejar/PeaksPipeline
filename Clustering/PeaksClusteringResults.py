@@ -47,6 +47,7 @@ if __name__ == '__main__':
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
     parser.add_argument('--globalclust', help="Use a global computed clustering", action='store_true', default=False)
     parser.add_argument('--hellinger', help="Show Hellinger distance", action='store_true', default=False)
+    parser.add_argument('--extra', help="Procesa sensores extra del experimento", action='store_true', default=False)
 
     args = parser.parse_args()
 
@@ -56,7 +57,8 @@ if __name__ == '__main__':
         # 'e150514''e120503''e110616''e150707''e151126''e120511''e150514''e110906o'
         args.hellinger = True
         args.globalclust = False
-        lexperiments = ['e130221rl']
+        lexperiments = ['e150514']
+        args.extra = True
 
     if args.globalclust:
         ext='global'
@@ -69,7 +71,14 @@ if __name__ == '__main__':
 
         f = datainfo.open_experiment_data(mode='r')
 
-        for sensor, nclusters in zip(datainfo.sensors, datainfo.clusters):
+        if not args.extra:
+            lsensors = datainfo.sensors
+            lclusters = datainfo.clusters
+        else:
+            lsensors = datainfo.extrasensors
+            lclusters = datainfo.extraclusters
+
+        for sensor, nclusters in zip(lsensors, lclusters):
             print(sensor)
 
             if args.globalclust:
@@ -117,7 +126,7 @@ if __name__ == '__main__':
             ind = np.arange(nclusters)  # the x locations for the groups
             width = 1.0/(len(lhisto)+1)   # the width of the bars
             ax.set_xticks(ind+width)
-            ax.set_xticklabels(ind)
+            ax.set_xticklabels(['class %d'% (i+1) for i in ind])
             for i, h in enumerate(lhisto):
                 rects = ax.bar(ind+(i*width), h, width, color=colors[i])
             fig.suptitle(datainfo.name + '-' + sensor+ '-' + ext, fontsize=48)
