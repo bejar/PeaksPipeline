@@ -55,10 +55,10 @@ if __name__ == '__main__':
     batches = args.join
 
     if not args.batch:
-        # 'e150514''e120503''e110616''e150707''e151126''e120511''e150514''e150514alt', 'e150514''e130221c'
+        # 'e150514''e120503''e110616''e150707''e151126''e120511''e150514''e150514alt', 'e150514'
         args.hellinger = False
-        lexperiments = ['e130221c']
-        batches = 2
+        lexperiments = ['e110906o']
+        batches = 1
 
     for expname in lexperiments:
         datainfo = experiments[expname]
@@ -73,67 +73,80 @@ if __name__ == '__main__':
                 centroids = datainfo.get_peaks_global_clustering_centroids(f, sensor, nclusters)
             else:
                 centroids = datainfo.get_peaks_clustering_centroids(f, datainfo.datafiles[0], sensor, nclusters)
-                variance = np.zeros(centroids.shape)
-                labels = datainfo.compute_peaks_labels(f, datainfo.datafiles[0], sensor, nclusters, globalc=args.globalclust)
-                data = datainfo.get_peaks_resample_PCA(f, datainfo.datafiles[0], sensor)
-                for i in range(nclusters):
-                    variance[i] = np.std(data[labels==i], axis=0)
-
 
             lsignals = []
 
-            mhisto = np.zeros((len(datainfo.datafiles)//batches, nclusters))
-            cbatch = [c for c in enumerate(datainfo.datafiles)]
-            lbatch = batchify(cbatch, batches)
-            for nf, btch in enumerate(lbatch):
-                npeaks = 0
-                histo = np.zeros(nclusters)
-                for _, dfile in btch:
+            data = datainfo.get_peaks_resample(f, datainfo.datafiles[0], sensor)
+            labels = datainfo.compute_peaks_labels(f, datainfo.datafiles[0], sensor, nclusters, globalc=args.globalclust)
 
-                    labels = datainfo.compute_peaks_labels(f, dfile, sensor, nclusters, globalc=args.globalclust)
-                    npeaks += len(labels)
-                    for i in labels:
-                        mhisto[nf, i] += 1.0
-                mhisto[nf] /= npeaks
+            peaks_std = np.zeros((nclusters, data.shape[1]))
+            peaks_min = np.zeros((nclusters, data.shape[1]))
+            peaks_max = np.zeros((nclusters, data.shape[1]))
 
+            for nc in range(nclusters):
+                peaks_min[nc] = np.min(data[labels == nc], axis=0)
+                peaks_max[nc] = np.max(data[labels == nc], axis=0)
+                peaks_std[nc] = np.std(data[labels == nc], axis=0)
 
+            # mhisto = np.zeros((len(datainfo.datafiles)//batches, nclusters))
+            # cbatch = [c for c in enumerate(datainfo.datafiles)]
+            # lbatch = batchify(cbatch, batches)
+            #
+            # for nf, btch in enumerate(lbatch):
+            #     npeaks = 0
+            #     histo = np.zeros(nclusters)
+            #     for _, dfile in btch:
+            #
+            #         labels = datainfo.compute_peaks_labels(f, dfile, sensor, nclusters, globalc=args.globalclust)
+            #         npeaks += len(labels)
+            #         for i in labels:
+            #             mhisto[nf, i] += 1.0
+            #     mhisto[nf] /= npeaks
 
             matplotlib.rcParams.update({'font.size': 25})
             fig = plt.figure()
-            fig.set_figwidth(24)
-            fig.set_figheight(18)
+            fig.set_figwidth(15)
+            fig.set_figheight(9)
             width = 1
-            ncols = nclusters / 2
-            if nclusters % 2 == 1:
-                ncols += 1
-            for i in range(nclusters):
 
-                ax = fig.add_subplot(ncols, 4, (i*2)+2)
+            ncols = 3
+            nrows = 5
 
-                ax.axis([0, mhisto.shape[0], 0, 0.201])
-                rects = ax.bar(range(mhisto.shape[0]), mhisto[: , i], width, color=colors)
-                ax.xaxis.set_major_locator(ticker.MultipleLocator(15))
-                ax.yaxis.set_major_locator(ticker.MultipleLocator(0.1))
 
-            minaxis = np.min(centroids - variance)
-            maxaxis = np.max(centroids+ variance)
+            minaxis = np.min(centroids+peaks_std)
+            maxaxis = np.max(centroids-peaks_std)
+
+            minaxis = np.min(peaks_min)
+            maxaxis = np.max(peaks_max)
+
             sepy = round((maxaxis - minaxis)/4, 2)
 
             for nc in range(nclusters):
-                ax2 = fig.add_subplot(ncols, 4, (nc*2)+1)
+                ax2 = fig.add_subplot(ncols, nrows, nc+1)
+
+
                 signal = centroids[nc]
-                signalv = variance[nc]
-                #plt.title(' ( '+str(nc+1)+' )')
                 lenplot = datainfo.peaks_resampling['wtsel']
                 t = arange(0.0, len(signal), 1)/len(signal) * 100
                 ax2.axis([0, lenplot, minaxis, maxaxis])
-                ax2.plot(t,signal)
-                ax2.plot(t,signal + signalv, c='g')
-                ax2.plot(t,signal -  signalv, c='g')
+                ax2.plot(t,signal, linewidth=2)
                 ax2.xaxis.set_major_locator(ticker.MultipleLocator(50))
-                ax2.yaxis.set_major_locator(ticker.MultipleLocator(sepy))
+                ax2.yaxis.set_major_locator(ticker.MultipleLocator(0.1))
+
+                ax2.plot(t,signal+peaks_std[nc], color='g',linewidth=0.5, linestyle=':')
+                ax2.plot(t,signal-peaks_std[nc], color='g',linewidth=0.5, linestyle=':')
+
+                ax2.annotate(str(nc+1), xy=(0, 0), xycoords='data',
+                xytext=(0.95, 0.98), textcoords='axes fraction',
+                horizontalalignment='right', verticalalignment='top', fontsize=16
+                )
+
+                if nc == 10:
+                    plt.ylabel('millivolts', fontsize=18)
+                    plt.xlabel('time(ms)', fontsize=18)
                 plt.axhline(linewidth=1, color='r', y=0)
 
+
             fig.savefig(datainfo.dpath + '/' + datainfo.name + '/Results/' + datainfo.name + '-' + sensor + '-' +
-                        str(nclusters) + '-histo-fig.pdf', orientation='landscape', format='pdf')
+                        str(nclusters) + '-peaks-fig.pdf', orientation='landscape', format='pdf')
             #plt.show()

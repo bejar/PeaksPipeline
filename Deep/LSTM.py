@@ -23,6 +23,7 @@ import math
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import LSTM
+from keras.callbacks import RemoteMonitor
 from sklearn.preprocessing import MinMaxScaler
 from pylab import *
 from sklearn.neighbors import NearestNeighbors
@@ -35,6 +36,47 @@ import time
 
 __author__ = 'bejar'
 
+
+from keras.callbacks import Callback
+import json
+
+class MyRemoteMonitor(Callback):
+    '''Callback used to stream events to a server.
+    Requires the `requests` library.
+    # Arguments
+        root: root url to which the events will be sent (at the end
+            of every epoch). Events are sent to
+            `root + '/publish/epoch/end/'` by default. Calls are
+            HTTP POST, with a `data` argument which is a
+            JSON-encoded dictionary of event data.
+    '''
+
+    def __init__(self,
+                 id = '',
+                 root='http://localhost:9000',
+                 path='/publish/epoch/end/',
+                 field='data',
+                 headers={'Accept': 'application/json', 'Content-Type': 'application/json'}):
+        super(Callback, self).__init__()
+        self.id = id
+        self.root = root
+        self.path = path
+        self.field = field
+        self.headers = headers
+
+    def on_epoch_end(self, epoch, logs={}):
+        import requests
+        send = {}
+        send['epoch'] = epoch
+        for k, v in logs.items():
+            send[k] = v
+        try:
+            requests.post(self.root + self.path,
+                          {self.field: json.dumps(send), 'id': self.id},
+                          headers=self.headers)
+        except:
+            print('Warning: could not reach RemoteMonitor '
+                  'root server at ' + str(self.root))
 
 def create_dataset(dataset, look_back=1, classes=13):
     dataX, dataY = [], []
@@ -122,7 +164,9 @@ if __name__ == '__main__':
                 #model.add(Dense(50, activation='relu'))
                 model.add(Dense(nclasses, activation='softmax'))
                 model.compile(loss='categorical_crossentropy', optimizer=opt)
-                model.fit(trainX, trainY, nb_epoch=epoch, batch_size=1, verbose=2)
+
+                tboard = MyRemoteMonitor(id='v', root='http://localhost:8850', path='/Update')
+                model.fit(trainX, trainY, nb_epoch=epoch, batch_size=1, verbose=2, callbacks=[tboard])
 
                 # trainScore = model.evaluate(trainX, trainY, verbose=0)
                 # trainScore = math.sqrt(trainScore)

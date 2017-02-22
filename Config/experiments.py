@@ -561,7 +561,7 @@ experiments = \
                            '11906119', '11906145', '11906172', '11906173', '11906210'],
                 sensors=['L4ci', 'L4cd', 'L5ri', 'L5rd', 'L5ci', 'L5cd', 'L6ri', 'L6rd', 'L6ci', 'L6cd', 'L7ri'],
                 abfsensors=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-                clusters=[12] * 11,
+                clusters=[15] * 11,
                 colors='rryyybbbbbb',
                 peaks_id_params={'wtime': 120e-3, 'wext': 120e-3, 'low': 0, 'high': 70, 'threshold': 0.05},
                 peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
