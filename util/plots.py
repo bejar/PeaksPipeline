@@ -17,7 +17,11 @@ plots
 
 """
 
-from pylab import *
+
+import matplotlib.pyplot as plt
+import matplotlib
+import numpy as np
+
 
 __author__ = 'bejar'
 
@@ -122,7 +126,7 @@ def show_signal(signal, line=None, title=''):
     num = len(signal)
     sp1 = fig.add_subplot(111)
     sp1.axis([0, num, minaxis, maxaxis])
-    t = arange(0.0, num, 1)
+    t = np.arange(0.0, num, 1)
     sp1.plot(t, signal)
     if line is not None:
         plt.axhline(linewidth=4, color='r', y=line)
@@ -147,7 +151,7 @@ def show_vsignals(signal, title=''):
     num = signal.shape[1]
     sp1 = fig.add_subplot(111)
     sp1.axis([0, num, minaxis, maxaxis])
-    t = arange(0.0, num, 1)
+    t = np.arange(0.0, num, 1)
     for i in range(signal.shape[0]):
         sp1.plot(t, signal[i, :])
     plt.show()
@@ -168,7 +172,7 @@ def show_two_signals(signal1, signal2):
     num = len(signal1)
     sp1 = fig.add_subplot(111)
     sp1.axis([0, num, minaxis, maxaxis])
-    t = arange(0.0, num, 1)
+    t = np.arange(0.0, num, 1)
     sp1.plot(t, signal1, 'r')
     sp1.plot(t, signal2, 'b')
     plt.show()
@@ -190,7 +194,7 @@ def show_list_signals(signals, legend=[]):
     num = len(signals[0])
     sp1 = fig.add_subplot(111)
     sp1.axis([0, num, minaxis, maxaxis])
-    t = arange(0.0, num, 1)
+    t = np.arange(0.0, num, 1)
     for i, s in enumerate(signals):
         sp1.plot(t, s, cols[i])
     plt.legend(legend)
@@ -207,7 +211,7 @@ def plotSignalValues(fig, signal1, n, m, p, name, vmax, vmin, cstd=None):
     sp1 = fig.add_subplot(n, m, p)
     plt.title(name)
     sp1.axis([0, num, minaxis, maxaxis])
-    t = arange(0.0, num, 1)
+    t = np.arange(0.0, num, 1)
     if cstd == 'mv':
         plt.axhline(linewidth=4, color='r', y=np.mean(signal1))
         pstd = np.std(signal1)
@@ -241,7 +245,7 @@ def plotListSignals(signals, orient='h', ncols=None):
         elif orient == 'v':
             sp1 = fig.add_subplot(num, 1, i + 1)
         sp1.axis([0, signals[0].shape[0], minaxis, maxaxis])
-        t = arange(0.0, signals[0].shape[0], 1)
+        t = np.arange(0.0, signals[0].shape[0], 1)
         sp1.plot(t, signals[i])
     plt.show()
     plt.close()
@@ -266,13 +270,13 @@ def plotParallelSignals(signals1, signals2):
     for i in range(num):
         sp1 = fig.add_subplot(num, 2, (2*i) + 1)
         sp1.axis([0, signals1[0].shape[0], minaxis, maxaxis])
-        t = arange(0.0, signals1[0].shape[0], 1)
+        t = np.arange(0.0, signals1[0].shape[0], 1)
         sp1.plot(t, signals1[i])
 
     for i in range(num):
         sp1 = fig.add_subplot(num, 2, (2*i) + 2)
         sp1.axis([0, signals1[0].shape[0], minaxis, maxaxis])
-        t = arange(0.0, signals1[0].shape[0], 1)
+        t = np.arange(0.0, signals1[0].shape[0], 1)
         sp1.plot(t, signals2[i])
 
     plt.show()
@@ -284,7 +288,7 @@ def plotDummy(fig, num, n, m, p, name):
     sp1 = fig.add_subplot(n, m, p)
     plt.title(name)
     sp1.axis([0, num, minaxis, maxaxis])
-    t = arange(0.0, num, 1)
+    t = np.arange(0.0, num, 1)
     sp1.plot(t, t)
 
 
@@ -342,7 +346,7 @@ def plotMatrixDummy(fig, num, n, m, p, name):
     sp1 = fig.add_subplot(n, m, p)
     plt.title(name)
     sp1.axis([0, num, minaxis, maxaxis])
-    t = arange(0.0, num, 1)
+    t = np.arange(0.0, num, 1)
     sp1.plot(t, t)
 
 

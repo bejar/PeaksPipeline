@@ -33,6 +33,7 @@ from util.distances import hellinger_distance
 from util.misc import compute_centroids
 import argparse
 import pandas as pd
+import numpy as np
 warnings.filterwarnings("ignore")
 
 
@@ -55,10 +56,10 @@ if __name__ == '__main__':
 
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511''e150514''e110906o'
-        args.hellinger = True
+        args.hellinger = False
         args.globalclust = False
-        lexperiments = ['e150514']
-        args.extra = True
+        lexperiments = ['e130221e1']
+        args.extra = False
 
     if args.globalclust:
         ext='global'
@@ -138,7 +139,7 @@ if __name__ == '__main__':
                 ax2 = fig.add_subplot(2, nclusters, nc+nclusters+1)
                 signal = centroids[nc]
                 plt.title(' ( '+str(nc+1)+' )')
-                t = arange(0.0, len(signal), 1)
+                t = np.arange(0.0, len(signal), 1)
                 ax2.axis([0, len(signal), minaxis, maxaxis])
                 ax2.plot(t,signal)
                 plt.axhline(linewidth=1, color='r', y=0)

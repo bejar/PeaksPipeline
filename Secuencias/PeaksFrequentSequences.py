@@ -33,6 +33,7 @@ from Secuencias.rstr_max import *
 from pylab import *
 from pyx import *
 from util.misc import choose_color
+import numpy as np
 
 
 
@@ -861,7 +862,7 @@ def plot_pairs_dist(datainfo, sensor, lacounts):
 
         for i, acounts in enumerate(lacounts):
             if datainfo.colors[i] == col:
-                t = arange(0.0, len(acounts), 1)
+                t = np.arange(0.0, len(acounts), 1)
                 plt.plot(t, acounts, color=datainfo.colors[i])
 
     plt.suptitle(datainfo.name + '-' + sensor)
@@ -911,20 +912,20 @@ if __name__ == '__main__':
     lexperiments = args.exp
 
     if not args.batch:
-        args.graph = True
+        args.graph = False
         args.freqstr = False
         args.contingency = False
         args.sequence = False
         args.matching = False
         args.rescale = False
-        args.string = False
-        args.galternative = True
+        args.string = True
+        args.galternative = False
         args.diffs = False
         args.globalclust = False
         args.gpropor = False
         args.pastestring = 2
         # 'e120503''e110616''e150707''e151126''e120511','e151126''e120511', 'e120503', 'e110906o', 'e160204''e150514'
-        lexperiments = ['e160204']
+        lexperiments = ['e130221e1']
 
     colors = ['red', 'blue', 'green']
     npart = 3
@@ -933,7 +934,7 @@ if __name__ == '__main__':
     rand = False
 
     # Matching parameters
-    isig = 2
+    isig = 0
     fsig = 10
 
     peakdata = {}

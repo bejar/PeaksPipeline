@@ -37,6 +37,7 @@ from util.misc import compute_centroids
 import argparse
 import matplotlib.ticker as ticker
 from util.itertools import batchify
+import numpy as np
 
 warnings.filterwarnings("ignore")
 
@@ -57,7 +58,7 @@ if __name__ == '__main__':
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511''e150514''e150514alt', 'e150514''e130221c'
         args.hellinger = False
-        lexperiments = ['e130221c']
+        lexperiments = ['e130221e1']
         batches = 2
 
     for expname in lexperiments:
@@ -125,7 +126,7 @@ if __name__ == '__main__':
                 signalv = variance[nc]
                 #plt.title(' ( '+str(nc+1)+' )')
                 lenplot = datainfo.peaks_resampling['wtsel']
-                t = arange(0.0, len(signal), 1)/len(signal) * 100
+                t = np.arange(0.0, len(signal), 1)/len(signal) * 100
                 ax2.axis([0, lenplot, minaxis, maxaxis])
                 ax2.plot(t,signal)
                 ax2.plot(t,signal + signalv, c='g')

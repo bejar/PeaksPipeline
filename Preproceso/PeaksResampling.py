@@ -68,7 +68,6 @@ def do_the_job(dfile, sensor, wtsel, resampfac, rawfilter=False, dtrnd=False):
         wtdisc = int((wtlen - wtlen_new)/2.0)
         presamp = resample(data, wtlen, axis=1, window=wtlen*2)
 
-
         # in case we have a odd number of points in the window
         if wtlen_new + (2*wtdisc) != wtlen:
             wtdisci = wtdisc + 1
@@ -93,9 +92,9 @@ if __name__ == '__main__':
 
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511'e160317
-        lexperiments = ['e150514']
+        lexperiments = ['e130221e2']
         args.detrend = False
-        args.extra = True
+        args.extra = False
 
     for expname in lexperiments:
 

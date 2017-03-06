@@ -42,7 +42,7 @@ import time
 __author__ = 'bejar'
 
 
-def do_the_job(dfile, sensor, recenter=True, wtsel=None, clean=False, mbasal='meanfirst', alt_smooth=False, wavy=False):
+def do_the_job(dfile, sensor, recenter=True, wtsel=None, clean=False, mbasal='meanfirst', alt_smooth=False, wavy=False, vpca=0.98):
     """
     Transforms the data reconstructing the peaks using some components of the PCA
     and uses the mean of the baseline points to move the peak
@@ -91,7 +91,7 @@ def do_the_job(dfile, sensor, recenter=True, wtsel=None, clean=False, mbasal='me
 
             sexp = 0.0
             ncomp = 0
-            while sexp < 0.98:
+            while sexp < vpca:
                 sexp += pca.explained_variance_ratio_[ncomp]
                 ncomp += 1
             components = ncomp
@@ -171,6 +171,7 @@ if __name__ == '__main__':
     parser.add_argument('--basal', default='meanfirst', help="Nombre de los experimentos")
     parser.add_argument('--altsmooth', help="Alternative smoothing", action='store_true', default=False)
     parser.add_argument('--wavy', help="Cuts too wavy signals", action='store_true', default=False)
+    parser.add_argument('--pca', help="Percentage of variance preserved by PCA", default=0.98)
     parser.add_argument('--extra', help="Procesa sensores extra del experimento", action='store_true', default=False)
 
     args = parser.parse_args()
@@ -181,11 +182,12 @@ if __name__ == '__main__':
 
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511'
-        lexperiments = ['e150514']
+        lexperiments = ['e130221e2']
         mbasal =  'meanfirst' # 'alternative'
         altsmooth = False
-        args.wavy = True
-        args.extra = True
+        args.wavy = False
+        args.extra = False
+        args.pca = 0.98
 
     print('Begin Smoothing: ', time.ctime())
     for expname in lexperiments:
@@ -210,7 +212,7 @@ if __name__ == '__main__':
         for batch in batches:
             # Paralelize PCA computation
             res = Parallel(n_jobs=-1)(
-                    delayed(do_the_job)(dfile, sensor, recenter=False, wtsel=None, clean=False, mbasal=mbasal, alt_smooth=altsmooth, wavy=args.wavy) for dfile, sensor in batch)
+                    delayed(do_the_job)(dfile, sensor, recenter=False, wtsel=None, clean=False, mbasal=mbasal, alt_smooth=altsmooth, wavy=args.wavy, vpca= args.pca) for dfile, sensor in batch)
 
             # Save all the data
             f = datainfo.open_experiment_data(mode='r+')
