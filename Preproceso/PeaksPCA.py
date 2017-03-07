@@ -184,7 +184,7 @@ if __name__ == '__main__':
         # 'e150514''e120503''e110616''e150707''e151126''e120511'
         lexperiments = ['e130221e2']
         mbasal =  'meanfirst' # 'alternative'
-        altsmooth = False
+        args.altsmooth = False
         args.wavy = False
         args.extra = False
         args.pca = 0.98
@@ -212,7 +212,7 @@ if __name__ == '__main__':
         for batch in batches:
             # Paralelize PCA computation
             res = Parallel(n_jobs=-1)(
-                    delayed(do_the_job)(dfile, sensor, recenter=False, wtsel=None, clean=False, mbasal=mbasal, alt_smooth=altsmooth, wavy=args.wavy, vpca= args.pca) for dfile, sensor in batch)
+                    delayed(do_the_job)(dfile, sensor, recenter=False, wtsel=None, clean=False, mbasal=mbasal, alt_smooth=args.altsmooth, wavy=args.wavy, vpca= args.pca) for dfile, sensor in batch)
 
             # Save all the data
             f = datainfo.open_experiment_data(mode='r+')

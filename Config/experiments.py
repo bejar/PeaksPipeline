@@ -581,9 +581,9 @@ experiments = \
             Experiment(
                 dpath=datapath,
                 name='e110906e1',
-                sampling=1670.08,
+                sampling=10204.08,
                 datafiles=['11906001', '11906002', '11906028', '11906061', '11906087'],
-                sensors=['L4ci', 'L4cd', 'L5ri', 'L5rd', 'L5ci', 'L5cd', 'L6ri', 'L6rd', 'L6ci', 'L6cd', 'L7ri'],
+                sensors=['L4ci', 'L4cd', 'L5ri', 'L5rd', 'L5ci', 'L5cd', 'L6ri', 'L6rd', 'L6ci', 'L6cd'],
                 abfsensors=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
                 clusters=[12] * 11,
                 colors='rryyybbbbbb',
@@ -597,7 +597,7 @@ experiments = \
             Experiment(
                 dpath=datapath,
                 name='e110906e2',
-                sampling=1670.08,
+                sampling=10204.08,
                 datafiles=['11906001', '11906002', '11906028', '11906061', '11906087'],
                 sensors=['L4ci', 'L4cd', 'L5ri', 'L5rd', 'L5ci', 'L5cd', 'L6ri', 'L6rd', 'L6ci', 'L6cd', 'L7ri'],
                 abfsensors=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
@@ -613,7 +613,7 @@ experiments = \
             Experiment(
                 dpath=datapath,
                 name='e110906e3',
-                sampling=1670.08,
+                sampling=10204.08,
                 datafiles=['11906001', '11906002', '11906028', '11906061', '11906087'],
                 sensors=['L4ci', 'L4cd', 'L5ri', 'L5rd', 'L5ci', 'L5cd', 'L6ri', 'L6rd', 'L6ci', 'L6cd', 'L7ri'],
                 abfsensors=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],

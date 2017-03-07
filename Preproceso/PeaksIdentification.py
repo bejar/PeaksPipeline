@@ -352,7 +352,7 @@ if __name__ == '__main__':
 
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511'
-        lexperiments = ['e130221e1']
+        lexperiments = ['e100906e1']
         args.extra = True
 
     # Preparado para procesar un conjunto de experimentos a la vez
@@ -363,7 +363,7 @@ if __name__ == '__main__':
         wext = datainfo.peaks_id_params['wext']  # Window extraction length in miliseconds
         ifreq = datainfo.peaks_id_params['low']  # Frequency cutoff low
         ffreq = datainfo.peaks_id_params['high']  # Frequency cutoff high
-        threshold = 0.15 #datainfo.peaks_id_params['threshold']  # Peaks Min in window above threshold in amplitude
+        threshold = datainfo.peaks_id_params['threshold']  # Peaks Min in window above threshold in amplitude
 
         print(wtime, ifreq, ffreq, threshold)
 
