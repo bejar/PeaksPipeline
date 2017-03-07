@@ -925,7 +925,7 @@ if __name__ == '__main__':
         args.gpropor = False
         args.pastestring = 2
         # 'e120503''e110616''e150707''e151126''e120511','e151126''e120511', 'e120503', 'e110906o', 'e160204''e150514'
-        lexperiments = ['e130221e1']
+        lexperiments = ['e130221c']
 
     colors = ['red', 'blue', 'green']
     npart = 3
