@@ -590,7 +590,7 @@ def select_sensor(synchs, sensor, slength):
     return lres
 
 
-def save_sync_sequence(lsync, nfile, lengths=False):
+def save_sync_sequence(lsync, nfile, ename, mode='plain', sensors=None, pklen=1000):
     """
     Saves the list of synchronizations in a file with the number of sync signals
 
@@ -601,12 +601,30 @@ def save_sync_sequence(lsync, nfile, lengths=False):
     :return:
     """
     ttable = '0123456789ABC'
-    rfile = open(datainfo.dpath + '/' + datainfo.name + '/Results/' + 'seq-' + nfile + '.csv', 'w')
+    rfile = open(datainfo.dpath + '/' + datainfo.name + '/Results/' + 'syn-' + nfile + '-' + ename + '.csv', 'w')
 
-    if lengths:
+    if mode == 'lengths':
         for syn in lsync:
-            mtime = min([v for _, v, _ in syn])
-            rfile.write('%d, %s \n' % (mtime, ttable[len(syn)]))
+            mntime = min([v for _, v, _ in syn])
+            rfile.write('%d, %s \n' % (mntime, ttable[len(syn)]))
+    elif mode == 'code':
+        mxtime = max([v for _, v, _ in lsync[0]])
+        for syn in lsync[1:]:
+            mntime = min([v for _, v, _ in syn])
+            if mntime - mxtime > (2 * pklen):
+                rep = int((mntime - mxtime - pklen) / pklen)
+                for i in range(rep):
+                    rfile.write('%s \n' % '0'*len(sensors))
+
+            mxtime = max([v for _, v, _ in syn])
+            code = [0] * len(sensors)
+            for s in [v for v, _, _ in syn]:
+                if s in sensors:
+                    code[sensors.index(s)] = '1'
+            scode = ''
+            for c in code:
+                scode += str(c)
+            rfile.write('%s \n' % scode)
     else:
         for syn in lsync:
             rfile.write('%s\n' % syn)
@@ -694,7 +712,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--batch', help="Ejecucion no interactiva", action='store_true', default=False)
     parser.add_argument('--exp', nargs='+', default=[], help="Nombre de los experimentos")
-    parser.add_argument('--save', help="Save Synchronizations", action='store_true', default=False)
+    parser.add_argument('--save', help="Save Synchronizations", default=None)
     parser.add_argument('--histogram', help="Save length histograms", action='store_true', default=False)
     parser.add_argument('--coincidence', help="Save coincidence matrix", action='store_true', default=False)
     parser.add_argument('--contingency', help="Save peaks contingency matrix", action='store_true', default=False)
@@ -711,7 +729,7 @@ if __name__ == '__main__':
 
     if not args.batch:
        # 'e120503''e110616''e151126''e120511''e150514''e110906o''e150707'
-        lexperiments = ['e150514']
+        lexperiments = ['e140225']
         args.matching = False
         args.histogram = False
         args.draw = False
@@ -721,8 +739,8 @@ if __name__ == '__main__':
         args.contingency = False
         args.coincidence = False
         args.globalclust = False
-        args.save = False
-        args.sequential = True
+        args.save = 'code'
+        args.sequential = False
 
     # Matching parameters
     isig = 2
@@ -765,8 +783,8 @@ if __name__ == '__main__':
             lsynchs = compute_synchs(ltimes, lsens_labels, window=window, minlen=1)
             #lsynchs = compute_synchs_new(ltimes, lsens_labels, window=window, minlen=1)
 
-            if args.save:
-                save_sync_sequence(lsynchs, dfile)
+            if args.save is not None:
+                save_sync_sequence(lsynchs, dfile, ename, mode=args.save, sensors=range(isig, fsig), pklen=1000)
 
             if args.sequential:
                 save_sequential_transactions(lsynchs, ename, lsensors, gap=gap)

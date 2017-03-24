@@ -127,7 +127,7 @@ if __name__ == '__main__':
 
                 signal = centroids[nc]
                 lenplot = datainfo.peaks_resampling['wtsel']
-                t = arange(0.0, len(signal), 1)/len(signal) * 100
+                t = np.arange(0.0, len(signal), 1)/len(signal) * 100
                 ax2.axis([0, lenplot, minaxis, maxaxis])
                 ax2.plot(t,signal, linewidth=2)
                 ax2.xaxis.set_major_locator(ticker.MultipleLocator(50))
