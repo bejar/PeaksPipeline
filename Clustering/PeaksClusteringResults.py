@@ -58,7 +58,7 @@ if __name__ == '__main__':
         # 'e150514''e120503''e110616''e150707''e151126''e120511''e150514''e110906o'
         args.hellinger = False
         args.globalclust = False
-        lexperiments = ['e130221e1']
+        lexperiments = ['e161201']
         args.extra = False
 
     if args.globalclust:
@@ -100,24 +100,24 @@ if __name__ == '__main__':
                 histo /= len(labels)
                 lhisto.append(histo)
 
-            df = pd.DataFrame(np.array(lhisto), index=datainfo.expnames, columns=['class-%d'%i for i in range(1, nclusters+1)])
+            # df = pd.DataFrame(np.array(lhisto), index=datainfo.expnames, columns=['class-%d'%i for i in range(1, nclusters+1)])
+            #
+            # if args.hellinger:
+            #     lrms = []
+            #     lhell = []
+            #     for h, nphase in zip(lhisto, datainfo.expnames):
+            #         rms = np.dot(lhisto[0] - h,  lhisto[0] - h)
+            #         rms /= h.shape[0]
+            #         lhell.append(hellinger_distance(h, lhisto[0]))
+            #         lrms.append(np.sqrt(rms))
+            #     df['Hellinger'] = lhell
+            #     df['RMS'] = lrms
 
-            if args.hellinger:
-                lrms = []
-                lhell = []
-                for h, nphase in zip(lhisto, datainfo.expnames):
-                    rms = np.dot(lhisto[0] - h,  lhisto[0] - h)
-                    rms /= h.shape[0]
-                    lhell.append(hellinger_distance(h, lhisto[0]))
-                    lrms.append(np.sqrt(rms))
-                df['Hellinger'] = lhell
-                df['RMS'] = lrms
-
-            rfile = open(datainfo.dpath + '/' + datainfo.name + '/Results/cluster-histo-' + dfile + '-' + sensor + '-' +
-                        str(nclusters) + '-' + ext + '.txt', 'w')
-            rfile.write(df.to_string(line_width=200))
-
-            rfile.close()
+            # rfile = open(datainfo.dpath + '/' + datainfo.name + '/Results/cluster-histo-' + dfile + '-' + sensor + '-' +
+            #             str(nclusters) + '-' + ext + '.txt', 'w')
+            # rfile.write(df.to_string(line_width=200))
+            #
+            # rfile.close()
 
             matplotlib.rcParams.update({'font.size': 30})
             fig = plt.figure()

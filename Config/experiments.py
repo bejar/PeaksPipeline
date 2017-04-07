@@ -30,6 +30,31 @@ lexperiments = ['e150514']
 # Todos los experimentos estan en el directorio cinvesdata dentro de una carpeta que tenga el nombre del experimento
 experiments = \
     {
+
+        
+        'e161201':
+            Experiment(
+                dpath=datapath,
+                name='e161201',
+                sampling=10204.08,
+                datafiles=['16d02004',
+                           '16d01011', '16d01012', '16d01013', '16d01014', '16d01015', '16d01016', '16d01017',
+                           '16d01018', '16d01022', '16d01023','16d01025', '16d01026',  '16d01029', '16d01030',
+                           '16d02000', '16d02001', '16d02002', '16d02003', '16d02008'],
+                sensors=['L4ci', 'L5ri', 'L5rd', 'L5cd', 'L5ci', 'L6ri', 'L6rd', 'L6ci', 'L6cd', 'L7ri',
+                         'L7rd'],
+                abfsensors=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+                extrasensors=[(12, 'IFPs'), (13, 'IFPp')],
+                clusters=[12] * 11,  # [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
+                colors='y' * 4 + 'r' * 11 + 'b' * 5,
+                peaks_id_params={'wtime': 120e-3, 'wext': 120e-3, 'low': 0, 'high': 70, 'threshold': 0.05},
+                peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
+                peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 20},
+                peaks_filter={'lowpass': 1.0, 'highpass': 200.0},
+                expnames=['ctrl{:0>2}'.format(i) for i in range(1, 4)] +
+                         ['pico{:0>2}'.format(i) for i in range(1, 11)] +
+                         ['esp{:0>2}'.format(i) for i in range(1, 5)]
+            ),
         'e160317':
             Experiment(
                 dpath=datapath,

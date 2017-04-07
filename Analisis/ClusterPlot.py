@@ -58,7 +58,7 @@ if __name__ == '__main__':
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511''e150514''e150514alt', 'e150514''e130221c'
         args.hellinger = False
-        lexperiments = ['e110906e1']
+        lexperiments = ['e161201']
         batches = 1
 
     for expname in lexperiments:
@@ -111,7 +111,7 @@ if __name__ == '__main__':
 
                 ax = fig.add_subplot(ncols, 4, (i*2)+2)
 
-                ax.axis([0, mhisto.shape[0], 0, 0.201])
+                ax.axis([0, mhisto.shape[0], 0, 0.501])
                 rects = ax.bar(range(mhisto.shape[0]), mhisto[: , i], width, color=colors)
                 ax.xaxis.set_major_locator(ticker.MultipleLocator(15))
                 ax.yaxis.set_major_locator(ticker.MultipleLocator(0.1))
