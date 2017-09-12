@@ -140,14 +140,16 @@ def do_the_job(dfile, sensor, recenter=True, wtsel=None, clean=False, mbasal='me
                 basal = np.mean(vals[lbasal])
                 trans[row] -= basal
                 #show_two_signals(trans[row]+basal, trans[row])
-        elif mbasal == 'meanlast':
+        elif mbasal == 'meanmin':
              for row in range(trans.shape[0]):
-
-                vals = trans[row, (trans.shape[1]/3)*2:trans.shape[1]]
-                basal = np.mean(vals)
-
+                vals = trans[row, 0:trans.shape[1]/2]
+                vals = np.array(sorted(list(vals)))
+                basal = np.mean(vals[lbasal])
                 trans[row] -= basal
                 #show_two_signals(trans[row]+basal, trans[row])
+        elif mbasal == 'globalmeanfirst':
+             globbasal = np.mean(trans[:, lbasal])
+             trans -= globbasal
         elif mbasal == 'alternative':
              for row in range(trans.shape[0]):
                 basal = find_baseline(trans[row, 0:trans.shape[1]/2], resolution=25)
@@ -182,8 +184,8 @@ if __name__ == '__main__':
 
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511'
-        lexperiments = ['e161201']
-        mbasal =  'meanfirst' # 'alternative'
+        lexperiments = ['e160802']
+        mbasal = 'globalmeanfirst' # 'meanfirst' # 'alternative'
         args.altsmooth = False
         args.wavy = False
         args.extra = False

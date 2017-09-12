@@ -138,8 +138,7 @@ if __name__ == '__main__':
 
                 ax2.annotate(str(nc+1), xy=(0, 0), xycoords='data',
                 xytext=(0.95, 0.98), textcoords='axes fraction',
-                horizontalalignment='right', verticalalignment='top', fontsize=16
-                )
+                horizontalalignment='right', verticalalignment='top', fontsize=16)
 
                 if nc == 10:
                     plt.ylabel('millivolts', fontsize=18)

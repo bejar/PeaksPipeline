@@ -58,7 +58,7 @@ if __name__ == '__main__':
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511''e150514''e150514alt', 'e150514''e130221c'
         args.hellinger = False
-        lexperiments = ['e161201']
+        lexperiments = ['e160802']
         batches = 1
 
     for expname in lexperiments:

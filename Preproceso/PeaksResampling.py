@@ -92,7 +92,7 @@ if __name__ == '__main__':
 
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511'e160317
-        lexperiments = ['e161201']
+        lexperiments = ['e160802']
         args.detrend = False
         args.extra = False
 

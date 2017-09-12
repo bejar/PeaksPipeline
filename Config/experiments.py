@@ -30,6 +30,34 @@ lexperiments = ['e150514']
 # Todos los experimentos estan en el directorio cinvesdata dentro de una carpeta que tenga el nombre del experimento
 experiments = \
     {
+        'e160802':
+            Experiment(
+                dpath=datapath,
+                name='e160802',
+                sampling=10204.08,
+                datafiles=['16802f04', '16802f05', '16802f06', '16802f07', '16802f08', '16802f09', '16802f10',
+                           '16802f11', '16802f12', '16802f13', '16802f14', '16802f15', '16802f16', '16802f17',
+                           '16802f18', '16802f19', '16802f20', '16802f21', '16802f22', '16802f23', '16802f24',
+                           '16802f25', '16802f26', '16802f27', '16802f28', '16802f29', '16802f30', '16802f31',
+                           '16802f32', '16802f33', '16802f34', '16802f35', '16802f36', '16803f00', '16803f01',
+                           '16803f02', '16803f03', '16803f04', '16803f05', '16803f06'],
+                sensors=['L4ci', 'L4cd', 'L5ri', 'L5rd', 'L5ci', 'L5cd', 'L6ri', 'L6rd', 'L6ci', 'L6cd', 'L7ri', 'L7rd'],
+                abfsensors=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+                extrasensors = [(12, 'IFPs'), (13, 'IFPp')],
+                clusters=[12]* 12, #[7, 6, 7, 7, 7, 7, 6, 6, 7, 6, 5, 7],
+                colors= 'y' * 3 + 'b' * 8 + 'r' * 8 + 'b' * 9 + 'k' * 5 + 'b' * 7,
+                peaks_id_params={'wtime': 120e-3, 'wext': 120e-3, 'low': 0, 'high': 70, 'threshold': 0.05},
+                peaks_resampling={'wtsel': 100, 'rsfactor': 6.0, 'filtered': False},
+                peaks_smooth={'pcasmooth': True, 'components': 10, 'wbaseline': 20},
+                peaks_filter={'lowpass': 1.0, 'highpass':200.0},
+                expnames= ['ctrl{:0>2}'.format(i) for i in range(1, 4)] +
+                          ['lido1{:0>2}'.format(i) for i in range(1, 9)] +
+                          ['capsa{:0>2}'.format(i) for i in range(1, 9)] +
+                          ['lido2{:0>2}'.format(i) for i in range(1, 10)] +
+                          ['esp{:0>2}'.format(i) for i in range(1, 6)] +
+                          ['lido3{:0>2}'.format(i) for i in range(1, 8)]
+
+            ),
 
         
         'e161201':

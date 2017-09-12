@@ -58,7 +58,7 @@ if __name__ == '__main__':
         # 'e150514''e120503''e110616''e150707''e151126''e120511''e150514''e110906o'
         args.hellinger = False
         args.globalclust = False
-        lexperiments = ['e161201']
+        lexperiments = ['e160802']
         args.extra = False
 
     if args.globalclust:
