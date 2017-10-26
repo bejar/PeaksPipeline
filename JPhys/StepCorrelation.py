@@ -23,6 +23,7 @@ import seaborn as sn
 import matplotlib.pyplot as plt
 from scipy.stats import spearmanr
 from matplotlib.colors import ListedColormap
+from matplotlib import cm
 
 __author__ = 'bejar'
 
@@ -43,7 +44,10 @@ if __name__ == '__main__':
         f, ax = plt.subplots(figsize=(11, 9))
         # cmap = sn.diverging_palette(220, 10, as_cmap=True)
 
-        sn.heatmap(corr, mask=mask, vmax=1, vmin=0.5, center=0.75, cmap=ListedColormap(sn.color_palette("Reds")),
+        sn.heatmap(corr, mask=mask, vmax=1, vmin=0, center=0.5, cmap=plt.get_cmap('Reds'), #ListedColormap(sn.color_palette("Reds")),
                 square=True, linewidths=.5, cbar_kws={"shrink": .5}, xticklabels=False)
         plt.yticks(rotation=0)
-        plt.show()
+        plt.title(fl.split('.')[0][2:])
+        plt.savefig('corr-' + fl.split('.')[0][2:] + '.pdf', orientation='landscape', format='pdf')
+        # plt.show()
+        plt.close()
