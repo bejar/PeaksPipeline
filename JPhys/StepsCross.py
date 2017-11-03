@@ -43,16 +43,19 @@ if __name__ == '__main__':
                 corr = mdata.corr(method='kendall')
 
                # print corr
-                mask = np.zeros_like(corr, dtype=np.bool)
-                mask[np.triu_indices_from(mask)] = True
+               #  mask = np.zeros_like(corr, dtype=np.bool)
+               #  mask[np.triu_indices_from(mask)] = True
 
                 f, ax = plt.subplots(figsize=(11, 9))
                 # cmap = sn.diverging_palette(220, 10, as_cmap=True)
 
-                sn.heatmap(corr, mask=mask, vmax=1, vmin=0, center=0.5, cmap=plt.get_cmap('Reds'), #ListedColormap(sn.color_palette("Reds")),
-                        square=True, linewidths=.5, cbar_kws={"shrink": .5}, xticklabels=False)
+                # sn.heatmap(corr, mask=mask, vmax=1, vmin=0, center=0.5, cmap=plt.get_cmap('Reds'), #ListedColormap(sn.color_palette("Reds")),
+                #         square=True, linewidths=.5, cbar_kws={"shrink": .5}, xticklabels=False)
+                sn.heatmap(corr, vmax=1, vmin=0.5, center=0.75, cmap=plt.get_cmap('Reds'), fmt=".2f", annot=False,
+                        linewidths=.5, cbar_kws={"shrink": .5})
                 plt.yticks(rotation=0)
+                plt.xticks(rotation=90)
                 plt.title(df1.split('.')[0][2:] + ' ' + df2.split('.')[0][2:])
-                plt.savefig('cross-' + df1.split('.')[0][2:] + '-' + df2.split('.')[0][2:] + '.pdf', orientation='landscape', format='pdf')
+                plt.savefig('heatcross-' + df1.split('.')[0][2:] + '-' + df2.split('.')[0][2:] + '.pdf', orientation='landscape', format='pdf')
                 # plt.show()
                 plt.close()
