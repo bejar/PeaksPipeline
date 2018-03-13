@@ -26,7 +26,6 @@ from operator import itemgetter
 
 import matplotlib.pyplot as plt
 from pylab import *
-import seaborn as sn
 from sklearn.cluster import KMeans
 from kemlglearn.cluster import KernelKMeans
 from Config.experiments import experiments
@@ -38,6 +37,7 @@ import argparse
 import matplotlib.ticker as ticker
 from util.itertools import batchify
 import numpy as np
+import seaborn as sn
 
 warnings.filterwarnings("ignore")
 
@@ -54,11 +54,11 @@ if __name__ == '__main__':
 
     lexperiments = args.exp
     batches = args.join
-
+    plt.style.use('seaborn-darkgrid')
     if not args.batch:
-        # 'e150514''e120503''e110616''e150707''e151126''e120511''e150514''e150514alt', 'e150514''e130221c'
+        # 'e150514''e120503''e110616''e150707''e151126''e120511''e150514''e150514alt', 'e150514''e130221c''e160802'
         args.hellinger = False
-        lexperiments = ['e160802']
+        lexperiments = ['e150514']
         batches = 1
 
     for expname in lexperiments:
@@ -99,7 +99,7 @@ if __name__ == '__main__':
 
 
 
-            matplotlib.rcParams.update({'font.size': 25})
+            matplotlib.rcParams.update({'font.size': 15})
             fig = plt.figure()
             fig.set_figwidth(24)
             fig.set_figheight(18)
@@ -112,12 +112,12 @@ if __name__ == '__main__':
                 ax = fig.add_subplot(ncols, 4, (i*2)+2)
 
                 ax.axis([0, mhisto.shape[0], 0, 0.501])
-                rects = ax.bar(range(mhisto.shape[0]), mhisto[: , i], width, color=colors)
+                rects = ax.bar(range(mhisto.shape[0]), mhisto[: , i], width, color=colors, linewidth=1)
                 ax.xaxis.set_major_locator(ticker.MultipleLocator(15))
-                ax.yaxis.set_major_locator(ticker.MultipleLocator(0.1))
+                ax.yaxis.set_major_locator(ticker.MultipleLocator(0.25))
 
             minaxis = np.min(centroids - variance)
-            maxaxis = np.max(centroids+ variance)
+            maxaxis = np.max(centroids + variance)
             sepy = round((maxaxis - minaxis)/4, 2)
 
             for nc in range(nclusters):
@@ -129,8 +129,8 @@ if __name__ == '__main__':
                 t = np.arange(0.0, len(signal), 1)/len(signal) * 100
                 ax2.axis([0, lenplot, minaxis, maxaxis])
                 ax2.plot(t,signal)
-                ax2.plot(t,signal + signalv, c='g')
-                ax2.plot(t,signal -  signalv, c='g')
+                #ax2.plot(t,signal + signalv, c='g')
+                #ax2.plot(t,signal -  signalv, c='g')
                 ax2.xaxis.set_major_locator(ticker.MultipleLocator(50))
                 ax2.yaxis.set_major_locator(ticker.MultipleLocator(sepy))
                 plt.axhline(linewidth=1, color='r', y=0)
