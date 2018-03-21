@@ -41,6 +41,8 @@ import seaborn as sn
 
 warnings.filterwarnings("ignore")
 
+LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+
 
 __author__ = 'bejar'
 
@@ -124,7 +126,7 @@ if __name__ == '__main__':
                 ax2 = fig.add_subplot(ncols, 4, (nc*2)+1)
                 signal = centroids[nc]
                 signalv = variance[nc]
-                #plt.title(' ( '+str(nc+1)+' )')
+                plt.text(10,maxaxis*.8, LETTERS[nc], fontsize=20)
                 lenplot = datainfo.peaks_resampling['wtsel']
                 t = np.arange(0.0, len(signal), 1)/len(signal) * 100
                 ax2.axis([0, lenplot, minaxis, maxaxis])
