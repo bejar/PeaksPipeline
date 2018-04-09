@@ -426,10 +426,10 @@ def compute_synchs(seq, labels, window=15, minlen=1):
     Computes the synchronizations of the peaks of several sensors
 
     :param seq: List of the peaks for all the sensors
-                The list contains the time where the maximum of the peaks ocurr
+                The list contains the time where the maximum of the peaks occurr
     :param labels: Labels of the classes of the peaks
     :param window: Window to consider that a set of peaks is synchronized
-    :param minlen: Minimum length of the syncronization
+    :param minlen: Minimum length of the synchronization
     :return: List of synchronizations (sensor, time, class)
     """
 

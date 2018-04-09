@@ -70,8 +70,8 @@ def show_vsignals(lsignals, mnIPF, mxIPF, mncl, mxcl, dfile, sensor):
         IPFp = signals[1]
         centroid = signals[2]
 
-        minaxis = -1 # mnIPF
-        maxaxis = 1 # mxIPF
+        minaxis =  mnIPF
+        maxaxis = mxIPF
         num = IPFs[0].shape[0]
         t = arange(0.0, num, 1)
 
@@ -83,8 +83,8 @@ def show_vsignals(lsignals, mnIPF, mxIPF, mncl, mxcl, dfile, sensor):
         sp1.plot(t, IPFs[1], color='b', linewidth=2.0)
         sp1.plot(t, IPFs[2], color='b', linewidth=2.0)
 
-        minaxis = -1 # mnIPF
-        maxaxis = 1 # mxIPF
+        minaxis = mnIPF
+        maxaxis =  mxIPF
         num = IPFp[0].shape[0]
         t = arange(0.0, num, 1)
 
@@ -148,8 +148,8 @@ if __name__ == '__main__':
                 mxcl = np.max(clustering)
 
                 lsignals = []
-                mnIPF = 1
-                mxIPF = -1
+                mnIPF = 0.5
+                mxIPF = -0.5
                 for i in np.unique(clpeaks):
 
                     dIPFs = IPFs[clpeaks == i, :]

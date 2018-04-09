@@ -413,7 +413,7 @@ class Experiment:
 
     def get_raw_data(self, f, dfile):
         """
-        Saves the raw data for an experiment file
+        Gets the raw data for an experiment file
         :param f:
         :return:
         """

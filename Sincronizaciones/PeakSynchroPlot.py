@@ -19,8 +19,8 @@ PeakSyncroPlot
 
 __author__ = 'bejar'
 
-from  matplotlib.backends.backend_pdf import PdfPages
-from Sincronizaciones.PeaksSynchro import  compute_synchs
+from matplotlib.backends.backend_pdf import PdfPages
+from Sincronizaciones.PeaksSynchro import compute_synchs
 from Config.experiments import experiments
 import h5py
 import numpy as np
@@ -29,58 +29,60 @@ from pylab import *
 import argparse
 from sklearn.metrics import pairwise_distances_argmin_min
 
-def plotSignals(signals,pp,n,m, title):
+
+def plotSignals(signals, pp, n, m, title):
     fig = plt.figure()
     fig.set_figwidth(30)
     fig.set_figheight(16)
-    #fig.suptitle(str(title), fontsize=48)
-    i=1
+    # fig.suptitle(str(title), fontsize=48)
+    i = 1
     vmax = []
     vmin = []
     for s, _, _ in signals:
         vmax.append(np.max(s))
         vmin.append(np.min(s))
 
-    for s,snm,v in signals:
-        if min(s)!=max(s):
-            plotSignalValues(fig,s,n,m,i,snm,v, np.max(vmax), np.min(vmin))
+    for s, snm, v in signals:
+        if min(s) != max(s):
+            plotSignalValues(fig, s, n, m, i, snm, v, np.max(vmax), np.min(vmin))
         else:
-            plotDummy(fig,len(s),n,m,i,snm)
-        i+=1
-    fig.savefig(pp, orientation='landscape',format='pdf')
+            plotDummy(fig, len(s), n, m, i, snm)
+        i += 1
+    fig.savefig(pp, orientation='landscape', format='pdf')
     plt.close()
 
-#    plt.show()
 
+#    plt.show()
 
 
 # Plot a set of signals
-def plotSignalValues(fig,signal1,n,m,p,name,v, maxaxis, minaxis):
+def plotSignalValues(fig, signal1, n, m, p, name, v, maxaxis, minaxis):
     # minaxis=min(signal1)
     # maxaxis=max(signal1)
-    num=len(signal1)
-    sp1=fig.add_subplot(n,m,p)
-    #plt.title(name)
-    sp1.axis([0,num,minaxis,maxaxis])
+    num = len(signal1)
+    sp1 = fig.add_subplot(n, m, p)
+    # plt.title(name)
+    sp1.axis([0, num, minaxis, maxaxis])
     t = arange(0.0, num, 1)
-    if v !=0:
-        sp1.plot(t,signal1, 'r')
+    if v != 0:
+        sp1.plot(t, signal1, 'r')
     else:
-        sp1.plot(t,signal1, 'b')
+        sp1.plot(t, signal1, 'b')
+
 
 #    plt.show()
 
-def plotDummy(fig,num,n,m,p,name):
-    minaxis=-1
-    maxaxis=1
-    sp1=fig.add_subplot(n,m,p)
+def plotDummy(fig, num, n, m, p, name):
+    minaxis = -1
+    maxaxis = 1
+    sp1 = fig.add_subplot(n, m, p)
     plt.title(name)
-    sp1.axis([0,num,minaxis,maxaxis])
+    sp1.axis([0, num, minaxis, maxaxis])
     t = arange(0.0, num, 1)
-    sp1.plot(t,t)
+    sp1.plot(t, t)
+
+
 #    plt.show()
-
-
 
 
 # def plotSignalFile(name):
@@ -104,13 +106,14 @@ def draw_sincro(raw, lsync, num, nums, cres, name, sens):
     """
     Generates files with syncronizations
     """
+
     def busca_syn(syn, s):
         for sig, time, cl in syn:
             if s == sig:
                 return sig, time
         return s, 0
 
-    pp = PdfPages(cres+'/synch-raw' + name + '-' +str(num) + '-' + str(nums) + '.pdf')
+    pp = PdfPages(cres + '/synch-raw' + name + '-' + str(num) + '-' + str(nums) + '.pdf')
 
     for i in range(num, nums):
         syn = lsync[i]
@@ -118,15 +121,16 @@ def draw_sincro(raw, lsync, num, nums, cres, name, sens):
         for j in range(len(sens)):
             ldraw.append(busca_syn(syn, j))
 
-        center = np.sum([v for s, v in ldraw if v > 0])/np.sum([1 for s, v in ldraw if v > 0])
+        center = np.sum([v for s, v in ldraw if v > 0]) / np.sum([1 for s, v in ldraw if v > 0])
         print i
         lsig = []
         for s, v in ldraw:
-            lsig.append((raw[center-500:center+500, s], sens[s], v))
+            lsig.append((raw[center - 500:center + 500, s], sens[s], v))
 
         plotSignals(lsig, pp, 2, 6, int(center))
 
     pp.close()
+
 
 def compute_data_labels(fname, dfilec, dfile, sensor):
     """
@@ -152,7 +156,6 @@ def compute_data_labels(fname, dfilec, dfile, sensor):
     return labels
 
 
-
 def select_sensor(synchs, sensor, slength):
     """
     Maintains only the syncs corresponding to the given sensor
@@ -163,11 +166,10 @@ def select_sensor(synchs, sensor, slength):
     """
     lres = []
     for syn in synchs:
-        for s, _,_ in syn:
+        for s, _, _ in syn:
             if s == sensor and len(syn) >= slength:
                 lres.append(syn)
     return lres
-
 
 
 if __name__ == '__main__':
@@ -182,9 +184,8 @@ if __name__ == '__main__':
     lexperiments = args.exp
 
     if not args.batch:
-        # 'e150514''e120503''e110616''e150707''e151126''e120511'
-        lexperiments = ['e110906o']
-
+        # 'e150514''e120503''e110616''e150707''e151126''e120511''e110906o'
+        lexperiments = ['e150514']
 
     peakdata = {}
     for expname in lexperiments:
@@ -200,16 +201,16 @@ if __name__ == '__main__':
             print dfile
 
             lsens_labels = []
-            #compute the labels of the data
+            # compute the labels of the data
             for sensor in datainfo.sensors:
-                lsens_labels.append(compute_data_labels( datainfo.name,
+                lsens_labels.append(compute_data_labels(datainfo.name,
                                                         datainfo.datafiles[0], dfile, sensor))
 
             # Times of the peaks
             ltimes = []
             expcounts = []
 
-            f = h5py.File(datainfo.dpath + '/' + datainfo.name + '/' + datainfo.name+ '.hdf5', 'r')
+            f = h5py.File(datainfo.dpath + '/' + datainfo.name + '/' + datainfo.name + '.hdf5', 'r')
             if filter:
                 ext = '-F400'
                 d = f[dfile + '/RawFiltered']
@@ -221,7 +222,7 @@ if __name__ == '__main__':
             for sensor in datainfo.sensors:
                 d = f[dfile + '/' + sensor + '/' + 'Time']
                 data = d[()]
-                #expcounts.append(data.shape[0])
+                # expcounts.append(data.shape[0])
                 ltimes.append(data)
             f.close()
             lsynchs = compute_synchs(ltimes, lsens_labels, window=window)
@@ -230,5 +231,5 @@ if __name__ == '__main__':
             print len(lsynchs)
 
             for i in range(0, 25, 100):
-                draw_sincro(raw, lsynchs, i, i + 25, datainfo.dpath  + '/' + datainfo.name + '/Results',
+                draw_sincro(raw, lsynchs, i, i + 25, datainfo.dpath + '/' + datainfo.name + '/Results',
                             dfile + '-' + rsensor + '-Len' + str(slength) + ext, datainfo.sensors)
