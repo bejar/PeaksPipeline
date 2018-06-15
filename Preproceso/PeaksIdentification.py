@@ -351,9 +351,9 @@ if __name__ == '__main__':
     njobs = multiprocessing.cpu_count()
 
     if not args.batch:
-        # 'e150514''e120503''e110616''e150707''e151126''e120511'
-        lexperiments = ['e100906e1']
-        args.extra = True
+        # 'e150514''e120503''e110616''e150707''e151126''e100906e1'
+        lexperiments = ['e120511']
+        args.extra = False
 
     # Preparado para procesar un conjunto de experimentos a la vez
     for expname in lexperiments:
@@ -376,8 +376,11 @@ if __name__ == '__main__':
         else:
             lsensors = datainfo.extrasensors
 
+        print(njobs)
+        print(datainfo.datafiles, lsensors)
         # Generate batches for all datafiles and sensors
         batches = batchify([i for i in product(datainfo.datafiles, lsensors)], njobs)
+        print(batches)
 
         f = datainfo.open_experiment_data(mode='r+')
         for batch in batches:

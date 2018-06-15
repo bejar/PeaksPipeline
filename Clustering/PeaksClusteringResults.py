@@ -55,10 +55,10 @@ if __name__ == '__main__':
     lexperiments = args.exp
 
     if not args.batch:
-        # 'e150514''e120503''e110616''e150707''e151126''e120511''e150514''e110906o''e160802'
+        # 'e150514''e120503''e110616''e150707''e151126''e120511''e150514''e110906o''e160802''e150514'
         args.hellinger = False
         args.globalclust = False
-        lexperiments = ['e150514']
+        lexperiments = ['e130221']
         args.extra = False
 
     if args.globalclust:

@@ -58,9 +58,9 @@ if __name__ == '__main__':
     batches = args.join
     plt.style.use('seaborn-darkgrid')
     if not args.batch:
-        # 'e150514''e120503''e110616''e150707''e151126''e120511''e150514''e150514alt', 'e150514''e130221c''e160802'
+        # 'e150514''e120503''e110616''e150707''e151126''e120511''e150514''e150514alt', 'e150514''e130221c''e160802''e150514''e130221'
         args.hellinger = False
-        lexperiments = ['e150514']
+        lexperiments = ['e120511']
         batches = 1
 
     for expname in lexperiments:

@@ -69,8 +69,8 @@ if __name__ == '__main__':
     lexperiments = args.exp
 
     if not args.batch:
-        # 'e150514''e120503''e110616''e150707''e151126''e120511''e110906o'
-        lexperiments = ['e161201']
+        # 'e150514''e120503''e110616''e150707''e151126''e120511''e110906o''e161201'
+        lexperiments = ['e120511']
         args.globalclust = False
 
     peakdata = {}

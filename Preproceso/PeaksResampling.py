@@ -91,8 +91,8 @@ if __name__ == '__main__':
     njobs = multiprocessing.cpu_count()
 
     if not args.batch:
-        # 'e150514''e120503''e110616''e150707''e151126''e120511'e160317
-        lexperiments = ['e160802']
+        # 'e150514''e120503''e110616''e150707''e151126''e120511'e160317'e160802'
+        lexperiments = ['e120511']
         args.detrend = False
         args.extra = False
 
@@ -112,7 +112,7 @@ if __name__ == '__main__':
         batches = batchify([i for i in product(datainfo.datafiles, lsensors)], njobs)
 
         for batch in batches:
-            # Paralelize PCA computation
+            # Paralelize resampling computation
             res =  Parallel(n_jobs=-1)(delayed(do_the_job)(dfile, sensor, wtsel, resampfactor, rawfilter=filtered, dtrnd=args.detrend) for dfile, sensor in batch)
             #print 'Parallelism ended'
 

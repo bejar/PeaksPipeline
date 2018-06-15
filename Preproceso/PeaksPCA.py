@@ -184,8 +184,8 @@ if __name__ == '__main__':
 
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511'
-        lexperiments = ['e160802']
-        mbasal = 'globalmeanfirst' # 'meanfirst' # 'alternative'
+        lexperiments = ['e120511']
+        mbasal = 'meanfirst' # 'globalmeanfirst' # 'alternative'
         args.altsmooth = False
         args.wavy = False
         args.extra = False

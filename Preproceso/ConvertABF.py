@@ -49,12 +49,13 @@ def convert_from_ABF_to_HDF5(experiment):
         print('Reading: ', dataf, '...')
         data = AxonIO(experiment.dpath + experiment.name + '/' + dataf + '.abf')
 
-        bl = data.read_block(lazy=False, cascade=True)
+        bl = data.read_block(lazy=False)
         dim = bl.segments[0].analogsignals[0].shape[0]
         matrix = np.zeros((len(nsig), dim))
 
         for i, j in enumerate(nsig):
-            matrix[i][:] = bl.segments[0].analogsignals[j][:].magnitude
+            tmpmat = bl.segments[0].analogsignals[j][:].magnitude
+            matrix[i][:] = tmpmat.reshape(tmpmat.shape[0])
 
         # Los guardamos en el almacenamiento del experimento
         print('Saving: ', dataf, '...')
@@ -80,7 +81,7 @@ if __name__ == '__main__':
 
     if not args.batch:
         # 'e150514''e120503''e110616''e150707''e151126''e120511''e140225''e130221' 'e130221'
-        lexperiments = ['e160802']
+        lexperiments = ['e120511']
 
     for expname in lexperiments:
 
