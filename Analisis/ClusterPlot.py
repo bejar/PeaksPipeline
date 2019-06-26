@@ -54,13 +54,16 @@ if __name__ == '__main__':
     parser.add_argument('--globalclust', help="Use a global computed clustering", action='store_true', default=False)
     args = parser.parse_args()
 
+ #   sname = ['L4cR', 'L4cL', 'L5rR', 'L5rL', 'L5cR', 'L5cL', 'L6rR', 'L6rL', 'L6cR', 'L6cL', 'L7rR', 'L7rL']
+    sname = ['L4cL', 'L4cR', 'L5rL', 'L5rR', 'L5cL', 'L5cR', 'L6rL', 'L6rR', 'L6cL', 'L6cR', 'L7rL', 'L7rR']
     lexperiments = args.exp
     batches = args.join
     plt.style.use('seaborn-darkgrid')
+    plt.rcParams["patch.force_edgecolor"] = True
     if not args.batch:
-        # 'e150514''e120503''e110616''e150707''e151126''e120511''e150514''e150514alt', 'e150514''e130221c''e160802''e150514''e130221'
+        # 'e150514''e120503''e110616''e150707''e151126''e120511''e150514''e150514alt', 'e150514''e130221c''e160802''e150514''e130221''e120511'
         args.hellinger = False
-        lexperiments = ['e120511']
+        lexperiments = ['e150514']
         batches = 1
 
     for expname in lexperiments:
@@ -69,7 +72,7 @@ if __name__ == '__main__':
 
         f = datainfo.open_experiment_data(mode='r')
 
-        for sensor, nclusters in zip(datainfo.sensors, datainfo.clusters):
+        for sensor,sensorname, nclusters in zip(datainfo.sensors,sname, datainfo.clusters):
             print(sensor, nclusters)
 
             if args.globalclust:
@@ -101,9 +104,10 @@ if __name__ == '__main__':
 
 
 
-            matplotlib.rcParams.update({'font.size': 15})
+            matplotlib.rcParams.update({'font.size': 20})
             fig = plt.figure()
-            fig.set_figwidth(24)
+            fig.suptitle(sensorname,fontsize=50)
+            fig.set_figwidth(20)
             fig.set_figheight(18)
             width = 1
             ncols = nclusters / 2
@@ -113,10 +117,10 @@ if __name__ == '__main__':
 
                 ax = fig.add_subplot(ncols, 4, (i*2)+2)
 
-                ax.axis([0, mhisto.shape[0], 0, 0.501])
+                ax.axis([0, mhisto.shape[0], 0, 0.401])
                 rects = ax.bar(range(mhisto.shape[0]), mhisto[: , i], width, color=colors, linewidth=1)
                 ax.xaxis.set_major_locator(ticker.MultipleLocator(15))
-                ax.yaxis.set_major_locator(ticker.MultipleLocator(0.25))
+                ax.yaxis.set_major_locator(ticker.MultipleLocator(0.2))
 
             minaxis = np.min(centroids - variance)
             maxaxis = np.max(centroids + variance)
@@ -126,7 +130,9 @@ if __name__ == '__main__':
                 ax2 = fig.add_subplot(ncols, 4, (nc*2)+1)
                 signal = centroids[nc]
                 signalv = variance[nc]
-                plt.text(10,maxaxis*.8, LETTERS[nc], fontsize=20)
+                #plt.text(10,maxaxis*.8, LETTERS[nc], fontsize=20)
+                plt.text(10,maxaxis*.7, str(nc+1), fontsize=30)
+
                 lenplot = datainfo.peaks_resampling['wtsel']
                 t = np.arange(0.0, len(signal), 1)/len(signal) * 100
                 ax2.axis([0, lenplot, minaxis, maxaxis])
@@ -138,5 +144,5 @@ if __name__ == '__main__':
                 plt.axhline(linewidth=1, color='r', y=0)
 
             fig.savefig(datainfo.dpath + '/' + datainfo.name + '/Results/' + datainfo.name + '-' + sensor + '-' +
-                        str(nclusters) + '-histo-fig.pdf', orientation='landscape', format='pdf')
+                        str(nclusters) + '-histo-fig.svg', orientation='landscape', format='svg')
             #plt.show()
