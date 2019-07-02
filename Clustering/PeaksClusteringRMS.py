@@ -95,10 +95,11 @@ if __name__ == '__main__':
 
 
         lsensors = datainfo.sensors
+        lsensorspub = datainfo.sensorspub
         lclusters = datainfo.clusters
 
 
-        for sensor, nclusters in zip(lsensors, lclusters):
+        for sensor, sensorpub, nclusters in zip(lsensors, lsensorspub, lclusters):
             print(sensor)
 
 
@@ -124,21 +125,29 @@ if __name__ == '__main__':
             # print(df)
 
             fig = plt.figure()
-            tlabels = ['ctrl1']
+            tlabels = datainfo.expnamespub
 
-            for i in range(len(datainfo.expnames[1:])):
-                nexp1 = datainfo.expnames[i+1]
-                nexp2 = datainfo.expnames[i]
-                if nexp1[:2] ==  nexp2[:2]:
-                    tlabels.append('')
-                else:
-                    tlabels.append(datainfo.expnames[i+1])
+            # for i in range(len(datainfo.expnames[1:])):
+            #     nexp1 = datainfo.expnames[i+1]
+            #     nexp2 = datainfo.expnames[i]
+            #     if nexp1[:2] ==  nexp2[:2]:
+            #         tlabels.append('')
+            #     else:
+            #         tlabels.append(datainfo.expnames[i+1])
 
 
-            sn.heatmap(df,cmap='viridis',
+            hm = sn.heatmap(df,cmap='viridis',
                 xticklabels=tlabels,
                 yticklabels=tlabels, cbar_kws={'ticks':[0,1,3]}
                        )
+
+            fig.suptitle(sensorpub,fontsize=20)
+            plt.yticks(rotation=0)
+            plt.xticks(rotation=90)
+            # hm.set_xticklabels(tlabels, rotation=90)
+            # hm.set_yticklabels(tlabels, rotation=00)
             # plt.show()
             fig.savefig(datainfo.dpath + '/' + datainfo.name + '/Results/' + datainfo.name + '-' + sensor + '-' +
                         str(nclusters) +  '-RMS.pdf', orientation='landscape', format='pdf')
+            fig.savefig(datainfo.dpath + '/' + datainfo.name + '/Results/' + datainfo.name + '-' + sensor + '-' +
+                        str(nclusters) +  '-RMS.svg', orientation='landscape', format='svg')

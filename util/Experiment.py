@@ -72,10 +72,12 @@ class Experiment:
     peaks_filter = None
     # names for the experiment phases
     expnames = None
+    expnamespub = None
 
     def __init__(self, dpath='', name='', sampling=0, datafiles=None, sensors=None, abfsensors=None, clusters=None,
                  colors='', peaks_id_params={}, peaks_resampling={}, peaks_smooth={}, peaks_alt_smooth={},
-                 peaks_filter={}, expnames=None, extrasensors=None, extrasensorspos=None, extraclusters=None):
+                 peaks_filter={}, expnames=None, expnamespub=None, extrasensors=None, extrasensorspos=None,
+                 extraclusters=None, sensorspub=None):
         """
         Class initialized from program
 
@@ -108,10 +110,13 @@ class Experiment:
             self.expnames = datafiles
         else:
             self.expnames = expnames
+        self.expnamespub = expnamespub
+
         if extrasensors is None:
             self.extrasensors = []
         else:
             self.extrasensors = extrasensors
+        self.sensorspub = sensorspub
         if extrasensorspos is None:
             self.extrasensorspos = []
         else:

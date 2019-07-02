@@ -226,8 +226,17 @@ experiments = \
                         'lido6', 'lido7', 'lido8', 'lido9', 'lido10', 'lido11',
                         'esp1', 'esp2', 'lido21',
                         'lido22', 'lido23', 'lido24', 'lido25', 'lido26',
-                        'lido27', 'lido28', 'lido29']
-        
+                        'lido27', 'lido28', 'lido29'],
+                expnamespub=['Cont', '', '',
+                        'Caps', '', '', '', '', '',
+                        '', '', '',
+                        'Lido1', '', '', '', '',
+                        '', '', '', '', '', '',
+                        'Spin', '', 'Lido2',
+                        '', '', '', '', '',
+                        '', '', ''],
+                sensorspub=['L4cL', 'L4cR', 'L5rL', 'L5rR', 'L5cL', 'L5cR', 'L6rL', 'L6rR', 'L6cL', 'L6cR', 'L7rL', 'L7rR']
+
             ),
 
         'e150514alt':
@@ -422,7 +431,13 @@ experiments = \
                 peaks_filter={'lowpass': 1.0, 'highpass':200.0},
                 expnames=['crtl1', 'crtl2', 'crtl3', 'crtl4', 'esp1', 'esp2', 'esp3', 'esp4', 'capsa1', 'capsa2',
                           'capsa3','capsa4','capsa5','capsa6','capsa7','capsa8', 'lido1', 'lido2', 'lido3', 'lido4',
-                          'lido5', 'lido6','lido7','lido8','lido9','lido10','lido11']
+                          'lido5', 'lido6','lido7','lido8','lido9','lido10','lido11'],
+                expnamespub=['Cont', '', '', '', 'Spin', '', '', '', 'Caps', '',
+                          '','','','','','', 'Lido', '', '', '',
+                          '', '','','','','',''],
+                sensorspub=['L4cR', 'L4cL', 'L5rR', 'L5rL', 'L5cR', 'L5cL', 'L6rR', 'L6rL', 'L6cR', 'L6cL', 'L7rL']
+
+
             ),
         'e130221c':
             Experiment(
